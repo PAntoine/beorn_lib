@@ -1,6 +1,13 @@
 *.swp
 *.swo
+*.swn
 *.o
 *.a
+*.pyc
+*.log
 tags
 csscope.out
+*.egg-info
+build
+.beorn_env
+beorn_root

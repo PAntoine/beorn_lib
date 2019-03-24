@@ -1,0 +1,10 @@
+/,default,1365842788,62,0,created,
+TimeKeeper,testing,1365927007,0,0,created,
+development,port_sequence_duagram#41,1365844012,135,0,created,
+development,working_0.0.1,1365843928,151,0,created,
+structal,port_sequence_duagram#41,1365783353,11565,11523,created,# drag drop #- Need to add a function for drag start.- Also need to differentiate between the head of the timeline and the line itself.	This should be quite simple as the top is under the head box
+timekeeper,add_dir_format,1373024752,7,0,created,
+timekeeper,master,1373699239,1527,1312,created,
+timekeeper,minor_fixes,1375028128,68,0,created,
+timekeeper,testing,1365785827,15,0,created,
+todo,sequence diagrams,1365787404,0,0,created,sequence\_diagram.js:289: Need to check if it is a timeline or a message. user_interface.js:307:need to put in the call to a diagram.dragFunction(x

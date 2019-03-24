@@ -1,0 +1,27 @@
+[project]
+name = test create project
+starttime = 1375428949
+daysperweek = 5
+minutesperday = 450
+firstdayofweek = 0
+[tasks]
+task1 = task,172800,waiting,starting here,This the first task,0
+task2 = task,86400,waiting,starting here,This the first task,1
+task3 = task,86400,waiting,starting here,This the first task,2
+task4 = task,43200,waiting,starting here,This the first task,3
+task5 = task,86400,waiting,starting here,This the first task,4
+task6 = task,86400,waiting,starting here,This the first task,5
+task7 = task,86400,waiting,starting here,This the first task,6
+task8 = task,172800,waiting,starting here,This the first task,7
+task9 = task,86400,waiting,starting here,This the first task,8
+task10 = task,86400,waiting,starting here,This the first task,9
+task11 = task,135000,waiting,starting here,This the first task,10
+task12 = task,13500,waiting,starting here,This the first task,11
+task13 = task,86400,waiting,starting here,This the first task,12
+task14 = task,43200,waiting,starting here,This the first task,13
+task15 = task,86400,waiting,starting here,This the first task,14
+task16 = task,108000,waiting,starting here,This the first task,15
+task17 = task,172800,waiting,starting here,This the first task,16
+task18 = task,86400,waiting,starting here,This the first task,17
+task19 = task,86400,waiting,starting here,This the first task,18
+task20 = task,86400,waiting,starting here,This the first task,19

@@ -1,0 +1,5 @@
+>timekeeper,TODO,,0,,created,FILENAME:plugin/TimeKeeper.vim@2251,
+timekeeper,TODO,1453893463,0,0,created,,
+>timekeeper,TODO,,0,,created,      This means that the items that have no been found in the      file can be marked as completed. If the todo has been removed      then assume it is done. If it needs to be marked as abandoned      then that will be the responsibility of the user.,need to mark all items as un-touched for the given file,/home/pantoine/development/timekeeper/plugin/TimeKeeper.vim@2708
+>timekeeper,TODO,,0,,created,,Replace this and the below write with a new function.,/home/pantoine/development/timekeeper/plugin/TimeKeeper.vim@2283
+timekeeper,version_4.0.0,1450187824,68466,66314,created,,
