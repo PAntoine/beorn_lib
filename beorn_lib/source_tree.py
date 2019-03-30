@@ -50,6 +50,7 @@ class SourceTree(NestedTreeNode):
 		self.is_dir = False
 		self.on_filesystem = False
 		self.flag = None
+		self.submodule = False
 
 		# state of the item.
 		self.item_state = {}
@@ -160,7 +161,7 @@ class SourceTree(NestedTreeNode):
 	def getFlag(self):
 		return self.flag
 
-	def setSCM(self, scm):
+	def setSCM(self, scm, submodule=False):
 		""" Set SCM
 
 			If this item in the tree points to an SCM then this
@@ -168,10 +169,15 @@ class SourceTree(NestedTreeNode):
 			scm. The reference is application specific.
 		"""
 		self.scm = scm
+		self.submodule = submodule
 
 	def isSCM(self):
 		""" IsSCM is this item an scm reference """
 		return self.scm is not None
+
+	def isSubmodule(self):
+		""" If the submodule flag is set """
+		return self.scm is not None and self.submodule
 
 	def getSCM(self):
 		""" return the scm that has (or has not) been set on the item """

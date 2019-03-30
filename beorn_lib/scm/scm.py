@@ -27,6 +27,7 @@ ChangeList	= namedtuple('ChangeList', ['commit_id', 'timestamp', 'author', 'desc
 ChangeItem	= namedtuple('ChangeItem', ['version', 'parent', 'change_type', 'original_file', 'new_file', 'change_list'])
 SCMItem		= namedtuple('SCMItem', ['type', 'name'])
 SCMStatus	= namedtuple('SCMStatus', ['status', 'path'])
+SCMFound	= namedtuple('SCMFound', ['type', 'primary', 'sub'])
 SupportedSCM = namedtuple('SupportedSCM', ['type', 'check_function', 'cls'])
 
 #---------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ def findRepositories(wanted=None):
 	for scm in supported_scms:
 		if wanted is None or scm.type in wanted:
 			(main, sub) = scm.cls.findAllReposInTree('.')
-			result.append((scm.type, (main, sub)))	
+			result.append(SCMFound(scm.type, main, sub))
 
 	return result
 

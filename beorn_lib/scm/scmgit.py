@@ -885,7 +885,9 @@ class SCM_GIT(scmbase.SCM_BASE):
 						
 						(result, _) = self.__callGit(["commit", "--allow-empty", "-m", "initial commit"])
 					else:
-						print "no dir"
+						pass
+						# TODO: this should cause a log message.
+						# print "no dir"
 
 			elif directory_path != url:
 				# clone the repository
