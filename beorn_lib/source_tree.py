@@ -121,12 +121,12 @@ class SourceTree(NestedTreeNode):
 		for scm_type in self.item_state:
 			yield (scm_type, self.item_state[scm_type])
 
-	def getState(self, index=None):
+	def getState(self, scm_name=None):
 		result = None
 
-		if index is not None:
-			if index in self.item_state:
-				result = self.item_state[index]
+		if scm_name is not None:
+			if scm_name in self.item_state:
+				result = self.item_state[scm_name]
 		else:
 			result = self.item_state
 
@@ -327,11 +327,11 @@ class SourceTree(NestedTreeNode):
 		for part in path_bits:
 			new_path = os.path.join(new_path, path)
 			if found:
-				next = result.findChild(part)
-				if next is None:
+				next_item = result.findChild(part)
+				if next_item is None:
 					found = False
 				else:
-					result = next
+					result = next_item
 
 			if not found:
 				is_exist = os.path.exists(new_path)
@@ -339,12 +339,12 @@ class SourceTree(NestedTreeNode):
 
 				if is_exist:
 					is_link = os.path.islink(new_path)
-
-				result.is_exist = is_exist
-				result.is_link  = is_link
-				result.is_dir	 = True
+					is_dir	= os.path.isdir(new_path)
 
 				new_node = SourceTree(part)
+				new_node.on_filesystem	= True
+				new_node.is_link  		= is_link
+
 				result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
 				result = new_node
 
@@ -380,7 +380,8 @@ class SourceTree(NestedTreeNode):
 
 			Check to see if the item is still on the file system.
 		"""
-		self.on_filesystem = os.path.exists(self.getPath())
+		self.on_filesystem = os.path.exists(self.getPath(True))
+		return self.on_filesystem
 
 	def isSuffixFiltered(self, name):
 		result = False

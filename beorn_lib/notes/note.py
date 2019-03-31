@@ -87,19 +87,14 @@ class Note(NestedTreeNode):
 		else:
 			self.message = message
 
-		print "amend", self.message
-
 	def getMessage(self):
 		return self.message.split('\x03')
 
 	def append(self, message):
-		print message
 		if type(message) == list:
 			self.message += '\x03' + '\x03'.join(message)
 		else:
 			self.message += '\x03' + message
-
-		print self.message
 
 	def export(self):
 		""" Export
