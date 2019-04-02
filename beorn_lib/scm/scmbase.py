@@ -20,7 +20,11 @@ class SCM_BASE(object):
 
 	def __init__(self, repo_url, working_dir = None):
 		self.url = repo_url
-		self.working_dir = working_dir
+		if working_dir is not None:
+			self.working_dir = os.path.realpath(working_dir)
+		else:
+			self.working_dir = None
+
 		self.version = ''
 
 	MERGE_WORKING	= 0
@@ -55,6 +59,9 @@ class SCM_BASE(object):
 	def getRoot(self):
 		return self.url
 
+	def getWorkingDir(self):
+		return self.working_dir
+
 	def getName(self):
 		if self.url is not None:
 			return os.path.splitext(os.path.basename(self.url))[0]
@@ -72,6 +79,9 @@ class SCM_BASE(object):
 			If it cannot generate the correct reference then it will return None.
 		"""
 		return None
+
+        def pathInSCM(self, path):
+            return path.startswith(self.working_dir)
 
 	def setPath(self,path):
 		""" set the new path of the repository object. """

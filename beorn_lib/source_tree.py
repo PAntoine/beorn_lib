@@ -45,7 +45,12 @@ class SourceTree(NestedTreeNode):
 
 	def __init__(self, name, root=None):
 		self.name = name
-		self.root = root
+
+		if root is not None:
+			self.root = os.path.realpath(root)
+		else:
+			self.root = None
+
 		self.scm  = None
 		self.is_dir = False
 		self.on_filesystem = False
@@ -182,6 +187,19 @@ class SourceTree(NestedTreeNode):
 	def getSCM(self):
 		""" return the scm that has (or has not) been set on the item """
 		return self.scm
+
+	def findSCM(self):
+		if self.scm is not None:
+			return self.scm
+		else:
+			parent = self.getParent()
+
+			while parent is not None:
+				if parent.getSCM() is not None:
+					return parent.getSCM()
+				else:
+					parent = parent.getParent()
+			return None
 
 	def getChilden(self):
 		""" TODO """
@@ -356,19 +374,21 @@ class SourceTree(NestedTreeNode):
 		This function will find a node in the tree from a path. If the
 		node exists then it will return the Node, else None.
 		"""
+		if self.root == path:
+			result = self
+		else:
+			if self.root and path.startswith(self.root):
+				path = os.path.relpath(path, self.root)
 
-		if self.root and path.startswith(self.root):
-			path = os.path.relpath(path, self.root)
+			path_bits = self.splitPath(path)
 
-		path_bits = self.splitPath(path)
+			result = self
 
-		result = self
+			for part in path_bits:
+				result = result.findChild(part)
 
-		for part in path_bits:
-			result = result.findChild(part)
-
-			if result is None:
-				break
+				if result is None:
+					break
 
 		return result
 

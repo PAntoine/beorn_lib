@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 1.0.2 ##
+## version 1.0.3 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -18,9 +18,9 @@ It has been written python.
 This is the first release and a bit alpha. It hasd been pulled from a larger framework that was
 getting out of hand and the scope of which had simply got too big.
 
-## Changes for version 1.0.2 ##
-	- Bug: 			Fix scm name look up and on new file detecting.
-	- Enhancement: 	Removed debug.
+## Changes ##
+	- Bug: 			Fix git command handing.
+	- Enhancement:	SCM and path handling fixes.
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2019 Peter Antoine

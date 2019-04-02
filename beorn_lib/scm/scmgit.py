@@ -81,21 +81,30 @@ class SCM_GIT(scmbase.SCM_BASE):
 			  (status,result) = self.__callGit([... git sub-command ...])
 		"""
 		try:
-			if (not git_dir) or (self.url is None):
-				CREATE_NO_WINDOW=0x08000000
+			if (not git_dir) or (self.working_dir is None):
 				if sys.platform == 'win32':
+					CREATE_NO_WINDOW=0x08000000
 					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW)
 				else:
 					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f)
 
 				result = True
 			else:
-				git_dir = "--git-dir=" + os.path.join(self.url , '.git')
+				command_list = SCM_GIT.__git_root_command[:]
 
-				if self.working_dir is None:
-					output = subprocess.check_output(SCM_GIT.__git_root_command + [git_dir] + command, stderr=SCM_GIT.__nul_f)
+				if self.url is not None:
+					command_list.append("--git-dir=" + os.path.join(self.url , '.git'))
+
+				if self.working_dir is not None:
+					command_list += ["-C", self.working_dir]
+
+				command_list += command
+
+				if sys.platform == 'win32':
+					CREATE_NO_WINDOW=0x08000000
+					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW)
 				else:
-					output = subprocess.check_output(SCM_GIT.__git_root_command + [git_dir, "-C", self.working_dir] + command, stderr=SCM_GIT.__nul_f)
+					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f)
 				result = True
 
 		except subprocess.CalledProcessError,e:
