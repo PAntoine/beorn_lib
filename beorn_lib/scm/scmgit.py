@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #---------------------------------------------------------------------------------
 #	 file: scm-git
-#	 desc: 
+#	 desc:
 """
 	This class implements the git functions that are required for the GIT scm.
 """
@@ -66,7 +66,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 	# unlovable hack to redirect stderr to the bin
 	__nul_f = open(os.devnull,'w')
-	
+
 	def __init__(self, repo_url, working_dir = None):
 		self.version = 'HEAD'
 		super(SCM_GIT, self).__init__(repo_url, working_dir)
@@ -139,7 +139,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 			if '.git' in dirs:
 				git_repos.append(os.path.realpath(root))
-		
+
 		return (git_repos, sub_modules)
 
 	#---------------------------------------------------------------------------------
@@ -268,26 +268,30 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 	def getChangeList(self, specific_commit):
 		""" This function will return a change list for the specified change """
-		(_, output) = self.__callGit(["show", '-p', '--expand-tabs=0', specific_commit])
+		#(result, output) = self.__callGit(["show", '-p', '--expand-tabs=0', specific_commit])
+		(result, output) = self.__callGit(["show", '-p', specific_commit])
 
-		contents = output.splitlines()
+		print self.working_dir, specific_commit
 
-		author = contents[1][8:]
-		timestamp = int(time.mktime(time.strptime(contents[2][8:-6], "%a %b %d %H:%M:%S %Y")))
+		if result:
+			contents = output.splitlines()
 
-		comment = []
-		for index,line in enumerate(contents[4:]):
-			if line[:4] == 'diff':
-				break
-			else:
-				# remove the leading 4 chars.
-				comment.append(line[4:])
+			author = contents[1][8:]
+			timestamp = int(time.mktime(time.strptime(contents[2][8:-6], "%a %b %d %H:%M:%S %Y")))
 
-		# removed the first line of the comments if it is empty (common format for git)
-		if comment[0] == '':
-			comment = comment[1:]
+			comment = []
+			for index,line in enumerate(contents[4:]):
+				if line[:4] == 'diff':
+					break
+				else:
+					# remove the leading 4 chars.
+					comment.append(line[4:])
 
-		return scm.ChangeList(contents[0][7:], timestamp, author, comment, scm.parseUnifiedDiff(specific_commit, None, contents))
+			# removed the first line of the comments if it is empty (common format for git)
+			if comment[0] == '':
+				comment = comment[1:]
+
+			return scm.ChangeList(contents[0][7:], timestamp, author, comment, scm.parseUnifiedDiff(specific_commit, None, contents))
 
 	def getPatch(self, specific_commit = None):
 		""" This function will return a List containing the requested file.
@@ -393,7 +397,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 				result.append(scm.SCMItem(item_type, os.path.basename(parts[3])))
 
 		return result
-	
+
 	def getTreeListing(self):
 		""" This function will return the directory listing for the given commit.
 		"""
@@ -461,7 +465,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 				else:
 					result = ''
 
-		return result
+		return string.strip(result)
 
 	def getHistory(self, filename=None, version=None, max_entries=None):
 		""" Get the history of the commit or the filename.
@@ -682,7 +686,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 				parts = commit_pair.split(' ', 3)
 				commit = parts[0]
 				parent = parts[1]
-		
+
 				(status, output) = self.__callGit(['show', '--unified=0', commit])
 
 				lines = output.splitlines()
@@ -881,7 +885,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 					if os.path.isdir(os.path.realpath(url)):
 						# directory is in a sound place,  create the repo
 						(result, _) = self.__callGit(["init", os.path.realpath(url)], False)
-						
+
 						if result:
 							(result, email) = self.__callGit(["config", "--get", "user.email"])
 
@@ -891,7 +895,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 								mock_email = getpass.getuser() + "@gitscm.beorn"
 								self.__callGit(["config", "user.email", mock_email])
 								(result, email) = self.__callGit(["config", "--get", "user.email"])
-						
+
 						(result, _) = self.__callGit(["commit", "--allow-empty", "-m", "initial commit"])
 					else:
 						pass
@@ -970,7 +974,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		if message is None:
 			message = 'No Message'
-	
+
 		elif type(message) == list:
 			message = '\n'.join(message)
 
@@ -1128,4 +1132,4 @@ class SCM_GIT(scmbase.SCM_BASE):
 			(_, _) = self.__callGit(['clean','-fdx'])
 
 # Register this type with SCM.
-scm.supported_scms.append(scm.SupportedSCM('git', checkForType, SCM_GIT))
+scm.supported_scms.append(scm.SupportedSCM('Git', checkForType, SCM_GIT))

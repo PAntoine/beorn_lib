@@ -360,7 +360,7 @@ class SourceTree(NestedTreeNode):
 					is_dir	= os.path.isdir(new_path)
 
 				new_node = SourceTree(part)
-				new_node.on_filesystem	= True
+				new_node.on_filesystem	= is_exist
 				new_node.is_link  		= is_link
 
 				result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
