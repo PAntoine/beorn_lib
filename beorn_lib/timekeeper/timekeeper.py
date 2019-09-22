@@ -91,8 +91,7 @@ class TimeKeeper(NestedTreeNode):
 
 		if not os.path.exists(filename):
 			# if it does not exist, then empty is loaded and it is not
-			# problem to save to the file, only don't want to write if the
-			# the load failed.
+			# problem to save to the file.
 			result = True
 		else:
 			try:

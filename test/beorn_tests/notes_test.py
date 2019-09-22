@@ -31,11 +31,12 @@ from beorn_lib.notes import Notes
 
 class TestNotes(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
+		self.temp_data = temp_data
 
 		# do the ground work for the test
-		self.notes_dir = os.path.join(self.test_data,'notes')
+		self.notes_dir = os.path.join(self.temp_data, 'notes')
 		self.local_note_file = getpass.getuser() + '@' + platform.node()
 
 		# initialise the test framework
@@ -132,8 +133,8 @@ class TestNotes(unittest.TestCase):
 		"""
 		# test the load
 		test_notes	 = Notes('NOTES', self.notes_dir)
-		current_user = os.path.join(self.test_data, 'notes', test_notes.current_user + '@')
-		not_my_user  = os.path.join(self.test_data, 'notes', 'not_my_user@')
+		current_user = os.path.join(self.temp_data, 'notes', test_notes.current_user + '@')
+		not_my_user  = os.path.join(self.temp_data, 'notes', 'not_my_user@')
 
 		# single file load test
 		shutil.copy(self.test_data + '/current_notes', not_my_user + test_notes.current_machine)
@@ -164,7 +165,7 @@ class TestNotes(unittest.TestCase):
 
 		# multiple user load test
 		test_notes = Notes('NOTES', self.notes_dir)
-		current_user   = os.path.join(self.test_data, 'notes', test_notes.current_user + '@')
+		current_user = os.path.join(self.temp_data, 'notes', test_notes.current_user + '@')
 
 		shutil.copy(self.test_data + '/current_notes', current_user + test_notes.current_machine)
 
@@ -212,8 +213,8 @@ class TestNotes(unittest.TestCase):
 		"""
 		# test the load
 		test_notes	 = Notes('NOTES', self.notes_dir)
-		current_user = os.path.join(self.test_data, 'notes', test_notes.current_user + '@')
-		not_my_user  = os.path.join(self.test_data, 'notes', 'not_my_user@')
+		current_user = os.path.join(self.temp_data, 'notes', test_notes.current_user + '@')
+		not_my_user  = os.path.join(self.temp_data, 'notes', 'not_my_user@')
 
 		# single file load test
 		shutil.copy(self.test_data + '/current_notes', not_my_user + test_notes.current_machine)

@@ -18,7 +18,7 @@
 #---------------------------------------------------------------------------------
 import os
 import unittest
-from .repo_builder import buildRepo
+from test.utils.repo_builder import buildRepo
 
 #---------------------------------------------------------------------------------
 # Test Sequences.

@@ -44,6 +44,7 @@ class TextFieldElement(FieldElement):
 		 ----------- ---------- -------------------------------------------------
 		 input_type  <string>   For special input fields this specifies the type.
 		                        Allowed types:
+								'text'    The default basic text field.
 								'numeric' The field is numeric.
 								'secret'  The field is secret and the contents
 								          are not shown.

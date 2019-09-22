@@ -46,7 +46,7 @@ def buildDialog(dialog_type):
 		Element('ButtonList',{'name':'test_8', 'title':'Button List (multiple)', 'x':5, 'y':36, 'items':button_list, 'type':'multiple'}),
 		Element('TextBox',  {'name':'test_9', 'title':'Text Box', 'x':3, 'y':46, 'width':64, 'default': 'one', 'height': 10, 'word-wrap':True, 'list':True}),
 	]
-		
+
 	return beorn_lib.Dialog(dialog_type, test_layout)
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

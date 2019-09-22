@@ -33,9 +33,9 @@ from beorn_lib.timekeeper import TimeKeeper
 
 class TestTimeKeeper(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
-		self.timekeeper_dir = os.path.join(test_data, 'timekeeper')
+		self.timekeeper_dir = os.path.join(temp_data, 'timekeeper')
 
 		# initialise the test framework
 		super(TestTimeKeeper, self).__init__(testname)
@@ -83,6 +83,7 @@ class TestTimeKeeper(unittest.TestCase):
 		"""
 		# start the creation tests
 		test_timekeeper = TimeKeeper(self.timekeeper_dir)
+		self.assertIsNotNone(test_timekeeper)
 
 	def test_timekeeperImport(self):
 		""" Import some timekeeper files (generated from the old system).
@@ -93,9 +94,21 @@ class TestTimeKeeper(unittest.TestCase):
 			# start the creation tests
 			filename = os.path.join(self.test_data, name)
 			test_timekeeper = TimeKeeper(filename=filename)
-			test_timekeeper.load()
+			self.assertTrue(test_timekeeper.load(), "Load file failed: " + filename)
 
 			content = test_timekeeper.walkTree(self.readerFunction)
 			self.assertNotEqual(0, len(content))
+
+	def test_timekeeperSave(self):
+		""" Import some timekeeper files then save them and then check that they match.  """
+		for name in ['devhome_pantoine.tmk', 'homedesk_pantoine.tmk', 'pantoine-904HD_pantoine.tmk']:
+			# start the creation tests
+			filename = os.path.join(self.test_data, name)
+			test_timekeeper = TimeKeeper(filename=filename)
+			self.assertTrue(test_timekeeper.load(), "Load file failed: " + filename)
+
+			content = test_timekeeper.walkTree(self.readerFunction)
+			self.assertNotEqual(0, len(content))
+
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

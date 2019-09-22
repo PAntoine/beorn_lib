@@ -73,6 +73,9 @@ class TextBoxElement(BoxElement):
 
 		if len(self.input_text) > 0:
 			self.text_pos = len(self.input_text) - 1
+		else:
+			self.text_pos = 0
+
 
 	def bottomRight(self):
 		""" Bottom Right

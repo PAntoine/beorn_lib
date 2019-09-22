@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #    file: text_button_element
 #    desc: Text Button Element
 #
@@ -60,7 +60,7 @@ class TextButtonElement(ButtonElement):
 		"""
 		exit_dialog = False
 
-		if keypress == TextDialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN:
+		if keypress == TextDialog.DIALOG_SPECIAL_KEYS_RETURN:
 			self.selected = True
 			exit_dialog = True
 

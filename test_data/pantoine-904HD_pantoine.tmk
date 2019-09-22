@@ -1,2 +1,0 @@
-TODO,touchListener issues,1365771449,0,0,created,# Touch Listener #Needs to call a "handle move" function on the component so that more intelligent moves can be handled.
-structal,port_sequence_duagram#41,1365763325,3240,0,created,

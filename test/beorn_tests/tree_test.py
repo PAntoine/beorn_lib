@@ -37,8 +37,9 @@ class TestClass(object):
 
 class TestTree(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
+		self.temp_data = temp_data
 
 		# initialise the test framework
 		super(TestTree, self).__init__(testname)

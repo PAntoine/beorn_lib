@@ -338,33 +338,40 @@ class SourceTree(NestedTreeNode):
 		"""
 		path_bits = self.splitPath(path)
 
-		result = self
+		result = None
 		found = True
 		new_path = ''
 
-		for part in path_bits:
-			new_path = os.path.join(new_path, path)
-			if found:
-				next_item = result.findChild(part)
-				if next_item is None:
-					found = False
-				else:
-					result = next_item
+		if not self.isSuffixFiltered(path):
+			result = self
+			for part in path_bits:
 
-			if not found:
-				is_exist = os.path.exists(new_path)
-				is_link = False
+				new_path = os.path.join(new_path, path)
+				if found:
+					next_item = result.findChild(part)
+					if next_item is None:
+						found = False
+					else:
+						result = next_item
 
-				if is_exist:
-					is_link = os.path.islink(new_path)
-					is_dir	= os.path.isdir(new_path)
+				if not found:
+					if self.isDirectoryFiltered(part):
+						result = None
+						break
+					else:
+						is_exist = os.path.exists(new_path)
+						is_link = False
 
-				new_node = SourceTree(part)
-				new_node.on_filesystem	= is_exist
-				new_node.is_link  		= is_link
+						if is_exist:
+							is_link = os.path.islink(new_path)
+							is_dir	= os.path.isdir(new_path)
 
-				result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
-				result = new_node
+						new_node = SourceTree(part)
+						new_node.on_filesystem	= is_exist
+						new_node.is_link  		= is_link
+
+						result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
+						result = new_node
 
 		return result
 
@@ -407,13 +414,8 @@ class SourceTree(NestedTreeNode):
 		result = False
 
 		if self.suffix_filter != []:
-			pos = name.rfind(os.path.extsep)
-
-			if pos != -1:
-				suffix = name[pos+1:]
-				if suffix in self.suffix_filter:
-					# we don't want this file.
-					result = True
+			(path, suffix) = os.path.splitext(name)
+			result = suffix[1:] in self.suffix_filter
 
 		return result
 

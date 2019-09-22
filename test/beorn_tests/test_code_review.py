@@ -20,7 +20,7 @@ import os
 import shutil
 import unittest
 from beorn_lib.code_review import Change, Comment, LocalCodeReviews
-from .repo_builder import buildRepo, removeRepo
+from test.utils.repo_builder import buildRepo, removeRepo
 
 #---------------------------------------------------------------------------------
 # Test Sequences.
@@ -43,7 +43,7 @@ class TestCodeReview(unittest.TestCase):
 
 	def tearDown(self):
 		removeRepo(self)
-		
+
 		if os.path.isdir(self.test_directory):
 			shutil.rmtree(self.test_directory, ignore_errors=True)
 
@@ -75,11 +75,11 @@ class TestCodeReview(unittest.TestCase):
 
 		# Add the head of the current branch as a code review.
 		history = self.scm.getHistory(max_entries=2)
-		
+
 		# now add a code review
 		review = test.addReview(self.scm.getChangeList(history[0].version), True)
 		code_reviews = test.getChildren()
-		
+
 		# test that the code review has been properly built
 		self.assertEqual(1, len(test.getChildren()))
 		self.assertEqual(1, len(test.getChildren()[0].getChildren()))
@@ -101,7 +101,7 @@ class TestCodeReview(unittest.TestCase):
 		# add a new change
 		new_change = review.addChange(self.scm.getChangeList(history[1].version))
 		self.assertEqual(review.getCurrentChange(), new_change)
-		
+
 		# test that next change has been added as another change list
 		self.assertEqual(2, len(review.getChildren()))
 		self.assertEqual(2, len(test.getChildren()[0].getChildren()))

@@ -73,6 +73,12 @@ class Project(NestedTreeNode):
 	def hasJob(self, name):
 		return name in self and type(self[name]) == Job
 
+	def getJob(self, name):
+		if self.hasJob(name):
+			return self[name]
+		else:
+			return None
+
 	def addJob(self, name):
 		if name in self:
 			job = self[name]

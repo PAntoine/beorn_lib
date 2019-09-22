@@ -59,7 +59,6 @@ class TextButtonListElement(ButtonListElement):
 
 		This element returns a list of the items that has been selected. So the
 		result is a simple numeric list.
-
 	"""
 	def __init__(self, parameters):
 		""" Init """
@@ -131,27 +130,33 @@ class TextButtonListElement(ButtonListElement):
 			The tuple returned is: exit_dialog and refresh_screen.
 		"""
 		exit_dialog = False
+		refresh = False
 
 		if keypress == TextDialog.DIALOG_SPECIAL_KEYS_UP:
 			if self.current_line > 0:
 				self.current_line -= 1
+				refresh = True
 
 		elif keypress == TextDialog.DIALOG_SPECIAL_KEYS_DOWN:
 			if self.current_line < (len(self.lines) - 1):
 				self.current_line += 1
+				refresh = True
 
-		elif keypress == TextDialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN:
+		elif keypress == TextDialog.DIALOG_SPECIAL_KEYS_RETURN:
 			if self.type_single:
 				if not self.lines[self.current_line][0]:
 					self.lines[self.last_selected][0] = False
 					self.lines[self.current_line][0] = True
 
 					self.last_selected = self.current_line
+					refresh = True
 			else:
 				# toggle the current value
 				self.lines[self.current_line][0] ^= True
+				refresh = True
 
-		return (exit_dialog, False)
+		self.is_dirty = refresh
+		return (exit_dialog, refresh)
 
 	def getValue(self):
 		""" Get Value
@@ -161,8 +166,7 @@ class TextButtonListElement(ButtonListElement):
 		result = []
 
 		for index, line in enumerate(self.lines):
-			if line[0]:
-				result.append(index)
+			result.append(line[0])
 
 		return (self.name, result)
 

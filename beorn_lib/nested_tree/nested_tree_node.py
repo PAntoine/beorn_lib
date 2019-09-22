@@ -103,6 +103,19 @@ class NestedTreeNode (object):
 		""" Gets the parent node """
 		return self.parent_node
 
+	def isChildOf(self, node):
+		""" Returns true if the node is a child the given node """
+		result = False
+		current = self
+
+		while current is not None:
+			current = current.getParent()
+			if current == node:
+				result = True
+				break
+
+		return result
+
 	def getNumberChildren(self):
 		""" Get number of children.
 

@@ -1,29 +1,33 @@
 #!/bin/python
 #---------------------------------------------------------------------------------
-#         file: scmbase
+#		  file: scmbase
 #  description: This is the base class for the scm.
 #
-#       author: Peter Antoine
-#         date: 21/09/2013
+#		author: Peter Antoine
+#		  date: 21/09/2013
 #---------------------------------------------------------------------------------
-#                     Copyright (c) 2013 Peter Antoine
-#                           All rights Reserved.
-#                      Released Under the MIT Licence
+#					  Copyright (c) 2013 Peter Antoine
+#							All rights Reserved.
+#					   Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
 import os
+from collections import OrderedDict
+
 
 #---------------------------------------------------------------------------------
 # base class (and default) SCM class
 #---------------------------------------------------------------------------------
 class SCM_BASE(object):
 
-	def __init__(self, repo_url, working_dir = None):
-		self.url = repo_url
-		if working_dir is not None:
-			self.working_dir = os.path.realpath(working_dir)
+	def __init__(self, working_dir, repo_dir=None, server_url=None, user_name=None, password=None):
+		self.server_url = server_url
+		self.working_dir = os.path.realpath(working_dir)
+
+		if repo_dir is None:
+			self.repo_dir = self.working_dir
 		else:
-			self.working_dir = None
+			self.repo_dir = os.path.realpath(repo_dir)
 
 		self.version = ''
 
@@ -43,10 +47,33 @@ class SCM_BASE(object):
 		"""
 		return ([], [])
 
+	@classmethod
+	def getConfiguration(cls):
+		result = OrderedDict()
+		result['url'] = '.'
+		result['working_dir'] = None
+
+		return result
+
+	@classmethod
+	def getDialogLayout(cls):
+		return None
+
+	@classmethod
+	def startLocalServer(cls, local_source_path):
+		""" This function will start a local server for the SCMs that require srvers.
+			It will crate the server in the directory provided.
+		"""
+		return None
+
+	@classmethod
+	def stopLocalServer(cls):
+		""" This function will stop the local server """
+		return True
+
 	#---------------------------------------------------------------------------------
 	# Functions that query the state of the repository
 	#---------------------------------------------------------------------------------
-
 	def getSCMVersion(self):
 		return None
 
@@ -54,21 +81,28 @@ class SCM_BASE(object):
 		return 'NONE'
 
 	def getUrl(self):
-		return self.url
+		return self.server_url
 
 	def getRoot(self):
-		return self.url
-
-	def getWorkingDir(self):
 		return self.working_dir
 
 	def getName(self):
-		if self.url is not None:
-			return os.path.splitext(os.path.basename(self.url))[0]
+		if self.server_url is not None:
+			return os.path.splitext(os.path.basename(self.server_url))[0]
 		elif self.working_dir is not None:
 			return os.path.splitext(os.path.basename(self.working_dir))[0]
 		else:
 			return self.getType()
+
+	def generateFileName(self, name, branch=None):
+		""" Generate File Name
+
+			Different SCMs have different file structures that means that
+			files say on branches (see SVN and P4) may not be in the same
+			place. So this will work out where the files are based on the
+			branch if specified or the current branch.
+		"""
+		return os.path.join(self.working_dir, name)
 
 	def genrateRelativeReference(self, name, distance):
 		""" Generate Relative Reference
@@ -80,12 +114,8 @@ class SCM_BASE(object):
 		"""
 		return None
 
-        def pathInSCM(self, path):
-            return path.startswith(self.working_dir)
-
-	def setPath(self,path):
-		""" set the new path of the repository object. """
-		self.url = path
+		def pathInSCM(self, path):
+			return path.startswith(self.working_dir)
 
 	def hasVersion(self,version):
 		return False
@@ -169,10 +199,15 @@ class SCM_BASE(object):
 	# Functions that amend the state of the repository
 	#---------------------------------------------------------------------------------
 
-	def initialise(self, directory_path = None, bare = False):
+	def initialise(self, create_if_required=False, bare=False):
+		""" Initialise the repository.
+
+			If the repository does not exist it will be created if the create_if_required flag
+			is set.
+		"""
 		return False
 
-	def addBranch(self, branch_name, branch_point = None):
+	def addBranch(self, branch_name, branch_point = None, switch_to_branch=False):
 		return False
 
 	def resetChanges(self, amend_filesystem=False):
@@ -187,7 +222,7 @@ class SCM_BASE(object):
 	def removeItem(self, item, leave_on_filesystem=True):
 		return False
 
-	def switchBranch(self, branch_name):
+	def switchBranch(self, branch=None, name=None):
 		return False
 
 	def merge(self, merge_from, merge_to = None):
@@ -201,3 +236,5 @@ class SCM_BASE(object):
 
 	def cleanRepository(self, deep_clean=False):
 		pass
+
+# vim: ts=4 sw=4 noexpandtab nocin ai

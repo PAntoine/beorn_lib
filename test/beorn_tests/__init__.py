@@ -27,10 +27,7 @@ from project_plan_test import TestProjectPlan
 from text_dialog_test import TestTextDialog
 from html_dialog_test import TestHTMLDialog
 from tree_test import TestTree
-from test_amend import TestAmend
-from test_query import TestQuery
-from test_search import TestSearch
-from test_code_review import TestCodeReview
+#from test_code_review import TestCodeReview
 from nested_tree_test import TestNestedTree
 from config_test import TestConfig
 from test_timekeeper import TestTimeKeeper

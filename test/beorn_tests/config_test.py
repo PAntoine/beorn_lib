@@ -43,46 +43,37 @@ TEST_LIST = [	'[item]',
 				'name = vvvvvvv']
 
 DELETE_ITEM = [	'[item]',
-				'name = something',
 				'time = 5435435345',
 				'[list]',
 				'xxx = fdsfsdfsd',
 				'name = fdsfsdf',
 				'[list]',
 				'xxx = fdsfsdfsd',
-				'name = vvvvvvv',
+				'name = qqqqqqq',
 				'[list]',
-				'weee = balls',
+				'xxx = fdsfsdfsd',
+				'name = vvvvvvv',
 				'[new]',
 				'name = value',
-				'[new]',
-				'name = value_2']
+				'[new_1]',
+				'name%0 = value_1',
+				'name%1 = value_2']
 
 DELETE_ITEM_2 = ['[item]',
-				'name = something',
-				'time = 5435435345',
-				'[list]',
-				'weee = balls',
-				'[new]',
-				'name = value',
-				'[new]',
-				'name = value_2']
-
-DELETE_ITEM_3 = ['[item]',
-				'name = something',
 				'time = 5435435345',
 				'[new]',
 				'name = value',
-				'[new]',
-				'name = value_2']
+				'[new_1]',
+				'name%0 = value_1',
+				'name%1 = value_2']
 
 class TestConfig(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
-		self.test_data = test_data
+	def __init__(self, testname='runTest', test_data=None, temp_data=None):
+		self.temp_data = temp_data
 
 		# do the ground work for the test
-		self.config_dir = os.path.join(self.test_data,'config')
+		self.config_dir = os.path.join(self.temp_data,'config')
 
 		# initialise the test framework
 		super(TestConfig, self).__init__(testname)
@@ -128,10 +119,10 @@ class TestConfig(unittest.TestCase):
 		# not find a single item - Negative Testing
 		self.assertIsNone(load_config.find('itemx'))
 		self.assertIsNone(load_config.find('itemx', 'name'))
-		self.assertIsNone(load_config.find('itemx', 'name', 'xxx'))
-		self.assertIsNone(load_config.find('item', 'namex'))
-		self.assertIsNone(load_config.find('item', 'name', 'xxx'))
-		self.assertIsNone(load_config.find('item', 'namex', 'something'))
+		self.assertIsNone(load_config.find('itemx', ['name', 'xxx']))
+		self.assertIsNone(load_config.find('item', ['namex']))
+		self.assertIsNone(load_config.find('item', ['name', 'xxx']))
+		self.assertIsNone(load_config.find('item', ['namex', 'something']))
 
 		# find a single item
 		self.assertEqual({'name':'something', 'time':'5435435345'}, load_config.find('item'))
@@ -143,43 +134,22 @@ class TestConfig(unittest.TestCase):
 							{'name':'qqqqqqq', 'xxx':'fdsfsdfsd'},
 							{'name':'vvvvvvv', 'xxx':'fdsfsdfsd'}], load_config.find('list'))
 
-		self.assertEqual([{'name':'fdsfsdf', 'xxx':'fdsfsdfsd'},
-							{'name':'qqqqqqq', 'xxx':'fdsfsdfsd'},
-							{'name':'vvvvvvv', 'xxx':'fdsfsdfsd'}], load_config.find('list', 'name'))
-
-		self.assertEqual([{'name':'fdsfsdf', 'xxx':'fdsfsdfsd'},
-							{'name':'qqqqqqq', 'xxx':'fdsfsdfsd'},
-							{'name':'vvvvvvv', 'xxx':'fdsfsdfsd'}], load_config.find('list', 'xxx'))
-
 		# Find items with specific values
 		self.assertEqual('5435435345', load_config.find('item', 'time'))
-		self.assertEqual('5435435345', load_config.find('item', 'time', '5435435345'))
-
-		self.assertEqual([{'name':'qqqqqqq', 'xxx':'fdsfsdfsd'}], load_config.find('list', 'name', 'qqqqqqq'))
-		self.assertEqual([{'name':'fdsfsdf', 'xxx':'fdsfsdfsd'},
-							{'name':'qqqqqqq', 'xxx':'fdsfsdfsd'},
-							{'name':'vvvvvvv', 'xxx':'fdsfsdfsd'}], load_config.find('list', 'xxx', 'fdsfsdfsd'))
 
 		# Add new item to the configuration
-		new_config.add('new', 'name', 'value')
+		new_config.setValue('new', 'name', 'value')
 		self.assertEqual({'name':'value'}, new_config.find('new'))
 		self.assertEqual('value', new_config.find('new', 'name'))
 
 		# Add a new item that turns an item into a list item
-		new_config.add('new', 'name', 'value_2')
-		self.assertEqual([{'name':'value'}, {'name':'value_2'}] , new_config.find('new'))
-		self.assertEqual([{'name':'value'}, {'name':'value_2'}] , new_config.find('new', 'name'))
-		self.assertEqual([{'name':'value_2'}] , new_config.find('new', 'name', 'value_2'))
-
-		# Now add an item to an existing list
-		new_config.add('list', 'weee', 'balls')
+		new_config.setValue('new_1', 'name', ['value_1', 'value_2'])
+		self.assertEqual({'name':['value_1', 'value_2']} , new_config.find('new_1'))
 
 		# remove item from the config item
-		new_config.remove('list', 'name', 'qqqqqqq')
+		self.assertTrue(new_config.remove('item', 'name'))
 		self.assertEqual(DELETE_ITEM, new_config.export())
-		new_config.remove('list','name')
-		self.assertEqual(DELETE_ITEM_2, new_config.export())
 		new_config.remove('list')
-		self.assertEqual(DELETE_ITEM_3, new_config.export())
+		self.assertEqual(DELETE_ITEM_2, new_config.export())
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

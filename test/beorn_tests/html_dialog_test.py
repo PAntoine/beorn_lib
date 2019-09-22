@@ -23,12 +23,11 @@ import os
 import unittest
 import beorn_lib
 import beorn_lib.errors
-#from beorn_lib.dialog import HTMLDialog
-from build_dialog import buildDialog
+from test.utils.build_dialog import buildDialog
 
 class TestHTMLDialog(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname='runTest', test_data=None, temp_data=None):
 		self.test_data = test_data
 
 		# initialise the test framework

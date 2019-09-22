@@ -36,7 +36,7 @@ class SCMTree(NestedTreeNode):
 		self.state = state
 
 		super(SCMTree, self).__init__(name, payload)
-	
+
 	def __contains__(self, other):
 		""" Contains
 
@@ -174,15 +174,15 @@ class SCMTree(NestedTreeNode):
 
 	def getSCM(self):
 		""" """
-	
+
 		if self.isSCMRoot():
 			return self.scm
-		
+
 		current = self.parent_node
 		while current is not None:
 			if current.isSCMRoot():
 				return current.scm
-			
+
 			current = current.parent_node
 
 		return None
@@ -194,7 +194,7 @@ class SCMTree(NestedTreeNode):
 			as modified then all the parents need to be modified
 			as well.
 
-			The modified flag is reference counted 
+			The modified flag is reference counted
 		"""
 		self.state = SCMTree.SCM_STATE_UNCHANGED
 
@@ -208,7 +208,7 @@ class SCMTree(NestedTreeNode):
 		if self.state != SCMTree.SCM_STATE_UNCHANGED and recursive and self.hasChild():
 			for child in self.getChilden():
 				child.resetModifiedFlag(True)
-		
+
 		self.state = SCMTree.SCM_STATE_UNCHANGED
 
 	def update(self, path=None, recursive=True):
@@ -216,7 +216,7 @@ class SCMTree(NestedTreeNode):
 			SCM.
 		"""
 		scm = self.getSCM()
-		
+
 		# clear the modified flag from the tree.
 		self.resetModifiedFlag(recursive)
 
@@ -263,12 +263,12 @@ class SCMTree(NestedTreeNode):
 					finding = False
 				else:
 					result = next
-			
+
 			if not finding:
 				new_node = SCMTree(part)
 				result.addChildNode(new_node)
 				result = new_node
-	
+
 		return result
 
 	def findItemNode(self, path):
@@ -283,7 +283,7 @@ class SCMTree(NestedTreeNode):
 
 		for part in path_bits:
 			result = result.findChild(part)
-			
+
 			if result is None:
 				break
 

@@ -99,10 +99,6 @@ class SCM_HG(scmbase.SCM_BASE):
 		"""
 		return None
 
-	def setPath(self,path):
-		""" set the new path of the repository object. """
-		self.url = path
-
 	def hasVersion(self,version):
 		return False
 
@@ -135,7 +131,7 @@ class SCM_HG(scmbase.SCM_BASE):
 
 	def getTreeChanges(self, from_version = None, to_version = None, path = None):
 		return []
-	
+
 	def getDiffDetails(self, from_version = None, to_version = None, path = None):
 		return []
 

@@ -22,6 +22,7 @@
 #---------------------------------------------------------------------------------
 
 import os
+import beorn_lib.code_review
 from beorn_lib.code_review import CodeReviews, CodeReview, Change, Comment, ChangeFile, Hunk
 from beorn_lib.nested_tree import NestedTreeNode
 
@@ -68,6 +69,9 @@ class LocalCodeReviews(CodeReviews):
 					return True
 
 		return False
+
+	def getDirectory(self):
+		return self.directory
 
 	def getName(self):
 		return "Local Code Reviews"

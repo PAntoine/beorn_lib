@@ -62,7 +62,6 @@ def writefile(filename, contents):
 		outfile.close()
 
 	except IOError, e:
-		print e
 		result = False
 
 	return result

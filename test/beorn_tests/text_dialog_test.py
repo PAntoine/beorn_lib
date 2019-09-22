@@ -24,12 +24,13 @@ import unittest
 import beorn_lib
 import beorn_lib.errors
 #from beorn_lib.dialog import TextDialog
-from .build_dialog import buildDialog
+from test.utils.build_dialog import buildDialog
 
 class TestTextDialog(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
+		self.temp_data = temp_data
 
 		# initialise the test framework
 		super(TestTextDialog, self).__init__(testname)
@@ -200,38 +201,49 @@ class TestTextDialog(unittest.TestCase):
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 
 		# test the button list (single)
 		self.dialog.focusElement('test_8')
 
 		# clear the current item
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 
 		# go up, should stop at the top
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_UP)
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 
 		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_DOWN)
-		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
+
+		# test the results of the dialog
+		self.assertEqual({	'test_1': 'one',
+							'test_2': 'two',
+							'test_3': 0,
+							'test_4': '',
+							'test_5': False,
+							'test_6': 3,
+							'test_7': [False, False, False, True, False, False, False],
+							'test_8': [True, True, False, True, False, True, False],
+							'test_9': ['one']}, self.dialog.getResult())
 
 	def test_TextBoxWordWrap(self):
 		""" Word Wrap Test """
@@ -292,7 +304,7 @@ class TestTextDialog(unittest.TestCase):
 		self.assertEqual((False, False), self.dialog.handleKeyboardInput('c'))
 
 		# should call exit
-		(exit_dialog, refresh) = self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_CARRIAGE_RETURN)
+		(exit_dialog, refresh) = self.dialog.handleKeyboardInput(self.dialog.DIALOG_SPECIAL_KEYS_RETURN)
 		self.assertTrue(exit_dialog)
 
 		# should call exit (again)

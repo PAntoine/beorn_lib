@@ -21,6 +21,8 @@ import string
 import scmbase
 import getpass
 import subprocess
+from collections import OrderedDict
+
 
 def checkForType(repository):
 	""" Check For Type
@@ -53,6 +55,7 @@ def checkForType(repository):
 
 	return result
 
+
 class SCM_GIT(scmbase.SCM_BASE):
 	""" SCM_GIT class.
 
@@ -62,14 +65,14 @@ class SCM_GIT(scmbase.SCM_BASE):
 	"""
 
 	# private List which is the root of all git commands
-	__git_root_command = ["git","--no-pager" ]
+	__git_root_command = ["git", "--no-pager"]
 
 	# unlovable hack to redirect stderr to the bin
-	__nul_f = open(os.devnull,'w')
+	__nul_f = open(os.devnull, 'w')
 
-	def __init__(self, repo_url, working_dir = None):
+	def __init__(self, repo_url, working_dir=None, user_name=None, password=None, server_url=None):
 		self.version = 'HEAD'
-		super(SCM_GIT, self).__init__(repo_url, working_dir)
+		super(SCM_GIT, self).__init__(repo_dir=repo_url, working_dir=working_dir)
 
 	def __callGit(self, command, git_dir = True):
 		""" [PRIVATE] calls the git function and returns a tuple as the result.
@@ -83,7 +86,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 		try:
 			if (not git_dir) or (self.working_dir is None):
 				if sys.platform == 'win32':
-					CREATE_NO_WINDOW=0x08000000
+					CREATE_NO_WINDOW = 0x08000000
 					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW)
 				else:
 					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f)
@@ -92,8 +95,8 @@ class SCM_GIT(scmbase.SCM_BASE):
 			else:
 				command_list = SCM_GIT.__git_root_command[:]
 
-				if self.url is not None:
-					command_list.append("--git-dir=" + os.path.join(self.url , '.git'))
+				if self.repo_dir is not None:
+					command_list.append("--git-dir=" + os.path.join(self.repo_dir, '.git'))
 
 				if self.working_dir is not None:
 					command_list += ["-C", self.working_dir]
@@ -101,13 +104,13 @@ class SCM_GIT(scmbase.SCM_BASE):
 				command_list += command
 
 				if sys.platform == 'win32':
-					CREATE_NO_WINDOW=0x08000000
+					CREATE_NO_WINDOW = 0x08000000
 					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW)
 				else:
 					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f)
 				result = True
 
-		except subprocess.CalledProcessError,e:
+		except subprocess.CalledProcessError:
 			output = ''
 			result = False
 
@@ -142,6 +145,21 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		return (git_repos, sub_modules)
 
+	@classmethod
+	def getConfiguration(cls):
+		result = OrderedDict()
+		result['server'] = ''
+		result['repo_url'] = None
+		result['working_dir'] = '.'
+		result['user_name'] = ''
+		result['password'] = ''
+		return result
+
+	@classmethod
+	def getDialogLayout(cls):
+		return [('TextField', 'text', 'repo_url', "Repository Url"),
+				('TextField', 'text', 'working_dir', "Working Directory")]
+
 	#---------------------------------------------------------------------------------
 	# Functions that query the state of the repository
 	#---------------------------------------------------------------------------------
@@ -157,7 +175,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 		return 'Git'
 
 	def getRoot(self):
-		return self.url
+		return self.working_dir
 
 	def generateRelativeReference(self, name, distance):
 		""" Generate Relative Reference
@@ -176,10 +194,6 @@ class SCM_GIT(scmbase.SCM_BASE):
 			result = None
 
 		return result
-
-	def setPath(self, path):
-		""" set the new path of the repository object. """
-		self.url = path
 
 	def hasVersion(self, version):
 		""" Check for Version
@@ -240,9 +254,9 @@ class SCM_GIT(scmbase.SCM_BASE):
 		else:
 			result = filename
 
-		return result.replace("\\","/")
+		return result.replace("\\", "/")
 
-	def getFile(self, file_name, specific_commit = None):
+	def getFile(self, file_name, specific_commit=None):
 		""" This function will return a List containing the requested file.
 
 			This function will read the commit version. If the version is set then it will
@@ -254,7 +268,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 			empty list as an indication of a problem (note: that empty files are allowed
 			in git repo's).
 		"""
-		if specific_commit != None:
+		if specific_commit is not None:
 			commit = specific_commit
 		else:
 			if self.version != '':
@@ -271,8 +285,6 @@ class SCM_GIT(scmbase.SCM_BASE):
 		#(result, output) = self.__callGit(["show", '-p', '--expand-tabs=0', specific_commit])
 		(result, output) = self.__callGit(["show", '-p', specific_commit])
 
-		print self.working_dir, specific_commit
-
 		if result:
 			contents = output.splitlines()
 
@@ -280,7 +292,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 			timestamp = int(time.mktime(time.strptime(contents[2][8:-6], "%a %b %d %H:%M:%S %Y")))
 
 			comment = []
-			for index,line in enumerate(contents[4:]):
+			for index, line in enumerate(contents[4:]):
 				if line[:4] == 'diff':
 					break
 				else:
@@ -305,7 +317,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 			empty list as an indication of a problem (note: that empty files are allowed
 			in git repo's).
 		"""
-		if specific_commit != None:
+		if specific_commit is not None:
 			commit = specific_commit
 		else:
 			if self.version != '':
@@ -553,12 +565,12 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		if to_version is None and from_version is None:
 			# No versions, so simply use ls-files against the HEAD
-			git_command = ['status','--porcelain', '-u']
+			git_command = ['status', '--porcelain', '-u']
 
 		elif to_version is None:
 			# OK, have a from_version so we need to include the
 			# local file-system and the index.
-			git_command = ['diff', '--name-status', from_version]
+			git_command = ['diff', '--name-status', '-r', from_version, 'HEAD']
 
 			# will need the untracked files
 			(status, output) = self.__callGit(['ls-files', '-o', '--full-name'])
@@ -849,81 +861,64 @@ class SCM_GIT(scmbase.SCM_BASE):
 	#---------------------------------------------------------------------------------
 	# Functions that amend the state of the repository
 	#---------------------------------------------------------------------------------
-
-	def initialise(self, directory_path = None, bare = False):
+	def initialise(self, create_if_required=False, bare=False):
 		""" Initialise
 
 			This function will create a git repository.
-			If the directory_path is None then only the repository will be created in the
-			repo url path. If the directory_path matches the repo_url then the repo will
-			be created in the same directory as the repo_url, and if they are different
-			then a clone of the repo_url will be taken.
-
-			If a directory path is given and bare equals true then the working tree will
-			not be extracted, and the repo path will be set to the local copy.
 		"""
-		result = False
+		result = True
 
 		# path must be local, so make it readable
-		self.url = os.path.realpath(self.url)
+#		if self.url[-5:] == '/.git':
+#			url = self.url[:-5]
+#		else:
+#			url = self.url
 
-		if self.url[-5:] == '/.git':
-			url = self.url[:-5]
+		if self.server_url is not None:
+			# clone the repository
+			try:
+				# directory is in a sound place, create the repo
+				(result, _) = self.__callGit(["clone", self.server_url, self.working_dir], False)
+
+			except IOError:
+				print "failed to clone the git repo"
+				result = False
+
 		else:
-			url = self.url
+			if bare:
+				# create a bare repo
+				(result, _) = self.__callGit(["init", "--bare", self.working_dir], False)
+			else:
+				# create a normal repo
+				if not os.path.exists(self.working_dir):
+					os.makedirs(self.working_dir)
 
-		if url is not None:
-			if directory_path is None:
-				if bare:
-					# create a bare repo
-					(result, _) = self.__callGit(["init", "--bare", self.url], False)
-				else:
-					# create a normal repo
-					if not os.path.exists(os.path.realpath(url)):
-						os.makedirs(os.path.realpath(url))
+				if os.path.isdir(self.working_dir):
+					# directory is in a sound place,  create the repo
+					(result, _) = self.__callGit(["init", self.working_dir], False)
 
-					if os.path.isdir(os.path.realpath(url)):
-						# directory is in a sound place,  create the repo
-						(result, _) = self.__callGit(["init", os.path.realpath(url)], False)
+					if result:
+						(result, email) = self.__callGit(["config", "--get", "user.email"])
 
-						if result:
+						if email == '':
+							# have to create a mock email as newer git spits it's dummy on
+							# windows if there is not email set.
+							mock_email = getpass.getuser() + "@gitscm.beorn"
+							self.__callGit(["config", "user.email", mock_email])
 							(result, email) = self.__callGit(["config", "--get", "user.email"])
-
-							if email == '':
-								# have to create a mock email as newer git spits it's dummy on
-								# windows if there is not email set.
-								mock_email = getpass.getuser() + "@gitscm.beorn"
-								self.__callGit(["config", "user.email", mock_email])
-								(result, email) = self.__callGit(["config", "--get", "user.email"])
 
 						(result, _) = self.__callGit(["commit", "--allow-empty", "-m", "initial commit"])
 					else:
-						pass
-						# TODO: this should cause a log message.
-						# print "no dir"
-
-			elif directory_path != url:
-				# clone the repository
-				try:
-					if os.makedirs(os.path.realpath(directory_path)):
-						# directory is in a sound place, create the repo
-						(result, _) = self.__callGit(["clone", self.url, directory_path], False)
-
-				except IOError:
-					result = False
-			else:
-				# create a local repository
-				try:
-					if os.makedirs(os.path.realpath(url)):
-						# directory is in a sound place, create the repo
-						(result, _) = self.__callGit(["init", url], False)
-
-				except IOError:
+						print "Failed init"
+				else:
 					pass
+					print "Could not create a repo"
+					# TODO: this should cause a log message.
+					# print "no dir" -- else could be a submodule -- this needs to be handled.
 
 		return result
 
-	def addBranch(self, branch_name, branch_point = None):
+	def addBranch(self, branch_name, branch_point = None, switch_to_branch=False):
 		""" Add Branch
 
 			This function will add a new branch and switch to the branch.
@@ -939,17 +934,27 @@ class SCM_GIT(scmbase.SCM_BASE):
 				point = branch_point
 
 		if self.isRepositoryClean():
-			if branch_point is None:
-				(status, output) = self.__callGit(["checkout", '-b', branch_name])
+			command = []
+
+			if switch_to_branch:
+				command = ["checkout", '-b', branch_name]
+
+				if branch_point is not None:
+					command.append(point)
 			else:
-				(status, output) = self.__callGit(["checkout", '-b', branch_name, point])
+				command = ['branch', branch_name]
+
+				if branch_point is not None:
+					command.append(point)
+
+			(status, output) = self.__callGit(command)
 
 			# build the commit result
 			if status:
 				(status, output) = self.__callGit(['log', '--pretty=%h:%p', '-1'])
 
 				if status:
-					result = scm.Branch(output[0:7], output[8:].split(), None, None)
+					result = scm.Branch(output[0:7], branch_name, output[8:].split(), None)
 
 		return result
 
@@ -969,7 +974,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 		result = None
 
 		# my son's first use of vim. :) 8 weeks old!!! FTW!!
-		#m	  
+		#m
 		# end historic moment. 17:05 11.12.2013
 
 		if message is None:
@@ -987,6 +992,9 @@ class SCM_GIT(scmbase.SCM_BASE):
 				(status, output) = self.__callGit(["commit", ".", "-m", message])
 
 		else:
+			# TODO: this is really wrong!!!
+			# it needs to fail and not do a commit if it failed to add any of the files.
+
 			# add all the files that need committing
 			for add_file in files:
 				(status, output) = self.__callGit(["add", add_file])
@@ -1003,7 +1011,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		return result
 
-	def switchBranch(self, branch_name):
+	def switchBranch(self, branch=None, name=None):
 		""" Switch Branch
 
 			This function will change the branch of the current working repository. It will
@@ -1012,12 +1020,18 @@ class SCM_GIT(scmbase.SCM_BASE):
 			The switch is only attempted if the repo is clean.
 		"""
 		result = False
+		use = None
 
-		if self.isRepositoryClean():
-			(result, _) = self.__callGit(["checkout", branch_name])
+		if branch != None:
+			use = branch.name
+		elif name != None:
+			use = name
+
+		if use != None and self.isRepositoryClean():
+			(result, _) = self.__callGit(["checkout", use])
 
 			if result:
-				self.setVersion(branch_name)
+				self.setVersion(use)
 
 		return result
 
@@ -1037,7 +1051,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 		status = False
 
 		if merge_to is None or self.switchBranch(merge_to):
-			(status, _) = self.__callGit(["merge", merge_from])
+			(status, _) = self.__callGit(["merge", merge_from.name])
 
 		if status:
 			(status, output) = self.__callGit(['log', '--pretty=%h:%p#%s', '-1'])
@@ -1133,3 +1147,5 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 # Register this type with SCM.
 scm.supported_scms.append(scm.SupportedSCM('Git', checkForType, SCM_GIT))
+
+# vim: ts=4 sw=4 noexpandtab nocin ai

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #    file: project_test
 #    desc: This test tests the project object.
 #
@@ -26,9 +26,10 @@ from beorn_lib.project import Project
 
 class TestProject(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
-		
+		self.temp_data = temp_data
+
 		# initialise the test framework
 		super(TestProject, self).__init__(testname)
 
@@ -137,7 +138,7 @@ class TestProject(unittest.TestCase):
 		self.assertEqual(project.start_date,project_1.start_date)
 		self.assertEqual(project.release,project_1.release)
 		self.assertEqual(project.owner,project_1.owner)
-		
+
 		# new test load the project
 		project_2 = Project()
 		test_filename = os.path.join(self.test_data,'load_project.pf')

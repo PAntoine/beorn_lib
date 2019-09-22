@@ -27,13 +27,19 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-import os
-import time
-import string
-import errors
 from collections import OrderedDict
 
+
 class Config(object):
+	@staticmethod
+	def toBool(value):
+		if type(value) == bool:
+			return value
+		elif type(value) == int:
+			return value != 0
+		else:
+			return value == 'True' or value == 'true'
+
 	""" Beorn Config Class
 
 		This class handles the Configuration files.
@@ -80,8 +86,7 @@ class Config(object):
 		it does not change the order, so that changes can be diff'ed in an SCM as that will be
 		backed by one (more that likely).
 	"""
-
-	def __init__(self, filename, config = None):
+	def __init__(self, filename, config=None):
 		""" Init the Config Class """
 		if config is None:
 			self.sections = OrderedDict()
@@ -114,7 +119,7 @@ class Config(object):
 		return result
 
 	def save(self):
-		""" Save Confiuration
+		""" Save Configuration
 
 			load(filename) -> result_code
 
@@ -130,7 +135,7 @@ class Config(object):
 
 		else:
 			try:
-				proj_file = open(self.filename,'wb')
+				proj_file = open(self.filename, 'wb')
 
 				for line in self.export():
 					proj_file.write("%s\n" % line)
@@ -153,14 +158,14 @@ class Config(object):
 			if type(self.sections[key]) == list:
 				for list_item in self.sections[key]:
 					result.append("[%s]" % key)
-					result.extend(self._dumpItem(list_item))
+					self._dump_complex(result, '', list_item)
 			else:
 				result.append("[%s]" % key)
-				result.extend(self._dumpItem(self.sections[key]))
+				self._dump_complex(result, '', self.sections[key])
 
 		return result
 
-	def find(self, section, item = None, value = None):
+	def find(self, section, item=None):
 		""" Find
 
 			This function will return the item(s) that match the search criteria.
@@ -178,70 +183,164 @@ class Config(object):
 		result = None
 
 		if section in self.sections:
-			if type(self.sections[section]) == list:
-				# Ok, we have a list of items
-				if item is None:
-					result = self.sections[section]
-				else:
-					result = []
-					for entry in self.sections[section]:
-						if item in entry:
-							if value is None or value == entry[item]:
-								result.append(entry)
-
+			if item is None:
+				result = self.sections[section]
 			else:
-				if item is None:
-					result = self.sections[section]
-				elif item in self.sections[section]:
-					if value is None or value == self.sections[section][item]:
-						result = self.sections[section][item]
+				if type(item) != list:
+					item = [ item ]
+
+				result = self.sections[section]
+
+				for key in item[:-1]:
+					if key in result:
+						result = result[key]
+					else:
+						result = None
+						break
+
+				if result is not None and item[-1] in result:
+					result = result[item[-1]]
+				else:
+					result = None
 
 		return result
 
-	def add(self, section, item = None, value = None):
+	def setValue(self, section, item, value=None):
+		""" Find
+
+			This function will return the item(s) that match the search criteria.
+			If the item parameter is None, then it will return the whole section
+			that matches the section that the name matches. If the item is given
+			then it will return the item that matches the given name.
+
+			If the section is a list then it will return all the items that match
+			the section. It the item is not None it will return all the item from
+			the section that has the specified item.
+
+			If value is supplied it will check if the item as the value, and only
+			return items that have the value.
+		"""
+		result = None
+
+		if section not in self.sections:
+			self.sections[section] = OrderedDict()
+
+		if type(item) != list:
+			item = [ item ]
+
+		result = self.sections[section]
+
+		for key in item[:-1]:
+			if key not in result:
+				result[key] = OrderedDict()
+			result = result[key]
+
+		result[item[-1]] = value
+
+	def addDictionary(self, section, item=None):
 		""" Add Item or Section to config
 
 			This function will add an entry to the configuration.
 		"""
-		new_section = OrderedDict()
-		new_section[item] = value
-
+		new_section = OrderedDict(item)
 		self._addNewSection(section, new_section)
 
-	def remove(self, section, item = None, value = None):
+	def move(self, section, item_key, to):
+		""" Add Item or Section to config
+
+			This function will add an entry to the configuration.
+		"""
+		if item_key is None:
+			to.sections[section] = self.sections[section]
+			del self.sections[section]
+		else:
+			parent = self.sections[section]
+			current = self.sections[section]
+
+			types = []
+
+			for key in item_key:
+				if key in current:
+					types.append(type(current[key]))
+					parent = current
+					current = current[key]
+				else:
+					types = None
+					break
+
+			if section not in to.sections:
+				to.sections[section] = OrderedDict()
+
+			to_current = to.sections[section]
+
+			for index,key in enumerate(item_key[:-1]):
+				if key in to_current:
+					to_current = to_current[key]
+
+				else:
+					if type(to_current) == OrderedDict:
+						to_current[key] = types[index]()
+						to_current = to_current[key]
+					else:
+						to_current.append(types[index]())
+						to_current = to_current[-1]
+
+			if type(to_current) == list:
+				to_current.append(parent[item_key[-1]])
+			else:
+				to_current[item_key[-1]] = parent[item_key[-1]]
+
+			del parent[item_key[-1]]
+
+	def remove(self, section, item=None):
 		""" Remove
 
 			This function will remove all the items that match the search. it uses
-			the same search as the find.
+			the same search as the ind.
 		"""
-		if section in self.sections:
-			if type(self.sections[section]) == list:
-				# Ok, we have a list of items
-				if item is None:
-					del self.sections[section]
+		result = False
+		current = None
+
+		if item is None:
+			if section in self.sections:
+				del self.sections[section]
+				result = True
+
+		elif section in self.sections:
+			if type(item) != list:
+				item = [ item ]
+
+			current = self.sections[section]
+
+			for key in item[:-1]:
+				if key in current:
+					current = current[key]
 				else:
-					new_list = []
-					for entry in self.sections[section]:
-						if item in entry:
-							if value is not None and value != entry[item]:
-								new_list.append(entry)
-						else:
-							new_list.append(entry)
+					current = None
+					break
 
-					self.sections[section] = new_list
-			else:
-				if item is None or item in self.sections[section]:
-					if value is None or value == self.sections[section][item]:
-						del self.sections[section]
-
-	def _dumpItem(self, item):
-		""" This will dump a dictionary """
-		result = []
-
-		for key in item:
-			result.append("%s = %s" % (key, item[key]))
+			if item[-1] in current:
+				del current[item[-1]]
+				result = True
 
 		return result
+
+	def _dump_complex(self, result, name, item):
+		if isinstance(item, dict):
+			for key in item:
+				if name == '':
+					self._dump_complex(result, key, item[key])
+				else:
+					self._dump_complex(result, name + '#' + key, item[key])
+
+		elif isinstance(item, list):
+			for index, x in enumerate(item):
+				if name == '':
+					self._dump_complex(result, str(index), x)
+				else:
+					self._dump_complex(result, name + '%' + str(index), x)
+		else:
+			result.append(name + ' = ' + str(item))
 
 	def _addNewSection(self, current_key, current_section):
 		""" This de-duplicates adding a new item to the config """
@@ -255,6 +354,31 @@ class Config(object):
 				self.sections[current_key] = [temp, current_section]
 		else:
 			self.sections[current_key] = current_section
+
+	def _insertItem(self, section, path, value):
+		""" Insert the items from the path into the section.
+			It will add all the new dicts and lists as it finds new ones.
+		"""
+		current = section
+
+		for item in path:
+			if (type(current) == list and item[0] < len(current)) or item[0] in current:
+				current = current[item[0]]
+			else:
+				if item[1] == 0:
+					if type(current) == list:
+						current.append(OrderedDict())
+					else:
+						current[item[0]] = OrderedDict()
+					current = current[item[0]]
+				else:
+					current[item[0]] = []
+					current = current[item[0]]
+
+		if type(current) == list:
+			current.append(value[1])
+		else:
+			current[value[0]] = value[1]
 
 	def _parseConfigItems(self, items):
 		""" This """
@@ -275,17 +399,49 @@ class Config(object):
 				if item[-1] == ']':
 					current_key = item[1:-1]
 
-			elif len(item) > 0:
-				# Ok, it's not just a blank line.
-				equals = item.index('=')
-				if equals == -1:
-					result = False
-					break
+			elif len(item) > 0 and item[0] != '#':
+				# Ok, it's not just a blank line or a comment.
+				value = None
+				looking_for_dict = -1
+				looking_for_list = -1
+				parts = []
 
-				else:
-					current_section[item[0:equals-1]] = item[equals+2:]
+				for index in xrange(len(item)-1, -1, -1):
+					if item[index] == '#':
+						if looking_for_dict != -1:
+							parts.insert(0,(item[index+1:looking_for_dict],0))
+						elif looking_for_list != -1:
+							parts.insert(0,(item[index+1:looking_for_list],1))
 
-		# handle stragglers
+						if value is None:
+							value = item[index+1:].split(' = ')
+
+						looking_for_list = -1
+						looking_for_dict = index
+
+					elif item[index] == '%':
+						if looking_for_dict != -1:
+							parts.insert(0,(int(item[index+1:looking_for_dict]),0))
+						elif looking_for_list != -1:
+							parts.insert(0,(int(item[index+1:looking_for_list]),1))
+
+						if value is None:
+							bits = item[index+1:].split(' = ')
+							value = (int(bits[0]), bits[1])
+
+						looking_for_list = index
+						looking_for_dict = -1
+
+				if looking_for_dict != -1:
+					parts.insert(0,(item[index:looking_for_dict],0))
+				elif looking_for_list != -1:
+					parts.insert(0,(item[index:looking_for_list],1))
+
+				if value is None:
+					value = item.split(' = ')
+
+				self._insertItem(current_section, parts, value)
+
 		if current_section != {}:
 			self._addNewSection(current_key, current_section)
 

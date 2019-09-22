@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #---------------------------------------------------------------------------------
 #    file: scm
-#    desc: 
+#    desc:
 #
 #  author: Peter Antoine
 #    date: 18/07/2013
@@ -19,7 +19,7 @@ from collections import namedtuple as namedtuple
 # Module Named Tuples
 #---------------------------------------------------------------------------------
 Commit		= namedtuple('Commit', ['commit_id', 'parents', 'description'])
-Branch		= namedtuple('Branch', ['commit_id', 'name', 'description', 'remote'])
+Branch		= namedtuple('Branch', ['commit_id', 'name', 'parents', 'remote'])
 Tag			= namedtuple('Tag', ['commit_id', 'name'])
 Change		= namedtuple('Change', ['original_line', 'original_length', 'new_line', 'new_length', 'lines'])
 HistoryItem	= namedtuple('HistoryItem', ['version', 'summary', 'timestamp', 'parents', 'children'])
@@ -49,23 +49,29 @@ SOURCE_STATUS_DELETED	= 3
 #---------------------------------------------------------------------------------
 supported_scms = []
 
+
 #---------------------------------------------------------------------------------
 # Module functions.
 #---------------------------------------------------------------------------------
-def new(repository):
+def new(repository, remote_url=None):
 	""" Create New SCM container.
 
 		This function will detect what type of SCM is being created and then
 		instantiate the correct one. If the correct one is not supported it will
 		instantiate the default and base SCM.
 	"""
+	result = None
+
 	repo_type = isRepository(repository)
 	repo_url = repository
 
 	if repo_type is None:
 		(repo_type, repo_url) = findRepositoryRoot(repository)
 
-	result = create(repo_type, repo_url, repo_url)
+	if repo_type is not None:
+		result = create(repo_type, remote_url, repo_url)
+	else:
+		print "type is non"
 
 	return result
 
@@ -80,20 +86,52 @@ def findRepositories(wanted=None):
 
 	return result
 
-def create(repo_type, repository_url = None, working_dir = None):
+def create(repo_type, repository_url=None, working_dir=None, user_name=None, password=None, server_url=None):
+	""" create_scm
+
+		This is a generic access function that will create the create type of
+		SCM interface.SCM
+	"""
+	result = None
+
+	for scm in supported_scms:
+		if repo_type == scm.type:
+			result = scm.cls(repository_url, working_dir, user_name, password, server_url=server_url)
+			break
+	else:
+		result = scmbase.SCM_BASE(repository_url, working_dir)
+
+	return result
+
+def startLocalServer(repo_type, working_dir = None):
 	""" create_scm
 
 		This is a generic access function that will create the create type of
 		SCM interface.
 	"""
+	result = None
+
 	for scm in supported_scms:
 		if repo_type == scm.type:
-			scm = scm.cls(repository_url, working_dir)
+			result = scm.cls.startLocalServer(working_dir)
 			break
-	else:
-		scm = scmbase.SCM_BASE(repository_url, working_dir)
 
-	return scm
+	return result
+
+def stopLocalServer(repo_type):
+	""" stop local server """
+	result = None
+
+	for scm in supported_scms:
+		if repo_type == scm.type:
+			result = scm.cls.stopLocalServer()
+			break
+
+	return result
+
+def getSupportedSCMs():
+	""" return a list of the supported SCM types """
+	return supported_scms
 
 def isRepository(repository_url):
 	result = None
@@ -172,6 +210,9 @@ def parseUnifiedDiff(version, parent_version, diff_array, lines = None):
 	result = []
 	lines = None
 	start_line = None
+	original_file = None
+	change_list = []
+	new_file = None
 
 	for change in diff_array:
 		if change[0:4] == 'diff':
@@ -186,7 +227,7 @@ def parseUnifiedDiff(version, parent_version, diff_array, lines = None):
 
 				else:
 					change_type = 'D'
-				
+
 				result.append(ChangeItem(version, parent_version, change_type, original_file, new_file, change_list))
 
 			new_file = None
@@ -258,3 +299,4 @@ def parseUnifiedDiff(version, parent_version, diff_array, lines = None):
 
 	return result
 
+# vim: ts=4 sw=4 noexpandtab nocin ai

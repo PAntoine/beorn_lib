@@ -1,12 +1,12 @@
 #!/bin/python
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #         file: errors
 #  description: This file contains the list of standard errors.
 #
@@ -62,4 +62,3 @@ __builtin__.ERROR_FAILED_LOAD					= add_error_code('Failed to Load Item.')
 
 __builtin__.ERROR_FAILED_USER_OR_PASSWORD_INVALID	= add_error_code('User or Password is invalid or incorrect')
 
-	

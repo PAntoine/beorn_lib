@@ -89,7 +89,7 @@ class Job(NestedTreeNode):
 		days = self.total_time / day
 		hours = (self.total_time % day) / hour
 		minutes = (self.total_time % hour) / minute
-		
+
 		return "{:04d}:{:02d}:{:02d}".format(days, hours, minutes)
 
 	def addTime(self, time):

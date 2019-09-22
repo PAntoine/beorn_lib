@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #    file: project_plan_tests
 #    desc: These are the tests for the project plan.
 #
@@ -27,9 +27,10 @@ from beorn_lib.project_plan import ProjectPlan
 
 class TestProjectPlan(unittest.TestCase):
 	""" User Tests """
-	def __init__(self, testname = 'runTest', test_data = None):
+	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
-		
+		self.temp_data = temp_data
+
 		# initialise the test framework
 		super(TestProjectPlan, self).__init__(testname)
 
@@ -46,14 +47,14 @@ class TestProjectPlan(unittest.TestCase):
 				value = [node.payload]
 			else:
 				value.append(node.payload)
-		
+
 		return (node,value,False)
 
 	def dump_endtime_function(self,last_visted_node,node,value,levels,direction):
 		""" This is a test function that is used to return the calculated values
 			from the nodes that it has visited.
 		"""
-		
+
 		if not node.is_sub_node:
 			if value is None:
 				value = [(node.payload.task_id,node.payload.start,node.payload.end)]
@@ -82,11 +83,11 @@ class TestProjectPlan(unittest.TestCase):
 
 			This tests that the endtime calculation function works. It will de a series
 			of tests that tests that the 1/4 rolling value calculates to the correct time
-			for each of the week lengths. Only going to bother testing at one day length, 
+			for each of the week lengths. Only going to bother testing at one day length,
 			as if that works it should all work.
 		"""
 		self.project_plan = ProjectPlan()
-		
+
 		# test different working week lengths
 		for week_length in range(1,7):
 			self.project_plan.days_per_week = week_length
@@ -106,7 +107,7 @@ class TestProjectPlan(unittest.TestCase):
 				# number of weeks
 				for week_number in range(0,3):
 					task_days = week_number * week_length
-					
+
 					start_time = self.project_plan.start_time + (start_day_of_week * 60 * 60 * 24)
 
 					# days in the week
@@ -144,16 +145,16 @@ class TestProjectPlan(unittest.TestCase):
 
 		# positive test
 		self.assertTrue(self.project_plan.loadProject('test create project', os.path.join(self.test_data, 'tests_load.bpf')))
-	
+
 	def test_PopulateNewProjectPlan(self):
 		""" PopulateNewProjectPlan
 
 			This test will create a project plan.
 
-                                 {4} -> [ 5] -> [ 6]                                     {14} -> [15] -> [16] 
+                                 {4} -> [ 5] -> [ 6]                                     {14} -> [15] -> [16]
 			   [1]-> [2] -> :3:---+               +----:3:-> [10] -> [11] -> [12] -> :13:-+                +-:13:-> [20] -> [21]
 			    			     {7} -> [ 8] -> [ 9]                                     {17} -> [18] -> [19]
-			    				 
+
 
 		"""
 		self.project_plan = ProjectPlan()
@@ -181,7 +182,7 @@ class TestProjectPlan(unittest.TestCase):
 		self.project_plan.AddTask(7,'sub_task',self.project_plan.minutes_per_day,'created','task 7',"a simple task",3)
 		self.project_plan.AddTask(8,'task',self.project_plan.minutes_per_day,'created','task 8',"a simple task",7)
 		self.project_plan.AddTask(9,'task',self.project_plan.minutes_per_day,'created','task 9',"a simple task",8)
-		
+
 		# 1st children of 13
 		self.project_plan.AddTask(14,'sub_task',self.project_plan.minutes_per_day,'created','task 14',"a simple task",13)
 		self.project_plan.AddTask(15,'task',self.project_plan.minutes_per_day,'created','task 15',"a simple task",14)
@@ -191,7 +192,7 @@ class TestProjectPlan(unittest.TestCase):
 		self.project_plan.AddTask(17,'sub_task',self.project_plan.minutes_per_day,'created','task 17',"a simple task",13)
 		self.project_plan.AddTask(18,'task',self.project_plan.minutes_per_day,'created','task 18',"a simple task",17)
 		self.project_plan.AddTask(19,'task',self.project_plan.minutes_per_day,'created','task 19',"a simple task",18)
-	
+
 		self.project_plan.saveProject()
 
 	def test_LoadAndReDateTree(self):
@@ -200,10 +201,10 @@ class TestProjectPlan(unittest.TestCase):
 			This test will load a project plan. This is the same plan as populate. Just loaded from an old one
 			so the dates are known.
 
-                                 {4} -> [ 5] -> [ 6]                                     {14} -> [15] -> [16] 
+                                 {4} -> [ 5] -> [ 6]                                     {14} -> [15] -> [16]
 			   [1]-> [2] -> :3:---+               +----:3:-> [10] -> [11] -> [12] -> :13:-+                +-:13:-> [20] -> [21]
 			    			     {7} -> [ 8] -> [ 9]                                     {17} -> [18] -> [19]
-			    				 
+
 
 		"""
 		self.project_plan = ProjectPlan()
@@ -211,11 +212,11 @@ class TestProjectPlan(unittest.TestCase):
 		self.assertTrue(self.project_plan.loadProject('test create project', os.path.join(self.test_data, 'tests_walk.bpf')))
 
 		value = self.project_plan.plan_tree.walkTree(self.collect_function)
-		
+
 		# calculate the times for the items and check that they are valid
 		self.project_plan.reDateTree()
 		value = self.project_plan.plan_tree.walkTree(self.dump_endtime_function)
-	
+
 		# for the task added above, this is the correct layout of times.
 		task_order_times = [(1, 1376006400, 1376092800), (2, 1376265600, 1376352000), (3, 1376352000, 1376611200),
 							(4, 1376352000, 1376438400), (5, 1376438400, 1376524800), (6, 1376524800, 1376611200),
