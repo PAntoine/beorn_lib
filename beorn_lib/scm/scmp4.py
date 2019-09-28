@@ -89,21 +89,22 @@ def checkForType(repository, password_function=None):
 
 	return result
 
-if sys.platform == 'win32':
-	CREATE_NO_WINDOW = 0x08000000
-	creationflags=CREATE_NO_WINDOW
-else:
-	creationflags=None
+CREATE_NO_WINDOW = 0x08000000
 
 def serverProcess(local_source_path):
 	if not os.path.exists(local_source_path):
 		os.makedirs(local_source_path)
 
-	subprocess.check_output(['p4d', '-d', '-r', local_source_path], stderr=subprocess.STDOUT, creationflags=creationflags)
+	if sys.platform == 'win32':
+		subprocess.check_output(['p4d', '-d', '-r', local_source_path], stderr=subprocess.STDOUT, creationflags=CREATE_NO_WINDOW)
+	else:
+		subprocess.check_output(['p4d', '-d', '-r', local_source_path], stderr=subprocess.STDOUT)
 
 #---------------------------------------------------------------------------------
 # base class (and default) SCM class
 #---------------------------------------------------------------------------------
+
+
 class SCM_P4(scmbase.SCM_BASE):
 	server_process = None
 
@@ -155,7 +156,11 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		if logged_in:
 			try:
-				return subprocess.check_output(['p4'] + command_list, stderr=subprocess.STDOUT, creationflags=creationflags)
+				if sys.platform == 'win32':
+					return subprocess.check_output(['p4'] + command_list, stderr=subprocess.STDOUT, creationflags=CREATE_NO_WINDOW)
+				else:
+					return subprocess.check_output(['p4'] + command_list, stderr=subprocess.STDOUT)
+
 			except subprocess.CalledProcessError, e:
 				pass
 		else:
@@ -166,9 +171,15 @@ class SCM_P4(scmbase.SCM_BASE):
 	def p4IsLoggedIn(cls):
 		""" Test if we are logged in """
 		try:
-			subprocess.check_output(['p4', 'login', '-s'], stderr=subprocess.STDOUT, creationflags=creationflags)
+			if sys.platform == 'win32':
+				subprocess.check_output(['p4', 'login', '-s'], stderr=subprocess.STDOUT, creationflags=CREATE_NO_WINDOW)
+			else:
+				subprocess.check_output(['p4', 'login', '-s'], stderr=subprocess.STDOUT)
+
 			return True
-		except:
+		except subprocess.CalledProcessError, e:
+			print e
+			print e.output
 			return False
 
 	@classmethod
@@ -182,7 +193,11 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		# TODO: need to call password function if password is None and user_name is not.
 		if user_name is not None and password is not None:
-			proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, creationflags=creationflags)
+			if sys.platform == 'win32':
+				proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, creationflags=CREATE_NO_WINDOW)
+			else:
+				proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+
 			value = proc.communicate(input=password)
 
 			if proc.returncode == 0:
@@ -348,7 +363,10 @@ class SCM_P4(scmbase.SCM_BASE):
 			for reasons.
 		"""
 		try:
-			return subprocess.check_output(['p4', '-d', self.working_dir, '-G'] + command_list, env=self.environ, creationflags=creationflags)
+			if sys.platform == 'win32':
+				return subprocess.check_output(['p4', '-d', self.working_dir, '-G'] + command_list, env=self.environ, creationflags=CREATE_NO_WINDOW)
+			else:
+				return subprocess.check_output(['p4', '-d', self.working_dir, '-G'] + command_list, env=self.environ)
 
 		except subprocess.CalledProcessError, e:
 			result = []
@@ -406,11 +424,11 @@ class SCM_P4(scmbase.SCM_BASE):
 		if self.server_url is not None and self.server_url != '':
 			result += ['-p', self.server_url]
 
-#		if self.user is not None and self.user != '':
-#			result += ['-u', self.user]
+		if self.user is not None and self.user != '':
+			result += ['-u', self.user]
 
-#		if self.password is not None and self.password != '':
-#			result += ['-P', self.password]
+		if self.password is not None and self.password != '':
+			result += ['-P', self.password]
 
 		return result
 
@@ -420,7 +438,11 @@ class SCM_P4(scmbase.SCM_BASE):
 		"""
 		if self.__p4Login():
 			try:
-				return subprocess.check_output(self.buildCommand(use_client) + command_list, stderr=subprocess.STDOUT, creationflags=creationflags)
+				if sys.platform == 'win32':
+					return subprocess.check_output(self.buildCommand(use_client) + command_list, stderr=subprocess.STDOUT, creationflags=CREATE_NO_WINDOW)
+				else:
+					return subprocess.check_output(self.buildCommand(use_client) + command_list, stderr=subprocess.STDOUT)
+
 			except subprocess.CalledProcessError, e:
 				return None
 		else:
@@ -442,10 +464,15 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		if self.__p4Login():
 			try:
-				proc = subprocess.Popen(self.buildCommand(use_client, True) + command_list,
-										stdout=subprocess.PIPE,
-										env=self.environ,
-										creationflags=creationflags)
+				if sys.platform == 'win32':
+					proc = subprocess.Popen(self.buildCommand(use_client, True) + command_list,
+											stdout=subprocess.PIPE,
+											env=self.environ,
+											creationflags=CREATE_NO_WINDOW)
+				else:
+					proc = subprocess.Popen(self.buildCommand(use_client, True) + command_list,
+											stdout=subprocess.PIPE,
+											env=self.environ)
 
 				i = 0
 				while True:
@@ -482,12 +509,20 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		if self.__p4Login():
 			try:
-				proc = subprocess.Popen(self.buildCommand(use_client) + command_list,
-										stdin=subprocess.PIPE,
-										stdout=subprocess.PIPE,
-										stderr=subprocess.PIPE,
-										env=self.environ,
-										creationflags=creationflags)
+				if sys.platform == 'win32':
+					proc = subprocess.Popen(self.buildCommand(use_client) + command_list,
+											stdin=subprocess.PIPE,
+											stdout=subprocess.PIPE,
+											stderr=subprocess.PIPE,
+											env=self.environ,
+											creationflags=CREATE_NO_WINDOW)
+				else:
+					proc = subprocess.Popen(self.buildCommand(use_client) + command_list,
+											stdin=subprocess.PIPE,
+											stdout=subprocess.PIPE,
+											stderr=subprocess.PIPE,
+											env=self.environ)
+
 				stdout, stderr = proc.communicate('\n'.join(command_input) + '\n')
 				result = proc.returncode == 0
 
@@ -510,13 +545,13 @@ class SCM_P4(scmbase.SCM_BASE):
 		new_client.options = obj['Options'].split(' ')
 		new_client.description = obj['Description'].splitlines()
 
-		if new_client.root[1] == ':':
+		if len(new_client.root) > 1 and new_client.root[1] == ':':
 			new_client.root = new_client.root[0].upper() + new_client.root[1:]
 
 		self.clients[obj['client']] = new_client
 
 	def __getClientList(self):
-		if self.user is None or self.user == 'None':
+		if self.user is None or self.user == '':
 			self.__p4ObjectCommand(['clients'], self.__addClient, use_client=True)
 		else:
 			self.__p4ObjectCommand(['clients', '-u', self.user], self.__addClient, use_client=True)
@@ -667,7 +702,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		result = []
 		changes = ['changes', '-l']
 
-		call_back = lambda obj : result.append(scm.HistoryItem(obj['change'], obj['desc'], 0, None, None))
+		call_back = lambda obj : result.append(scm.HistoryItem(obj['change'], obj['desc'], obj['time'], None, None))
 
 		if filename is None:
 			changes.append(self.makeP4RelativeName('...'))

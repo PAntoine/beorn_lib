@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #    file: logging
 #    desc: This class handles the logging for the beorn library.
 #
@@ -30,7 +30,7 @@ class Logging(object):
 		It is a very simple logger, there are four log levels:
 
 			name               description
-			----------------   ----------------------------------------------------	
+			----------------   ----------------------------------------------------
 			LOG_LEVEL_NONE     This level should not be selected for comments and
 			                   this level cannot be blocked.
 			LOG_LEVEL_FATAL    This is a fatal error and the system will stop.
