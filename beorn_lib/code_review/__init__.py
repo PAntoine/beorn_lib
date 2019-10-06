@@ -24,8 +24,16 @@ from change import Change
 from comment import Comment
 from change_file import ChangeFile
 from code_review import CodeReview
-from review_engine import ReviewEngine, registerEngine, getSupportedEngines, getSupportedNames
-from local_review_engine import LocalReviewEngine
-from swarm_engine import SwarmReviewEngine
+from code_reviews import CodeReviews
+from local_code_reviews import LocalCodeReviews
+
+registered_engines = {'LocalCodeReviews': LocalCodeReviews}
+
+def registerEngine(engine_name, class_type):
+	if engine_name not in registered_engines:
+		registered_engines[engine_name] = class_type
+
+def getSupportedEngines():
+	return registered_engines.keys()
 
 # vim: ts=4 sw=4 noexpandtab nocin ai
