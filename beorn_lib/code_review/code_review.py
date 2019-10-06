@@ -35,15 +35,6 @@ class CodeReview(NestedTreeNode):
 
 	global_review_id = 0
 
-	@classmethod
-	def decode(cls, previous, decode_string, local):
-		parts = decode_string.split(',')
-
-		code_review = CodeReview(int(parts[0]), parts[1], int(parts[2]))
-		code_review.setLocal(local)
-
-		return code_review
-
 	def __getitem__(self, key):
 		for item in self.getChildren():
 			if type(key) == Change:
@@ -127,11 +118,10 @@ class CodeReview(NestedTreeNode):
 			return []
 
 	def getState(self):
-		if self.hasChild():
-			(first_child, _, _) = self.getNextNode()
-			return first_child.getState()
-		else:
-			return CodeReview.CODE_REVIEW_STATUS_OPEN
+		return self.state
+
+	def setState(self, state):
+		self.state = state
 
 	def isApproved(self):
 		if self.hasChild():

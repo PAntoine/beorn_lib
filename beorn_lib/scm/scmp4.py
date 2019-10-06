@@ -8,7 +8,7 @@
 #                    | `-' |\   --.' '-' '|  |   |  ||  |
 #                     `---'  `----' `---' `--'   `--''--'
 #
-#    file: scmperforce
+#    file: scmp4
 #    desc: P4 SCM Integration.
 #
 #       This brings P4 trees into the beorn echo-system.
@@ -427,8 +427,8 @@ class SCM_P4(scmbase.SCM_BASE):
 		if self.user is not None and self.user != '':
 			result += ['-u', self.user]
 
-		if self.password is not None and self.password != '':
-			result += ['-P', self.password]
+		#if self.password is not None and self.password != '':
+		#	result += ['-P', self.password]
 
 		return result
 
