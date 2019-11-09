@@ -31,6 +31,8 @@ class SCM_BASE(object):
 
 		self.version = ''
 
+		self.password_function = None
+
 	MERGE_WORKING	= 0
 	MERGE_THEIRS	= 1
 	MERGE_OURS		= 2
@@ -85,6 +87,14 @@ class SCM_BASE(object):
 
 	def getRoot(self):
 		return self.working_dir
+
+	def setPasswordFunction(self, password_func):
+		self.password_function = password_func
+
+	def getPassword(self, user=None):
+		if self.password_function is not None:
+			self.password = self.password_function(user)
+		return self.password
 
 	def getName(self):
 		if self.server_url is not None:

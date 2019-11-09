@@ -8,7 +8,7 @@
 #                    | `-' |\   --.' '-' '|  |   |  ||  |
 #                     `---'  `----' `---' `--'   `--''--'
 #
-#    file: scmperforce
+#    file: scmp4
 #    desc: P4 SCM Integration.
 #
 #       This brings P4 trees into the beorn echo-system.
@@ -30,6 +30,7 @@ import os
 import scm
 import sys
 import time
+import datetime
 import getpass
 import scmbase
 import marshal
@@ -37,6 +38,25 @@ import subprocess
 import multiprocessing
 
 from collections import OrderedDict
+
+#---------------------------------------------------------------------------------
+# Local Classes
+#---------------------------------------------------------------------------------
+class DecodeState(object):
+	__slots__ = ('change_list', 'client', 'current_file', 'result', 'lines', 'files', 'in_hunk', 'start_line', 'start_len', 'end_line', 'end_len')
+
+	def __init__(self):
+		self.result = []
+		self.lines = []
+		self.files = []
+		self.change_list = []
+		self.in_hunk = False
+		self.current_file = None
+		self.start_line = 0
+		self.start_len  = 0
+		self.end_line = 0
+		self.end_len  = 0
+		self.client = None
 
 class ClientDetails(object):
     def __init__(self):
@@ -52,7 +72,9 @@ class ClientDetails(object):
         self.view = []
         self.description = ''
 
-
+#---------------------------------------------------------------------------------
+# Global Functions
+#---------------------------------------------------------------------------------
 def checkForType(repository, password_function=None):
 	""" Check For Type
 
@@ -178,8 +200,6 @@ class SCM_P4(scmbase.SCM_BASE):
 
 			return True
 		except subprocess.CalledProcessError, e:
-			print e
-			print e.output
 			return False
 
 	@classmethod
@@ -201,7 +221,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			value = proc.communicate(input=password)
 
 			if proc.returncode == 0:
-				result = value.split('\n')[1]
+				result = value[0].strip()
 
 		return result
 
@@ -310,7 +330,9 @@ class SCM_P4(scmbase.SCM_BASE):
 			else:
 				self.working_dir = os.path.realpath(".")
 				self.current_client = self.getClientFromDirectory(self.working_dir)
-				self.environ['P4CLIENT'] = self.current_client.name
+
+				if self.current_client is not None:
+					self.environ['P4CLIENT'] = self.current_client.name
 		else:
 			self.current_client = self.getClientFromDirectory(working_dir)
 			self.working_dir = working_dir
@@ -407,7 +429,18 @@ class SCM_P4(scmbase.SCM_BASE):
 
 	def __p4Login(self):
 		result = SCM_P4.p4IsLoggedIn()
-		return result or SCM_P4.p4Login(self.user, self.password)
+
+		if not result:
+			if self.password is None or self.password == '':
+				self.password = self.getPassword(self.user)
+
+		return result or SCM_P4.p4Login(self.user, self.password) is not None
+
+	def getUserKey(self, user):
+		if self.password is None or self.password == '':
+			self.password = self.getPassword(user)
+
+		return SCM_P4.p4Login(user, self.password)
 
 	def buildCommand(self, use_client, marshalled=False):
 		if marshalled:
@@ -427,8 +460,8 @@ class SCM_P4(scmbase.SCM_BASE):
 		if self.user is not None and self.user != '':
 			result += ['-u', self.user]
 
-		if self.password is not None and self.password != '':
-			result += ['-P', self.password]
+		#if self.password is not None and self.password != '':
+		#	result += ['-P', self.password]
 
 		return result
 
@@ -555,6 +588,18 @@ class SCM_P4(scmbase.SCM_BASE):
 			self.__p4ObjectCommand(['clients'], self.__addClient, use_client=True)
 		else:
 			self.__p4ObjectCommand(['clients', '-u', self.user], self.__addClient, use_client=True)
+
+	def getClientViews(self, client):
+		result = []
+		got_object = []
+
+		if self.__p4ObjectCommand(['client', '-o'], lambda obj: got_object.append(obj)):
+			for item in got_object[0]:
+				if item[:4] == 'View':
+					parts = got_object[0][item].split()
+					result.append((parts[0], parts[1]))
+
+		return result
 
 	def getClientDirectory(self, client_name):
 		result = None
@@ -790,6 +835,15 @@ class SCM_P4(scmbase.SCM_BASE):
 			return self.p4CommandDiff(['diff', '-du', from_path, to_path])
 		else:
 			return self.p4CommandDiff(['diff2', '-du', from_path, to_path])
+
+	def getChangeList(self, specific_commit):
+		""" This function will return a change list for the specified change """
+		contents = []
+		call_back = lambda obj: contents.append(obj)
+
+		contents = self.__p4Command(['describe', '-a', '-S', '-du', str(specific_commit)])
+		(author, timestamp, comment, changes) = self.parsePerforceUnifiedDiff(specific_commit, contents.split('\n'))
+		return scm.ChangeList(specific_commit, timestamp, author, comment, changes)
 
 	def changeListFunction(self, result, obj):
 		if 'oldChange' not in obj:
@@ -1042,6 +1096,134 @@ class SCM_P4(scmbase.SCM_BASE):
 		#p4 integrate //depot/yourcode/dev/...@MYCODE_DEV.1.0 //depot/yourcode/rel/...
 
 		return scm.Commit('1', [], 'test')
+
+	def getFileList(self, roots, decode_state, line):
+		result = 0
+
+		if line[0:3] == '...':
+			[name, action] = line[4:].split()
+
+			# remove the depot part from the name, easier to read in the review tree.
+			for item in roots:
+				if name.startswith(item):
+					name = name[len(item):]
+					break
+
+			decode_state.files.insert(0, (name, action))
+
+		elif line[0:15] == 'Differences ...':
+			result = 1
+
+		return result
+
+	def getDifferences(self, decode_state, line):
+		if line[0:5] == "==== ":
+			if len(decode_state.lines) > 0:
+				decode_state.change_list.append(scm.Change(	decode_state.start_line,
+															decode_state.start_len,
+															decode_state.end_line,
+															decode_state.end_len,
+															decode_state.lines))
+
+				decode_state.lines = []
+
+			if decode_state.current_file is not None:
+				# trusting P4 to not be stupid and list the files in the same order
+				# as the patches.
+				if decode_state.current_file[1] == 'add':
+					change = [scm.Change(0, 0, 0, len(decode_state.lines), decode_state.lines)]
+					parts = decode_state.current_file[0].split('#')
+					decode_state.result.append(scm.ChangeItem(parts[1], None, decode_state.current_file[1], parts[0], parts[0], change))
+					decode_state.lines = []
+
+				elif len(decode_state.change_list) > 0:
+					# Add the file if only they have changes. P4 lists files without changes.
+					parts = decode_state.current_file[0].split('#')
+					decode_state.result.append(scm.ChangeItem(	parts[1],
+																None,
+																decode_state.current_file[1],
+																parts[0],
+																parts[0],
+																decode_state.change_list))
+
+			decode_state.change_list = []
+			decode_state.in_hunk = False
+			decode_state.current_file = decode_state.files.pop()
+
+		elif line[0:2] == "@@":
+			if len(decode_state.lines) > 0:
+				decode_state.change_list.append(scm.Change(	decode_state.start_line,
+															decode_state.start_len,
+															decode_state.end_line,
+															decode_state.end_len,
+															decode_state.lines))
+
+			decode_state.in_hunk = True
+			decode_state.lines = []
+			parts = line.split()
+			decode_state.start_line = int(parts[1].split(',')[0][1:])
+			decode_state.start_len  = int(parts[1].split(',')[1])
+			decode_state.end_line = int(parts[2].split(',')[0][1:])
+			decode_state.end_len  = int(parts[2].split(',')[1])
+
+		elif decode_state.in_hunk or (decode_state.current_file is not None and decode_state.current_file[1] == 'add'):
+			decode_state.lines.append(line)
+
+	def parsePerforceUnifiedDiff(self, version, diff_array):
+		""" Parse Perforce Unified Diff
+
+			It pretty much goes without saying at this point but I will
+			just day for completeness: P4 Sucks.
+
+			Okedokie. P4's diff format starts with the files that have
+			changed and the type of change. Then followed by the diffrences.
+		"""
+		state = 0
+		roots = []
+		decode_state = DecodeState()
+
+		parts = diff_array[0].split()
+		sks = parts[3].split('@')
+		author = sks[0]
+
+		if sks[1] in self.clients:
+			# the client was not found, lets update and see what's happening.
+			self.__getClientList()
+
+		# do we know the client?
+		if sks[1] in self.clients:
+			decode_state.client = self.clients[sks[1]]
+
+			# We need the roots to normalise the reviews.
+			for item in self.getClientViews(sks[1]):
+				roots.append(item[0][:-3])
+
+		comment = []
+		# get the comment for the commit.
+		for line in diff_array[1:]:
+			if len(line) >= 1 and (line[0] == '\t' or line[0] == '\r'):
+				comment.append(line[1:])
+			else:
+				break
+
+		# Get the date time for the commit.
+		date = datetime.datetime.strptime(parts[5] + "_" + parts[6], "%Y/%m/%d_%H:%M:%S")
+		patch_time = int(time.mktime(date.timetuple()))
+
+		for line in diff_array:
+			if state == 0:
+				state = self.getFileList(roots, decode_state, line)
+			else:
+				self.getDifferences(decode_state, line)
+
+		if len(decode_state.lines) > 0:
+			decode_state.change_list.append(scm.Change(	decode_state.start_line,
+														decode_state.start_len,
+														decode_state.end_line,
+														decode_state.end_len,
+														decode_state.lines))
+
+		return (author, patch_time, comment, decode_state.result)
 
 #	def fixConflict(self, item, how = MERGE_WORKING):
 #		return False

@@ -80,7 +80,11 @@ class Hunk(NestedTreeNode):
 
 	def toString(self, summary=False):
 		if summary:
-			granularity = 20.0 / (self.original_length + self.new_length);
+			if (self.original_length + self.new_length) > 0:
+				granularity = 20.0 / (self.original_length + self.new_length);
+			else:
+				granularity = 1
+
 			removed = '-' * int(granularity * self.original_length)
 			added = '+' * (20 - int(granularity * self.original_length))
 
@@ -104,6 +108,9 @@ class Hunk(NestedTreeNode):
 	def getChangeStart(self):
 		return self.new_line
 
+	def isLineInHunk(self, line):
+		return self.new_line <= line and (self.new_line + self.new_length) >= line
+
 	def getCommentForLine(self, line_no, pre_side):
 		for item in self.getChildren():
 			if item.isPreSide() == pre_side and item.getLine() == line_no:
@@ -123,6 +130,14 @@ class Hunk(NestedTreeNode):
 			else:
 				left.append(line[1:])
 				right.append(line[1:])
+
+		# Was the file deleted.
+		if self.original_length == 0:
+			left = []
+
+		# is it a new file.
+		if self.new_length == 0:
+			right = []
 
 		return (left, right)
 
