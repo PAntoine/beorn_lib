@@ -304,6 +304,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 				comment = comment[1:]
 
 			return scm.ChangeList(contents[0][7:], timestamp, author, comment, scm.parseUnifiedDiff(specific_commit, None, contents))
+		return None
 
 	def getPatch(self, specific_commit = None):
 		""" This function will return a List containing the requested file.
@@ -909,10 +910,10 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 						(result, _) = self.__callGit(["commit", "--allow-empty", "-m", "initial commit"])
 					else:
-						print "Failed init"
+						pass
+						# TODO: log message
 				else:
 					pass
-					print "Could not create a repo"
 					# TODO: this should cause a log message.
 					# print "no dir" -- else could be a submodule -- this needs to be handled.
 

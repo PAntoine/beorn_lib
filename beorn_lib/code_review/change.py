@@ -108,6 +108,9 @@ class Change(NestedTreeNode):
 		else:
 			self.votes = {}
 
+	def getName(self):
+		return self.getTitle()
+
 	def getID(self):
 		return self.change_id
 
@@ -115,7 +118,7 @@ class Change(NestedTreeNode):
 		vote_string = "{"
 
 		for vote in self.votes:
-			vote_string += vote + ":" + str(votes[vote])
+			vote_string += vote + ":" + str(self.votes[vote])
 
 		vote_string += "}"
 
@@ -129,6 +132,12 @@ class Change(NestedTreeNode):
 
 	def vote(self, user, vote):
 		self.votes[user] = vote
+
+	def getVote(self, user):
+		if user in self.votes:
+			return self.votes[user]
+		else:
+			return None
 
 	def getVotes(self):
 		return self.votes

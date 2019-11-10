@@ -31,5 +31,6 @@ from tree_test import TestTree
 from nested_tree_test import TestNestedTree
 from config_test import TestConfig
 from test_timekeeper import TestTimeKeeper
+from test_swarm_reviews import TestSwarmCodeReview
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

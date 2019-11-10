@@ -49,7 +49,6 @@ SOURCE_STATUS_DELETED	= 3
 #---------------------------------------------------------------------------------
 supported_scms = []
 
-
 #---------------------------------------------------------------------------------
 # Module functions.
 #---------------------------------------------------------------------------------
@@ -70,8 +69,6 @@ def new(repository, remote_url=None):
 
 	if repo_type is not None:
 		result = create(repo_type, remote_url, repo_url)
-	else:
-		print "type is non"
 
 	return result
 
@@ -195,9 +192,10 @@ def createChangeHunk(change, lines = None):
 	else:
 		new_length = int(temp[1])
 
-	return Change( original_line, original_length, new_line, new_length, lines)
+	return Change(original_line, original_length, new_line, new_length, lines)
 
-def parseUnifiedDiff(version, parent_version, diff_array, lines = None):
+
+def parseUnifiedDiff(version, parent_version, diff_array):
 	""" Parse Unified Diff
 
 		This function will take a list of the contents of the diff and then

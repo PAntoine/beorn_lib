@@ -85,11 +85,6 @@ class TestCodeReview(unittest.TestCase):
 		self.assertEqual(1, len(test.getChildren()[0].getChildren()))
 		self.assertEqual(3, len(test.getChildren()[0].getChildren()[0].getChildren()[0].getChildren()))
 
-		# Need to test what the commit has - it should have 1 file with 3 changes.`
-		#print review.getCurrentChange()
-		#print review.getCurrentChange().getChildren()
-		#print review.getCurrentChange().getChildren()[0].getChildren()
-
 		# add some comments to a change
 		comment = Comment('user1', 00000000, ["This is a comment on this line of stuff", "two lines of comment"], 0)
 		review.getCurrentChange().getChildren()[0].getChildren()[1].addChildNode(comment)

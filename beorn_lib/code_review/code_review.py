@@ -25,6 +25,7 @@ from change import Change
 from comment import Comment
 
 class CodeReview(NestedTreeNode):
+	CODE_REVIEW_STATUS_UNKNOWN		= 0
 	CODE_REVIEW_STATUS_OPEN			= 1
 	CODE_REVIEW_STATUS_APPROVED		= 2
 	CODE_REVIEW_STATUS_ABANDONED	= 3
@@ -34,15 +35,6 @@ class CodeReview(NestedTreeNode):
 	CODE_REVIEW_VOTE_DOWN	= 2
 
 	global_review_id = 0
-
-	@classmethod
-	def decode(cls, previous, decode_string, local):
-		parts = decode_string.split(',')
-
-		code_review = CodeReview(int(parts[0]), parts[1], int(parts[2]))
-		code_review.setLocal(local)
-
-		return code_review
 
 	def __getitem__(self, key):
 		for item in self.getChildren():
@@ -80,10 +72,15 @@ class CodeReview(NestedTreeNode):
 
 		self.review_id	= review_id
 		self.author		= author
+		self.state		= CodeReview.CODE_REVIEW_STATUS_OPEN
+		self.title		= None
 		if date is None:
 			self.date = 0
 		else:
 			self.date = date
+
+	def getName(self):
+		return self.getTitle()
 
 	def toString(self):
 		return "review:" + str(self.review_id) + "," + str(self.author) + "," + str(self.date)
@@ -97,14 +94,22 @@ class CodeReview(NestedTreeNode):
 	def getID(self):
 		return self.review_id
 
+	def getLastUpdate(self):
+		return self.date
+
 	def getCurrentChange(self):
 		(result, _, _) = self.getNextNode()
 		return result
 
+	def setTitle(self, title):
+		self.title = title
+
 	def getTitle(self):
 		result = 'No Title'
 
-		if self.hasChild():
+		if self.title is not None:
+			result = self.title
+		elif self.hasChild():
 			(first_child, _, _) = self.getNextNode()
 			result = first_child.getTitle()
 
@@ -127,11 +132,10 @@ class CodeReview(NestedTreeNode):
 			return []
 
 	def getState(self):
-		if self.hasChild():
-			(first_child, _, _) = self.getNextNode()
-			return first_child.getState()
-		else:
-			return CodeReview.CODE_REVIEW_STATUS_OPEN
+		return self.state
+
+	def setState(self, state):
+		self.state = state
 
 	def isApproved(self):
 		if self.hasChild():
@@ -158,31 +162,5 @@ class CodeReview(NestedTreeNode):
 		new_change = Change(change_list)
 		self.addChildNode(new_change, NestedTreeNode.INSERT_FRONT)
 		return new_change
-
-	def clearLocal(self):
-		""" Clear Local
-
-			If you have amended the coderievew (added a comment) or voted
-		"""
-		if self.colour == colour:
-			return self
-
-		else:
-			current = self
-
-			while current is not None and current.colour <= colour:
-				if current.colour == colour:
-					return current
-
-				if current.next_node is not None and current.next_node.colour <= colour:
-					current = current.next_node
-				elif current.child_node is not None:
-					# Ok, we know it's between us and the next node, look children.
-					current = current.child_node
-				else:
-					# Ok, can't exist.
-					return None
-
-		return None
 
 # vim: ts=4 sw=4 noexpandtab nocin ai
