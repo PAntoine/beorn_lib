@@ -146,10 +146,31 @@ class TestConfig(unittest.TestCase):
 		new_config.setValue('new_1', 'name', ['value_1', 'value_2'])
 		self.assertEqual({'name':['value_1', 'value_2']} , new_config.find('new_1'))
 
+		# test the save works for the complicated stuff
+		self.assertEqual(0, new_config.save())
+
 		# remove item from the config item
 		self.assertTrue(new_config.remove('item', 'name'))
 		self.assertEqual(DELETE_ITEM, new_config.export())
 		new_config.remove('list')
 		self.assertEqual(DELETE_ITEM_2, new_config.export())
+
+		# test the save works for the complicated stuff
+		self.assertEqual(0, new_config.save())
+
+	def test_configCorner(self):
+		""" Config Tests
+
+			Corner cases.
+		"""
+		# test creation with a configuration - empty list
+		config = {	'item':{'name':'something', 'time':'5435435345'},
+					'list':[]}
+
+		# basic test of a created config
+		new_config = Config(os.path.join(self.config_dir, 'test2.cfg'), config)
+		self.assertIsNotNone(new_config)
+
+		self.assertEqual(0, new_config.save())
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

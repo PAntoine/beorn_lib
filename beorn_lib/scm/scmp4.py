@@ -186,7 +186,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			except subprocess.CalledProcessError, e:
 				pass
 		else:
-			print "not logged in"
+			# TODO: log this "not logged in"
 			return None
 
 	@classmethod
@@ -563,7 +563,8 @@ class SCM_P4(scmbase.SCM_BASE):
 				# I really hate having to use exceptions as loop bounds!!
 				result = False
 		else:
-			print "not logged in"
+			# TODO: log this "not logged in"
+			pass
 
 		return (result, stdout)
 

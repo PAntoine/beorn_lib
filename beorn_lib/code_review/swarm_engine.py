@@ -95,7 +95,7 @@ class SwarmReviewEngine(ReviewEngine):
 		else:
 			request = urllib2.Request(url + '?' + urllib.urlencode(parameters, True))
 
-		if len(self.key) == 32:
+		if self.key is not None and len(self.key) == 32:
 			password = base64.encodestring('%s:%s' % (self.user, self.key))[:-1]
 			request.add_header("Authorization", "Basic " + password)
 		elif self.key == "'login' not necessary, no password set for this user.":
@@ -103,7 +103,7 @@ class SwarmReviewEngine(ReviewEngine):
 			return None
 
 		try:
-			handle = urllib2.urlopen(request)
+			handle = urllib2.urlopen(request, timeout=3)
 			return json.loads(handle.read())
 
 		except urllib2.URLError, e:
