@@ -186,7 +186,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			except subprocess.CalledProcessError, e:
 				pass
 		else:
-			print "not logged in"
+			# TODO: log this "not logged in"
 			return None
 
 	@classmethod
@@ -460,8 +460,8 @@ class SCM_P4(scmbase.SCM_BASE):
 		if self.user is not None and self.user != '':
 			result += ['-u', self.user]
 
-		#if self.password is not None and self.password != '':
-		#	result += ['-P', self.password]
+		if self.password is not None and self.password != '':
+			result += ['-P', self.password]
 
 		return result
 
@@ -559,11 +559,12 @@ class SCM_P4(scmbase.SCM_BASE):
 				stdout, stderr = proc.communicate('\n'.join(command_input) + '\n')
 				result = proc.returncode == 0
 
-			except subprocess.CalledProcessError, e:
+			except subprocess.CalledProcessError:
 				# I really hate having to use exceptions as loop bounds!!
 				result = False
 		else:
-			print "not logged in"
+			# TODO: log this "not logged in"
+			pass
 
 		return (result, stdout)
 
@@ -733,15 +734,15 @@ class SCM_P4(scmbase.SCM_BASE):
 		return self.current_client.name
 
 	def getCurrentVersion(self):
-		version = self.__p4Command(['changes', '-m1'])
-		result = ''
-
-		if version is not None:
-			result = version.split()[1]
+		""" This should return the reference for the current instance.
+			With P4 this is kind of difficult as the model does not lend itself to
+			to specifying a version. So we should go with the current workspace as
+			this is mostly used to identify that you are doing now.
+		"""
+		if self.current_client is not None:
+			return self.current_client.name
 		else:
-			result = ''
-
-		return result
+			return 'default'
 
 	def getHistory(self, filename=None, version=None, max_entries=None):
 		result = []

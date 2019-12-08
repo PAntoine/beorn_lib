@@ -143,6 +143,24 @@ class SCM_GIT(scmbase.SCM_BASE):
 			if '.git' in dirs:
 				git_repos.append(os.path.realpath(root))
 
+		# Now need to search for parent trees.
+		(working_path, _) = os.path.split(os.path.realpath(path))
+		while working_path != '':
+			if '.git' in os.listdir(working_path):
+				git_path = os.path.join(working_path, '.git')
+
+				if os.path.isdir(git_path):
+					git_repos.append(os.path.realpath(working_path))
+				else:
+					sub_modules.append(os.path.realpath(working_path))
+
+			(temp, _) = os.path.split(working_path)
+
+			if temp == working_path:
+				break
+			else:
+				working_path = temp
+
 		return (git_repos, sub_modules)
 
 	@classmethod
