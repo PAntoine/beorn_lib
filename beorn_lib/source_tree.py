@@ -20,6 +20,7 @@
 #---------------------------------------------------------------------------------
 
 import os
+from beorn_lib.utilities import Utilities
 from beorn_lib.nested_tree import NestedTreeNode
 
 class SourceTree(NestedTreeNode):
@@ -61,6 +62,18 @@ class SourceTree(NestedTreeNode):
 		self.item_state = {}
 
 		super(SourceTree, self).__init__(name, None)
+
+	def copy(self, new_node):
+		super(SourceTree, self).copy(new_node)
+
+		self.name = new_node.name
+		self.root = new_node.root
+		self.scm = new_node.scm
+		self.is_dir = new_node.is_dir
+		self.on_filesystem = new_node.on_filesystem
+		self.flag = new_node.flag
+		self.submodule = new_node.submodule
+		self.item_state = new_node.item_state
 
 	def __lt__(self, other):
 		if type(other) is SourceTree:
@@ -108,6 +121,27 @@ class SourceTree(NestedTreeNode):
 	def isLink(self):
 		# TODO: implement this!!
 		return False
+
+	def rebaseTree(self, new_path):
+		""" Rebase the Tree.
+
+			It will only rebase the tree towards the root (that is to make usage easier).
+			It will copy all the children of the tree to the new root. It will also create
+			all the nodes between the new root and the current.
+		"""
+		result = self
+		current_path = self.getPath()
+
+		if new_path != current_path and Utilities.isChildDirectory(current_path, new_path):
+			new_root = SourceTree(new_path)
+			# add the route between the new root and the old.
+			old_node = new_root.addTreeNodeByPath(self.getPath())
+			# now copy the current to the new.
+			old_node.copy(self)
+
+			result = new_root
+
+		return result
 
 	def isOnFilesystem(self):
 		return self.on_filesystem

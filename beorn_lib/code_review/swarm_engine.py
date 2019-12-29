@@ -99,20 +99,20 @@ class SwarmReviewEngine(ReviewEngine):
 			password = base64.encodestring('%s:%s' % (self.user, self.key))[:-1]
 			request.add_header("Authorization", "Basic " + password)
 		elif self.key == "'login' not necessary, no password set for this user.":
-			print "ahhh --- magic user I can't handled these."
+			# TODO: need to add logging.
+			# print "ahhh --- magic user I can't handled these."
 			return None
 
 		try:
 			handle = urllib2.urlopen(request, timeout=3)
 			return json.loads(handle.read())
 
-		except urllib2.URLError, e:
-			print "command", url
-			print "url error", e
+		except urllib2.URLError:
+			# TODO: need to add logging.
 			return None
 
-		except urllib2.HTTPError, e:
-			print "url http error", e
+		except urllib2.HTTPError:
+			# TODO: need to add logging.
 			return None
 
 	def getName(self):
@@ -286,7 +286,9 @@ class SwarmReviewEngine(ReviewEngine):
 			if change_list is not None:
 				new_review.addChange(change_list)
 			else:
-				print "problem with: ", code_review['id'], " commit:", str(commit)
+				# TODO: need to add logging.
+				# print "problem with: ", code_review['id'], " commit:", str(commit)
+				pass
 
 		self.updateVotes(new_review, code_review['participants'])
 		self.updateComments(new_review)

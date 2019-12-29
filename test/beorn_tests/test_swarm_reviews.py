@@ -57,7 +57,6 @@ class TestSwarmCodeReview(unittest.TestCase):
 		return (node, value, False)
 
 	def password_function(self, user):
-		print "password for '" + user + "'"
 		return getpass.getpass()
 
 	def test_codeReview(self):
@@ -78,24 +77,15 @@ class TestSwarmCodeReview(unittest.TestCase):
 		items = code.walkTree(self.all_nodes_function)
 		childs_a = code.getChildren()
 
-		print "meh 1"
 		code.update()
 		childs_b = code.getChildren()
 
-		print "meh 2"
 		code.update()
 		childs_c = code.getChildren()
 
-		print "meh 3"
 		code.update()
 
-		print "meh 4"
 		code.updateReviews()
-		#for item in items:
-		#	print item
-
-
 		print "childs", len(childs_b), len(childs_a), len(childs_c)
-
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

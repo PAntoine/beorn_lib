@@ -37,6 +37,7 @@ import marshal
 import subprocess
 import multiprocessing
 
+from beorn_lib.utilities import Utilities
 from collections import OrderedDict
 
 #---------------------------------------------------------------------------------
@@ -242,11 +243,10 @@ class SCM_P4(scmbase.SCM_BASE):
 
 				if len(bit) > 4 and not bit[1].startswith('swarm'):
 					# I have so much hate for P4 - it sometimes returns windows paths with a lowercase c:
-					# and sometimes upper.
-					if bit[4][1] == ':':
-						result.append((bit[1], bit[4][0].upper() + bit[4][1:]))
-					else:
-						result.append((bit[1], bit[4]))
+					# and sometimes upper. It's because it returns what is set in the client and that
+					# can be anything.
+					name = bit[4][0].upper() + bit[4][1:]
+					result.append((bit[1], name))
 
 		return result
 
@@ -264,9 +264,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		real_path = os.path.realpath(path)
 
 		for client in clients:
-			# TODO: Nasty hack - need to find a way to normalise the drive letter, can be
-			#       either case. What is the standard python function for this.
-			if client[1][1:] == real_path[1:]:
+			if real_path == client[1] or Utilities.isChildDirectory(real_path, client[1]):
 				p4_repos.append(client[1])
 
 		return (p4_repos, [])
@@ -479,7 +477,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			except subprocess.CalledProcessError, e:
 				return None
 		else:
-			print "not logged in"
+			# TODO: Add logging - print "not logged in"
 			return None
 
 	def __p4ObjectCommand(self, command_list, callback, use_client=True):
@@ -574,13 +572,10 @@ class SCM_P4(scmbase.SCM_BASE):
 		new_client.name = obj['client']
 		new_client.update = int(obj['Update'])
 		new_client.access = int(obj['Access'])
-		new_client.root   = obj['Root']
+		new_client.root   = obj['Root'][0].upper() + obj['Root'][1:]
 		new_client.owner  = obj['Owner']
 		new_client.options = obj['Options'].split(' ')
 		new_client.description = obj['Description'].splitlines()
-
-		if len(new_client.root) > 1 and new_client.root[1] == ':':
-			new_client.root = new_client.root[0].upper() + new_client.root[1:]
 
 		self.clients[obj['client']] = new_client
 
@@ -794,7 +789,6 @@ class SCM_P4(scmbase.SCM_BASE):
 			length = len(self.working_dir) + 1
 			result.append(scm.SCMStatus('M', obj['clientFile'][length:]))
 
-
 	def getTreeChanges(self, from_version = None, to_version = None, path = None):
 		result = []
 
@@ -803,7 +797,6 @@ class SCM_P4(scmbase.SCM_BASE):
 		# TODO: might be better to so, the following then do a reconcile add.
 		# p4 diff -f -sl
 		# follow this with a "status -a" to find the new files.
-
 		if self.quick_updates:
 			self.__p4ObjectCommand(['sync', '-n', '-m'], call_back)
 		else:
@@ -813,7 +806,6 @@ class SCM_P4(scmbase.SCM_BASE):
 		self.__p4ObjectCommand(['diff', '-sa'], call_back)
 
 		return result
-
 
 	def getDiffDetails(self, from_version = None, to_version = None, path = None):
 		if path is None:
@@ -1066,7 +1058,7 @@ class SCM_P4(scmbase.SCM_BASE):
 				view_spec.append('\t//depot/' + use_name +'/... //' + self.current_client.name + '/' +  use_name + "/...")
 
 				name = result[0]['Client']
-				root   = result[0]['Root']
+				root = result[0]['Root'][0].upper() + result[0]['Root'][1:]
 				options = result[0]['Options']
 				description = result[0]['Description']
 

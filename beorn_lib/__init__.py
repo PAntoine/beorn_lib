@@ -42,5 +42,6 @@ from beorn_lib.project_plan import ProjectPlan
 from beorn_lib.nested_tree import NestedTreeNode
 from beorn_lib.timekeeper import TimeKeeper
 from beorn_lib.tasks import Tasks
+from beorn_lib.utilities import Utilities
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

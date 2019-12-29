@@ -45,6 +45,16 @@ class NestedTreeNode (object):
 
 		super(NestedTreeNode, self).__init__()
 
+	def copy(self, old_node):
+		self.next_node = old_node.next_node
+		self.prev_node = old_node.prev_node
+		self.parent_node = old_node.parent_node
+		self.open = old_node.open
+		self.is_sub_node = old_node.is_sub_node
+		self.child_node = old_node.child_node
+		self.payload = old_node.payload
+		self.colour = old_node.colour
+
 	def __iter__(self):
 		for item in self.getChildren():
 			yield item
