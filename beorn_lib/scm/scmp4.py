@@ -185,7 +185,7 @@ class SCM_P4(scmbase.SCM_BASE):
 					return subprocess.check_output(['p4'] + command_list, stderr=subprocess.STDOUT)
 
 			except subprocess.CalledProcessError, e:
-				pass
+				return None
 		else:
 			# TODO: log this "not logged in"
 			return None
@@ -202,6 +202,9 @@ class SCM_P4(scmbase.SCM_BASE):
 			return True
 		except subprocess.CalledProcessError, e:
 			return False
+		except WindowsError:
+			# P4 is not installed
+			return False
 
 	@classmethod
 	def p4Login(cls, user_name, password):
@@ -214,15 +217,21 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		# TODO: need to call password function if password is None and user_name is not.
 		if user_name is not None and password is not None:
-			if sys.platform == 'win32':
-				proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, creationflags=CREATE_NO_WINDOW)
-			else:
-				proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+			try:
+				if sys.platform == 'win32':
+					proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, creationflags=CREATE_NO_WINDOW)
+				else:
+					proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
-			value = proc.communicate(input=password)
+				value = proc.communicate(input=password)
 
-			if proc.returncode == 0:
-				result = value[0].strip()
+				if proc.returncode == 0:
+					result = value[0].strip()
+			except subprocess.CalledProcessError, e:
+				return False
+			except WindowsError:
+				# P4 is not installed
+				return False
 
 		return result
 
@@ -525,6 +534,10 @@ class SCM_P4(scmbase.SCM_BASE):
 					return result
 				else:
 					return False
+			except WindowsError:
+				# P4 is not installed
+				return False
+
 		else:
 			return False
 
@@ -834,8 +847,18 @@ class SCM_P4(scmbase.SCM_BASE):
 		contents = []
 		call_back = lambda obj: contents.append(obj)
 
-		contents = self.__p4Command(['describe', '-a', '-S', '-du', str(specific_commit)])
-		(author, timestamp, comment, changes) = self.parsePerforceUnifiedDiff(specific_commit, contents.split('\n'))
+		# TODO: remove "-a" as it not longer works :(
+		contents = self.__p4Command(['describe', '-S', '-du', str(specific_commit)])
+		if contents is not None:
+			parts = contents.split("\n")
+
+			if len(parts) > 1:
+				(author, timestamp, comment, changes) = self.parsePerforceUnifiedDiff(specific_commit, contents.split('\n'))
+			else:
+				return None
+		else:
+			return None
+
 		return scm.ChangeList(specific_commit, timestamp, author, comment, changes)
 
 	def changeListFunction(self, result, obj):
@@ -1094,7 +1117,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		result = 0
 
 		if line[0:3] == '...':
-			[name, action] = line[4:].split()
+			[name, action] = line[4:].split(None, 1)
 
 			# remove the depot part from the name, easier to read in the review tree.
 			for item in roots:
@@ -1179,16 +1202,21 @@ class SCM_P4(scmbase.SCM_BASE):
 		sks = parts[3].split('@')
 		author = sks[0]
 
-		if sks[1] in self.clients:
+		if len(sks) > 1:
+			client = sks[1]
+		else:
+			client = ''
+
+		if client not in self.clients:
 			# the client was not found, lets update and see what's happening.
 			self.__getClientList()
 
 		# do we know the client?
-		if sks[1] in self.clients:
-			decode_state.client = self.clients[sks[1]]
+		if client in self.clients:
+			decode_state.client = self.clients[client]
 
 			# We need the roots to normalise the reviews.
-			for item in self.getClientViews(sks[1]):
+			for item in self.getClientViews(client):
 				roots.append(item[0][:-3])
 
 		comment = []
@@ -1200,10 +1228,16 @@ class SCM_P4(scmbase.SCM_BASE):
 				break
 
 		# Get the date time for the commit.
-		date = datetime.datetime.strptime(parts[5] + "_" + parts[6], "%Y/%m/%d_%H:%M:%S")
-		patch_time = int(time.mktime(date.timetuple()))
+		if len(parts) < 6:
+			# TODO: This needs fixing.
+			patch_time = 6
+		else:
+			# Get the date time for the commit.
+			date = datetime.datetime.strptime(parts[5] + "_" + parts[6], "%Y/%m/%d_%H:%M:%S")
+			patch_time = int(time.mktime(date.timetuple()))
 
 		for line in diff_array:
+			# TODO: handle file renames - "moved from"
 			if state == 0:
 				state = self.getFileList(roots, decode_state, line)
 			else:

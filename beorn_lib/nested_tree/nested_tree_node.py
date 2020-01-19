@@ -26,6 +26,7 @@ class NestedTreeNode (object):
 	DIRECTION_UP	= 1
 	DIRECTION_DOWN	= 2
 	DIRECTION_NEXT	= 3
+	DIRECTION_STOP	= 4
 
 	# how to insert a child_node into the list of child nodes.
 	INSERT_FRONT		= 1
@@ -226,6 +227,10 @@ class NestedTreeNode (object):
 		elif self.parent_node is not None:
 			(node,levels) = self.getNextUpNode()
 			result = (node,levels,NestedTreeNode.DIRECTION_UP)
+
+		else:
+			# no children, no next, no parent_node, must be the root current_node.
+			result = (None, 0, None)
 
 		return result
 

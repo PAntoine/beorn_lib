@@ -19,6 +19,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
+import os
 import json
 import base64
 import urllib
@@ -62,7 +63,15 @@ class SwarmReviewEngine(ReviewEngine):
 			self.user = self.getUser()
 
 		self.scm = SCM_P4(repo_url=configuration['perforce_server'])
+		if 'working_directory' in configuration and configuration['working_directory'] != '':
+			self.working_directory = configuration['working_directory']
+		else:
+			# TODO: HACK - remove this - we should get the path passed in.
+			self.working_directory = os.path.realpath('.')
 
+		self.scm = SCM_P4(repo_url=self.perforce_server, working_dir=self.working_directory)
+
+		# BUG: Here -- the key returned is not valid
 		if password_function is not None:
 			self.scm.setPasswordFunction(password_function)
 			self.key = self.scm.getUserKey(self.user)
@@ -84,7 +93,7 @@ class SwarmReviewEngine(ReviewEngine):
 				('TextField', 'text', 'perforce_server', "Perforce Server Address"),
 				('TextField', 'text', 'user', "Perforce User Name"),
 				('TextField', 'numeric', 'poll_period', "How often to poll swarm"),
-				('TextField', 'numeric', 'user_group', "User group to pay attention to."),
+				('TextField', 'text', 'user_group', "User group to pay attention to."),
 				('ButtonList', 'multiple', 'options', "Options", button_list)]
 
 	def __swarm_command(self, command, parameters):
@@ -100,11 +109,11 @@ class SwarmReviewEngine(ReviewEngine):
 			request.add_header("Authorization", "Basic " + password)
 		elif self.key == "'login' not necessary, no password set for this user.":
 			# TODO: need to add logging.
-			# print "ahhh --- magic user I can't handled these."
+			print "ahhh --- magic user I can't handled these."
 			return None
 
 		try:
-			handle = urllib2.urlopen(request, timeout=3)
+			handle = urllib2.urlopen(request, timeout=10)
 			return json.loads(handle.read())
 
 		except urllib2.URLError:
@@ -112,7 +121,7 @@ class SwarmReviewEngine(ReviewEngine):
 			return None
 
 		except urllib2.HTTPError:
-			# TODO: need to add logging.
+			# TODO: Also this is the error if it fails to logon.
 			return None
 
 	def getName(self):
@@ -243,12 +252,12 @@ class SwarmReviewEngine(ReviewEngine):
 
 				text = comment['body'].splitlines()
 
-				if 'rightLine' in comment['context']:
+				if 'rightLine' in comment['context'] and comment['context']['rightLine']:
 					line = int (comment['context']['rightLine'])
 					pre_side = False
-				elif 'leftLine' in comment['context']:
-					line = int (comment['context']['leftLine'])
-					pre_side = True
+				elif 'leftLine' in comment['context'] and comment['context']['rightLine']:
+					line = int (comment['context']['rightLine'])
+					pre_side = False
 				else:
 					line = 0
 					pre_side = False
@@ -259,7 +268,7 @@ class SwarmReviewEngine(ReviewEngine):
 				else:
 					for item in change.getChildren():
 						if type(item) == ChangeFile:
-							if comment['context']['file'].endswith(item.getName()):
+							if 'file' in comment['context'] and comment['context']['file'] and comment['context']['file'].endswith(item.getName()):
 								if new_comment not in item:
 									for child in item.getChildren():
 										if type(child) == Hunk and child.isLineInHunk(line):

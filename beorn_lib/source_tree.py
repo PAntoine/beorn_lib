@@ -46,14 +46,14 @@ class SourceTree(NestedTreeNode):
 
 	def __init__(self, name, root=None):
 		self.name = name
-
 		if root is not None:
 			self.root = os.path.realpath(root)
+			self.is_dir = True
 		else:
 			self.root = None
+			self.is_dir = False
 
 		self.scm  = None
-		self.is_dir = False
 		self.on_filesystem = False
 		self.flag = None
 		self.submodule = False
@@ -133,13 +133,13 @@ class SourceTree(NestedTreeNode):
 		current_path = self.getPath()
 
 		if new_path != current_path and Utilities.isChildDirectory(current_path, new_path):
-			new_root = SourceTree(new_path)
-			# add the route between the new root and the old.
-			old_node = new_root.addTreeNodeByPath(self.getPath())
-			# now copy the current to the new.
-			old_node.copy(self)
 
-			result = new_root
+			meh = os.path.relpath(current_path, new_path)
+			result = SourceTree(os.path.basename(new_path), os.path.realpath(new_path))
+
+			# add the route between the new root and the old.
+			add_stuff = result.addTreeNodeByPath(meh)
+			add_stuff.addChildNode(self)
 
 		return result
 
@@ -362,7 +362,7 @@ class SourceTree(NestedTreeNode):
 
 		return result
 
-	def addTreeNodeByPath(self, path):
+	def addTreeNodeByPath(self, path, existing_node=None):
 		""" Add an Item to the Tree by Path
 
 			It will find the place that the item belongs
@@ -374,13 +374,13 @@ class SourceTree(NestedTreeNode):
 
 		result = None
 		found = True
-		new_path = ''
+		new_path = self.getPath()
 
 		if not self.isSuffixFiltered(path):
 			result = self
 			for part in path_bits:
 
-				new_path = os.path.join(new_path, path)
+				new_path = os.path.join(new_path, part)
 				if found:
 					next_item = result.findChild(part)
 					if next_item is None:
@@ -393,16 +393,21 @@ class SourceTree(NestedTreeNode):
 						result = None
 						break
 					else:
-						is_exist = os.path.exists(new_path)
-						is_link = False
+						if existing_node is None:
+							is_exist = os.path.exists(new_path)
+							is_link = False
+							is_dir  = False
 
-						if is_exist:
-							is_link = os.path.islink(new_path)
-							is_dir	= os.path.isdir(new_path)
+							if is_exist:
+								is_link = os.path.islink(new_path)
+								is_dir  = os.path.isdir(new_path)
 
-						new_node = SourceTree(part)
-						new_node.on_filesystem	= is_exist
-						new_node.is_link  		= is_link
+							new_node = SourceTree(part)
+							new_node.on_filesystem	= is_exist
+							new_node.is_link  		= is_link
+							new_node.is_dir			= is_dir
+						else:
+							new_node = existing_node
 
 						result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
 						result = new_node
