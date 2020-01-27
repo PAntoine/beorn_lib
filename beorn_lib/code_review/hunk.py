@@ -123,9 +123,9 @@ class Hunk(NestedTreeNode):
 		right = []
 
 		for line in self.lines:
-			if line[0] == '+':
+			if line != '' and line[0] == '+':
 				right.append(line[1:])
-			elif line[0] == '-':
+			elif line != '' and line[0] == '-':
 				left.append(line[1:])
 			else:
 				left.append(line[1:])
@@ -142,7 +142,8 @@ class Hunk(NestedTreeNode):
 		return (left, right)
 
 	def getContents(self):
-		return line
+		print "meh, getContents called"
+		return []
 
 	def getNumComments(self):
 		return self.getNumberChildren()

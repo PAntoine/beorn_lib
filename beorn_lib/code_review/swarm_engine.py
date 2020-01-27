@@ -62,7 +62,6 @@ class SwarmReviewEngine(ReviewEngine):
 		else:
 			self.user = self.getUser()
 
-		self.scm = SCM_P4(repo_url=configuration['perforce_server'])
 		if 'working_directory' in configuration and configuration['working_directory'] != '':
 			self.working_directory = configuration['working_directory']
 		else:
@@ -111,6 +110,8 @@ class SwarmReviewEngine(ReviewEngine):
 			# TODO: need to add logging.
 			print "ahhh --- magic user I can't handled these."
 			return None
+		else:
+			return None
 
 		try:
 			handle = urllib2.urlopen(request, timeout=10)
@@ -121,6 +122,7 @@ class SwarmReviewEngine(ReviewEngine):
 			return None
 
 		except urllib2.HTTPError:
+			# TODO: need to add logging.
 			# TODO: Also this is the error if it fails to logon.
 			return None
 
@@ -177,7 +179,7 @@ class SwarmReviewEngine(ReviewEngine):
 					if change is not None:
 						review.addChange(change)
 
-				result = True
+			result = True
 
 		self.updateVotes(review, new_state['participants'])
 		self.updateComments(review)
@@ -191,10 +193,10 @@ class SwarmReviewEngine(ReviewEngine):
 		command = ['reviews']
 		parameters = {}				#'fields': 'state,commitStatus,commits,description,id,author,participants,updated'}
 
-		if self.as_author:
-			parameters['author'] = self.user
-		elif len(self.user_group) > 0:
-			parameters['participants'] = self.user_group
+		#if self.as_author:
+		parameters['author'] = self.user
+		#elif len(self.user_group) > 0:
+		#	parameters['participants'] = self.user_group
 
 		results = self.__swarm_command(command, parameters)
 
@@ -248,7 +250,10 @@ class SwarmReviewEngine(ReviewEngine):
 
 		if results is not None:
 			for comment in results['comments']:
-				change = self.getChangeByVersion(code_review_obj, comment['context']['version'])
+				if 'context' in comment and comment['context'] != [] and 'version' in comment['context']:
+					change = self.getChangeByVersion(code_review_obj, comment['context']['version'])
+				else:
+					change = None
 
 				text = comment['body'].splitlines()
 
@@ -256,8 +261,8 @@ class SwarmReviewEngine(ReviewEngine):
 					line = int (comment['context']['rightLine'])
 					pre_side = False
 				elif 'leftLine' in comment['context'] and comment['context']['rightLine']:
-					line = int (comment['context']['rightLine'])
-					pre_side = False
+					line = int (comment['context']['leftLine'])
+					pre_side = True
 				else:
 					line = 0
 					pre_side = False
@@ -283,7 +288,7 @@ class SwarmReviewEngine(ReviewEngine):
 						change.addChildNode(new_comment)
 
 	def addReview(self, code_review):
-		new_review = CodeReview(code_review['id'], code_review['author'], date = 0)
+		new_review = CodeReview(code_review['id'], code_review['author'], code_review['updated'])
 		new_review.setState(self.calcReviewState(code_review))
 
 		desc = code_review['description'].splitlines()

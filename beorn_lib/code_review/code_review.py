@@ -19,7 +19,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from base64 import b64encode, b64decode
+from beorn_lib.scm import ChangeList
 from beorn_lib.nested_tree import NestedTreeNode
 from change import Change
 from comment import Comment
@@ -53,6 +53,9 @@ class CodeReview(NestedTreeNode):
 			Will return True if 'other' is the name of one of the children.
 		"""
 		for item in self.getChildren():
+			if isinstance(other, ChangeList):
+				if item.getID() ==  other.commit_id:
+					return True;
 			if isinstance(other, NestedTreeNode):
 				if item.getID() == other.getID():
 					return True
@@ -64,14 +67,14 @@ class CodeReview(NestedTreeNode):
 		self.is_local = is_local
 
 		if review_id is None:
-			review_id = str(CodeReview.global_review_id)
+			review_id = CodeReview.global_review_id
 			CodeReview.global_review_id += 1
 		else:
 			CodeReview.global_review_id = review_id + 1
 
 		super(CodeReview, self).__init__()
 
-		self.review_id	= review_id
+		self.review_id	= str(review_id)
 		self.author		= author
 		self.state		= CodeReview.CODE_REVIEW_STATUS_OPEN
 		self.title		= None
@@ -79,6 +82,15 @@ class CodeReview(NestedTreeNode):
 			self.date = 0
 		else:
 			self.date = date
+
+	def dumpChanges(self):
+		# TODO: remove this is bad debug.
+		result = []
+
+		for review in self:
+			result.append(review.getID())
+
+		return result
 
 	def getName(self):
 		return self.getTitle()
@@ -160,8 +172,11 @@ class CodeReview(NestedTreeNode):
 		return result
 
 	def addChange(self, change_list):
-		new_change = Change(change_list)
-		self.addChildNode(new_change, NestedTreeNode.INSERT_FRONT)
-		return new_change
+		# TODO: Need to test to see if this change is already in the tree.
+		#       this change probably won't work.
+		if change_list not in self:
+			new_change = Change(change_list)
+			self.addChildNode(new_change, NestedTreeNode.INSERT_FRONT)
+			return new_change
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

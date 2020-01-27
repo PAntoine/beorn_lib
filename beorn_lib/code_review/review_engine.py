@@ -42,7 +42,6 @@ def getSupportedEngines():
 		result.append(registered_engines[item])
 	return result
 
-
 class ReviewEngine(NestedTree):
 	@classmethod
 	def getDefaultConfiguration(cls):
@@ -59,7 +58,7 @@ class ReviewEngine(NestedTree):
 
 	def __getitem__(self, key):
 		for item in self:
-			if key == item.getID():
+			if key == item.getID() or str(key) == item.getID():
 				return item
 
 		raise KeyError("Does not exist")
@@ -70,10 +69,30 @@ class ReviewEngine(NestedTree):
 			Will return True if 'other' is the name of one of the children.
 		"""
 		for item in self:
-			if other == item.getID() or type(other) == CodeReview and other.getID() == item.getID():
+			if other == item.getID() or \
+				(type(other) == CodeReview and other.getID() == item.getID()) or \
+				str(other) == item.getID():
 				return True
 
 		return False
+
+	# TODO: remove --- awful debug.
+	def dumpItems(self):
+		result = []
+		result2 = []
+
+		for item in self.getChildren():
+			result.append(item.getID())
+
+		for item in self:
+			result2.append(item.getID())
+
+		if set(result2) != set(result):
+			print "Failed does not match"
+			print result2
+
+
+		return result
 
 	def setDirty(self):
 		self.is_dirty = True

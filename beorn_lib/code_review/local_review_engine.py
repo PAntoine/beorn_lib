@@ -94,7 +94,7 @@ class LocalReviewEngine(ReviewEngine):
 	def decode(self, previous, decode_string, local):
 		parts = decode_string.split(',')
 
-		code_review = CodeReview(int(parts[0]), parts[1], int(parts[2]))
+		code_review = CodeReview(parts[0], parts[1], int(parts[2]))
 		code_review.setLocal(local)
 
 		return code_review
@@ -116,8 +116,8 @@ class LocalReviewEngine(ReviewEngine):
 						self.addChildNode(current_item)
 		except IOError:
 			return False
-		except:
-			print "other exception"
+		except OSError:
+			return False
 		return True
 
 	def readerFunction(self, last_visited_node, node, value, level, direction):

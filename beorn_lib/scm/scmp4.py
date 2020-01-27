@@ -202,7 +202,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			return True
 		except subprocess.CalledProcessError, e:
 			return False
-		except WindowsError:
+		except OSError:
 			# P4 is not installed
 			return False
 
@@ -219,19 +219,20 @@ class SCM_P4(scmbase.SCM_BASE):
 		if user_name is not None and password is not None:
 			try:
 				if sys.platform == 'win32':
-					proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE, creationflags=CREATE_NO_WINDOW)
+					proc = subprocess.Popen(['p4', 'login', '-pa'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, creationflags=CREATE_NO_WINDOW)
 				else:
-					proc = subprocess.Popen(['p4', 'login', '-pa', user_name], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+					proc = subprocess.Popen(['p4', 'login', '-pa'], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
 				value = proc.communicate(input=password)
 
 				if proc.returncode == 0:
-					result = value[0].strip()
+					result = value[0].splitlines()[1].strip()
+
 			except subprocess.CalledProcessError, e:
-				return False
-			except WindowsError:
+				return None
+			except OSError:
 				# P4 is not installed
-				return False
+				return None
 
 		return result
 
@@ -534,7 +535,7 @@ class SCM_P4(scmbase.SCM_BASE):
 					return result
 				else:
 					return False
-			except WindowsError:
+			except OSError:
 				# P4 is not installed
 				return False
 

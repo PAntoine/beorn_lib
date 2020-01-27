@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 1.1.4 ##
+## version 1.1.5 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -20,7 +20,7 @@ It has been written python.
 - Documentation is lacking and comments are crap and scarce.
 
 ## Changes ##
-Bug Fixes: Make stuff work.
+Bug Fixes: Make stuff work (mostly swarm and P4)
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2020 Peter Antoine

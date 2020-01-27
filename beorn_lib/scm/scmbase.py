@@ -22,7 +22,11 @@ class SCM_BASE(object):
 
 	def __init__(self, working_dir, repo_dir=None, server_url=None, user_name=None, password=None):
 		self.server_url = server_url
-		self.working_dir = os.path.realpath(working_dir)
+
+		if working_dir is  not None:
+			self.working_dir = os.path.realpath(working_dir)
+		else:
+			self.working_dir = os.path.realpath('.')
 
 		if repo_dir is None:
 			self.repo_dir = self.working_dir
