@@ -114,6 +114,9 @@ class NestedTreeNode (object):
 		""" Gets the parent node """
 		return self.parent_node
 
+	def getColour(self):
+		return self.colour
+
 	def isChildOf(self, node):
 		""" Returns true if the node is a child the given node """
 		result = False
@@ -517,6 +520,21 @@ class NestedTreeNode (object):
 					return None
 
 		return None
+
+	def openParents(self, state):
+		""" Change the state of the parent nodes in the tree
+			It returns the highest parent found.
+		"""
+		current = self.parent_node
+		current.open = state
+		result = []
+
+		while current is not None:
+			result.insert(0, current)
+			current.open = state
+			current = current.parent_node
+
+		return result
 
 	def walkTree(self, action_function = None):
 		""" This function will walk the whole tree and call the actions.

@@ -149,9 +149,20 @@ class SourceTree(NestedTreeNode):
 	def updateItemState(self, name, state):
 		self.item_state[name] = state
 
+		# We have been changed, so all parents have to be modified.
+		self.setFlag('M')
+
 	def removeItemState(self, name):
 		if name in self.item_state:
 			del self.item_state[name]
+
+		# TODO: need to update the tree start, that would need
+		#		a proper tree walk. Need to walk up and then
+		#		test all children. If there are no items with
+		#		states, then would have to walk to the next
+		#		parent and test there children, looking for
+		#		a change. If those children don't have changes
+		#		then remove and move up.
 
 	def hasState(self):
 		return self.item_state != {}
