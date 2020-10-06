@@ -136,7 +136,8 @@ class SCM_GIT(scmbase.SCM_BASE):
 		sub_modules = []
 		git_repos = []
 
-		for root, dirs, files in os.walk(path, followlinks=False):
+		# search children for repos
+		for root, dirs, files in os.walk(path):
 			if '.git' in files:
 				sub_modules.append(os.path.realpath(root))
 
@@ -266,7 +267,6 @@ class SCM_GIT(scmbase.SCM_BASE):
 			Some of git's commands need paths that are relative to the repo and are
 			in unix style path separators. This function does that.
 		"""
-
 		if filename.startswith(self.working_dir):
 			result = os.path.relpath(filename, self.working_dir)
 		else:

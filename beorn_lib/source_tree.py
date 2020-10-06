@@ -119,8 +119,7 @@ class SourceTree(NestedTreeNode):
 		return self.is_dir
 
 	def isLink(self):
-		# TODO: implement this!!
-		return False
+		return self.is_link
 
 	def rebaseTree(self, new_path):
 		""" Rebase the Tree.
@@ -156,13 +155,10 @@ class SourceTree(NestedTreeNode):
 		if name in self.item_state:
 			del self.item_state[name]
 
-		# TODO: need to update the tree start, that would need
-		#		a proper tree walk. Need to walk up and then
-		#		test all children. If there are no items with
-		#		states, then would have to walk to the next
-		#		parent and test there children, looking for
-		#		a change. If those children don't have changes
-		#		then remove and move up.
+			parent = self.getParent()
+
+			if parent is not None:
+				self.clearFlag()
 
 	def hasState(self):
 		return self.item_state != {}
@@ -195,18 +191,26 @@ class SourceTree(NestedTreeNode):
 			else:
 				break
 
-	def clearFlag(self):
-		self.flag = None
-
-		current = self.getParent()
+	def clearFlag(self, recursive=True):
+		# walk up the tree removing the state of items that don't
+		# have any children with states.
+		current = self
 
 		while current is not None:
-			if current.flag is not None:
-				current.flag = None
+			found_state = False
 
-				current = current.getParent()
-			else:
+			for item in current.getChilden():
+				if item.hasState() or item.getFlag() is not None:
+					found_state = True
+					break
+
+			if found_state is True:
+				# if we have found a state stop clearing the
+				# parents states, and exit now.
 				break
+			else:
+				current.flag = None
+				current = current.getParent()
 
 	def getFlag(self):
 		return self.flag
@@ -233,14 +237,14 @@ class SourceTree(NestedTreeNode):
 		""" return the scm that has (or has not) been set on the item """
 		return self.scm
 
-	def findSCM(self):
-		if self.scm is not None:
+	def findSCM(self, scm_type=None):
+		if self.scm is not None and (scm_type is None or self.scm.getType() == scm_type):
 			return self.scm
 		else:
 			parent = self.getParent()
 
 			while parent is not None:
-				if parent.getSCM() is not None:
+				if parent.getSCM() is not None and (scm_type is None or parent.getSCM().getType() == scm_type):
 					return parent.getSCM()
 				else:
 					parent = parent.getParent()
@@ -410,6 +414,7 @@ class SourceTree(NestedTreeNode):
 							is_dir  = False
 
 							if is_exist:
+								# TODO: Windows will require extra code to test for a link.
 								is_link = os.path.islink(new_path)
 								is_dir  = os.path.isdir(new_path)
 

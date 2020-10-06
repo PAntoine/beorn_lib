@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 1.2.0 ##
+## version 1.3.0 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -20,7 +20,11 @@ It has been written python.
 - Documentation is lacking and comments are crap and scarce.
 
 ## Changes ##
-Features: Minor extension of some of the components.
+Minor fixes to help IndigoBuggie work.
+
+Feature: Added type to find SCM
+Feature: Add code to clear flags and link code.
+Feature: Change git to follow symlinks
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2020 Peter Antoine

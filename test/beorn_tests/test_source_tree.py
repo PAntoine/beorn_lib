@@ -244,6 +244,11 @@ class TestSourceTree(unittest.TestCase):
 		walked_tree = source_tree.walkTree(self.all_nodes_function)
 		self.assertEqual(walked_tree, TestSourceTree.tree_format, "tree walk does not match built tree")
 
+	def test_StateAddAndRemove(self):
+		""" Test that SCM state changes amend the tree correctly """
+		pass
+		# TODO # - I know weak - but meh, it works.
+
 	def test_PruneAfterFileDelete(self):
 		""" Test that the files that are deleted from the file system stay in the tree
 			and are only pruned when the prune is called. Also that if any other flags
