@@ -42,7 +42,7 @@ class TestSwarmCodeReview(unittest.TestCase):
 		# initialise the test framework
 		super(TestSwarmCodeReview, self).__init__(testname)
 
-	def all_nodes_function(self, last_visited_node, node, value, levels, direction):
+	def all_nodes_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""
@@ -86,6 +86,5 @@ class TestSwarmCodeReview(unittest.TestCase):
 		code.update()
 
 		code.updateReviews()
-		print "childs", len(childs_b), len(childs_a), len(childs_c)
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

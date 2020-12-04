@@ -226,7 +226,15 @@ class SCM_P4(scmbase.SCM_BASE):
 				value = proc.communicate(input=password)
 
 				if proc.returncode == 0:
-					result = value[0].splitlines()[1].strip()
+					if value[0] == "'login' not necessary, no password set for this user.":
+						result = ''
+					else:
+						lines = value[0].splitlines()
+
+						if len(lines) > 1:
+							result = value[0].splitlines()[1].strip()
+						else:
+							result = ''
 
 			except subprocess.CalledProcessError, e:
 				return None
@@ -245,7 +253,11 @@ class SCM_P4(scmbase.SCM_BASE):
 			admin privileges.
 		"""
 		result = []
-		clients = SCM_P4.p4Command(['clients', '-u', getpass.getuser()])
+
+		clients = SCM_P4.p4Command(['clients'])
+
+		if clients is None:
+			clients = SCM_P4.p4Command(['clients', '-u', getpass.getuser()])
 
 		if clients is not None:
 			for client in clients.split('\n'):
@@ -274,7 +286,9 @@ class SCM_P4(scmbase.SCM_BASE):
 		real_path = os.path.realpath(path)
 
 		for client in clients:
-			if real_path == client[1] or Utilities.isChildDirectory(real_path, client[1]):
+			# Paths can be complicated - pwd() and realpath(pwd()) can return different strings.
+			client_path = os.path.realpath(client[1])
+			if real_path == client_path or Utilities.isChildDirectory(real_path, client_path):
 				p4_repos.append(client[1])
 
 		return (p4_repos, [])
@@ -709,6 +723,8 @@ class SCM_P4(scmbase.SCM_BASE):
 	def makeP4RelativeName(self, path):
 		if path.startswith(self.current_client.root):
 			use_path = path[len(self.current_client.root):].replace('\\', '/')
+		elif path.startswith(os.path.realpath(self.current_client.root)):
+			use_path = path[len(os.path.realpath(self.current_client.root)):].replace('\\', '/')
 		else:
 			use_path = path.replace('\\', '/')
 
@@ -740,7 +756,10 @@ class SCM_P4(scmbase.SCM_BASE):
 			return  os.path.join(self.working_dir, self.current_branch.name, name)
 
 	def getBranch(self):
-		return self.current_client.name
+		if self.current_client is None:
+			return "unknown"
+		else:
+			return self.current_client.name
 
 	def getCurrentVersion(self):
 		""" This should return the reference for the current instance.
@@ -803,21 +822,24 @@ class SCM_P4(scmbase.SCM_BASE):
 			length = len(self.working_dir) + 1
 			result.append(scm.SCMStatus('M', obj['clientFile'][length:]))
 
-	def getTreeChanges(self, from_version = None, to_version = None, path = None):
-		result = []
+	def getTreeChanges(self, from_version = None, to_version = None, path = None, check_server=False):
+		result = None
 
-		call_back = lambda obj : self.treeChangeFunction(result, obj)
+		if check_server is True:
+			result = []
 
-		# TODO: might be better to so, the following then do a reconcile add.
-		# p4 diff -f -sl
-		# follow this with a "status -a" to find the new files.
-		if self.quick_updates:
-			self.__p4ObjectCommand(['sync', '-n', '-m'], call_back)
-		else:
-			self.__p4ObjectCommand(['reconcile', '-n','-m'], call_back)
+			call_back = lambda obj : self.treeChangeFunction(result, obj)
 
-		# and now the opened files - does P4 suck... Question left for the audience.
-		self.__p4ObjectCommand(['diff', '-sa'], call_back)
+			# TODO: might be better to so, the following then do a reconcile add.
+			# p4 diff -f -sl
+			# follow this with a "status -a" to find the new files.
+			if self.quick_updates:
+				self.__p4ObjectCommand(['sync', '-n', '-m'], call_back)
+			else:
+				self.__p4ObjectCommand(['reconcile', '-n','-m'], call_back)
+
+			# and now the opened files - does P4 suck... Question left for the audience.
+			self.__p4ObjectCommand(['diff', '-sa'], call_back)
 
 		return result
 

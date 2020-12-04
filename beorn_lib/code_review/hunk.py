@@ -142,7 +142,6 @@ class Hunk(NestedTreeNode):
 		return (left, right)
 
 	def getContents(self):
-		print "meh, getContents called"
 		return []
 
 	def getNumComments(self):

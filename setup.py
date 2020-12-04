@@ -34,6 +34,6 @@ setup(name='BeornLib',
       url=__url__,
       package_data={'': ['version.py']},
       packages=find_packages(exclude=["*.test", "*.test.*", "test.*", "test"]),
-	  install_requires=['pycrypto', 'py-bcrypt']
+      install_requires=['pycrypto', 'py-bcrypt']
      )
 

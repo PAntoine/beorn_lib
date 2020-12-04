@@ -37,7 +37,7 @@ class TestProjectPlan(unittest.TestCase):
 	#--------------------------------------------------------------------------------
 	# Helper Functions.
 	#--------------------------------------------------------------------------------
-	def collect_function(self,last_visited_node,node,value,levels,direction):
+	def collect_function(self,last_visited_node,node,value,levels,direction,parameter):
 		""" This is a test function that is used to collect the data
 			from the nodes that it has visited. It will return the
 			list of nodes that it encounters.
@@ -50,7 +50,7 @@ class TestProjectPlan(unittest.TestCase):
 
 		return (node,value,False)
 
-	def dump_endtime_function(self,last_visted_node,node,value,levels,direction):
+	def dump_endtime_function(self,last_visted_node,node,value,levels,direction,parameter):
 		""" This is a test function that is used to return the calculated values
 			from the nodes that it has visited.
 		"""

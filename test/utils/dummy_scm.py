@@ -51,7 +51,7 @@ class SCM_DUMMY(SCM_BASE):
 
 		super(SCM_DUMMY, self).__init__(repo_url, working_dir)
 
-	def all_nodes_function(self,last_visited_node, node,value,levels,direction):
+	def all_nodes_function(self,last_visited_node, node,value,levels,direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""

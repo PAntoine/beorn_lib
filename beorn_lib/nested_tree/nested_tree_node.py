@@ -34,6 +34,12 @@ class NestedTreeNode (object):
 	INSERT_ASCENDING	= 3
 	INSERT_DESCENDING	= 4
 
+	# Tree Walk order.
+	TREE_WALK_NORMAL		= 0	# The tree is walked in the order that the tree is in.
+	TREE_WALK_PARENTS_FIRST	= 1	# The tree is walked visiting the nodes with children first, before leaves.
+	TREE_WALK_PARENTS_LAST	= 2	# The visits the leaves before going the down branches with children.
+
+
 	def __init__(self, payload = None, is_sub_node = False):
 		self.next_node 		= None
 		self.prev_node 		= None
@@ -43,6 +49,7 @@ class NestedTreeNode (object):
 		self.child_node		= None
 		self.payload		= payload
 		self.colour			= None
+		self.is_leaf		= False
 
 		super(NestedTreeNode, self).__init__()
 
@@ -55,6 +62,7 @@ class NestedTreeNode (object):
 		self.child_node = old_node.child_node
 		self.payload = old_node.payload
 		self.colour = old_node.colour
+		self.is_leaf = old_node.is_leaf
 
 	def __iter__(self):
 		for item in self.getChildren():
@@ -78,6 +86,12 @@ class NestedTreeNode (object):
 
 	def toggleOpen(self):
 		self.open = not self.open
+
+	def setLeaf(self, state):
+		self.is_leaf = state
+
+	def isLeaf(self):
+		return self.is_leaf or (not self.hasChild())
 
 	def hasChild(self):
 		""" Has Child
@@ -190,7 +204,83 @@ class NestedTreeNode (object):
 
 		return result
 
-	def getNextNode(self):
+	def findNextNodeWithChild(self):
+		current = self.next_node
+
+		while current is not None:
+			if not current.isLeaf():
+				break
+
+			current = current.next_node
+
+		return current
+
+	def findNextNodeWithoutChild(self):
+		current = self.next_node
+
+		while current is not None:
+			if current.isLeaf():
+				break
+			current = current.next_node
+
+		return current
+
+	def findNextNode(self, order, down=False):
+		if order == NestedTreeNode.TREE_WALK_NORMAL:
+			if down:
+				result = self
+			else:
+				result = self.next_node
+
+		elif order == NestedTreeNode.TREE_WALK_PARENTS_FIRST:
+			if down:
+				if not self.isLeaf():
+					result = self
+				else:
+					next_node = self.findNextNodeWithChild()
+
+					if next_node is None:
+						result = self
+					else:
+						result = next_node
+
+			elif not self.isLeaf():
+				result = self.findNextNodeWithChild()
+
+				if result is None and self.parent_node is not None:
+					if self.parent_node.child_node.isLeaf():
+						result = self.parent_node.child_node
+					else:
+						result = self.parent_node.child_node.findNextNodeWithoutChild()
+			else:
+				result = self.findNextNodeWithoutChild()
+
+		elif order == NestedTreeNode.TREE_WALK_PARENTS_LAST:
+			if down:
+				if  self.isLeaf():
+					result = self
+				else:
+					next_node = self.findNextNodeWithoutChild()
+
+					if next_node is None:
+						result = self
+					else:
+						result = next_node
+
+			elif self.isLeaf():
+				result = self.findNextNodeWithoutChild()
+
+				if result is None and self.parent_node is not None:
+					if self.parent_node.child_node.hasChild():
+						result = self.parent_node.child_node
+					else:
+						result = self.parent_node.child_node.findNextNodeWithChild()
+			else:
+				result = self.findNextNodeWithChild()
+
+		return result
+
+	def getNextNode(self, skip_children = False, order = TREE_WALK_NORMAL):
 		""" Walk to the next node.
 
 			This function is the method that handles walking the tree. It will go
@@ -198,42 +288,41 @@ class NestedTreeNode (object):
 			the current sub-tree it will walk to the parent_node node. When it reaches
 			the end of the tree it will return None.
 		"""
+		found_node = None
+		levels = 0
+		direction = None
+
 		# do we have a child_node?
-		if self.child_node is not None:
-			result = (self.child_node, 1, NestedTreeNode.DIRECTION_DOWN)
+		if skip_children is False and self.child_node is not None:
+			found_node = self.child_node.findNextNode(order, True)
+			levels = 1
+			direction = NestedTreeNode.DIRECTION_DOWN
 
 		# is there a next current_node?
-		elif self.next_node is not None:
-			result = (self.next_node, 0, NestedTreeNode.DIRECTION_NEXT)
-
-		# do we have a parent_node?
-		elif self.parent_node is not None:
-			(node,levels) = self.getNextUpNode()
-			result = (node, levels, NestedTreeNode.DIRECTION_UP)
-
-		# no children, no next, no parent_node, must be the root current_node.
 		else:
-			result = (None, 0, None)
+			next_node = self.findNextNode(order)
+			if next_node is not None:
+				found_node = next_node
+				levels = 0
+				direction = NestedTreeNode.DIRECTION_NEXT
 
-		return result
+			# do we have a parent_node?
+			if found_node is None:
+				current = self.parent_node
 
-	def skipChildren(self):
-		""" Goto to the next non-child node.
+				while current is not None:
+					# keep walking up till we find the correct node.
+					levels -= 1
+					next_node = current.findNextNode(order)
+					direction  = NestedTreeNode.DIRECTION_UP
 
-			This function will simply go to the next node, skipping any children
-			of the current node.
-		"""
-		if self.next_node is not None:
-			result = (self.next_node,0,NestedTreeNode.DIRECTION_NEXT)
+					if next_node is not None:
+						found_node = next_node
+						break
 
-		# do we have a parent_node?
-		elif self.parent_node is not None:
-			(node,levels) = self.getNextUpNode()
-			result = (node,levels,NestedTreeNode.DIRECTION_UP)
+					current = current.parent_node
 
-		else:
-			# no children, no next, no parent_node, must be the root current_node.
-			result = (None, 0, None)
+		result = (found_node, levels, direction)
 
 		return result
 
@@ -488,7 +577,22 @@ class NestedTreeNode (object):
 		while self.child_node is not None:
 			self.child_node.deleteNode(True)
 
-	def findItemWithColour(self, colour):
+	def find_colours_function(self, last_visited_node, node, value, levels, direction, parameter):
+		""" This function will collect the values from all nodes that
+			it encounters in the order that they were walked.
+		"""
+		skip_children = False
+
+		if node.colour == parameter[0]:
+			value = node
+			node = None
+
+		elif not node.isOpen() and not parameter[1]:
+			skip_children = True
+
+		return (node, value, skip_children)
+
+	def findItemWithColour(self, colour, order=TREE_WALK_NORMAL, walk_closed=False):
 		""" Find the item in the tree with the specific colour.
 
 			The "colours" as in R/B colours should be linear in the tree. I.e. should
@@ -501,42 +605,14 @@ class NestedTreeNode (object):
 			walk back up the tree.
 		"""
 		if self.colour == colour:
-			return self
-
+			# quick exit.
+			result = self
 		else:
-			current = self
-
-			while current is not None and current.colour <= colour:
-				if current.colour == colour:
-					return current
-
-				if current.next_node is not None and current.next_node.colour <= colour:
-					current = current.next_node
-				elif current.child_node is not None:
-					# Ok, we know it's between us and the next node, look children.
-					current = current.child_node
-				else:
-					# Ok, can't exist.
-					return None
-
-		return None
-
-	def openParents(self, state):
-		""" Change the state of the parent nodes in the tree
-			It returns the highest parent found.
-		"""
-		current = self.parent_node
-		current.open = state
-		result = []
-
-		while current is not None:
-			result.insert(0, current)
-			current.open = state
-			current = current.parent_node
+			result = self.walkTree(self.find_colours_function, order, (colour, walk_closed))
 
 		return result
 
-	def walkTree(self, action_function = None):
+	def walkTree(self, action_function = None, order = TREE_WALK_NORMAL, parameter = None):
 		""" This function will walk the whole tree and call the actions.
 
 			This function will walk the tree and it will call the functions
@@ -563,19 +639,19 @@ class NestedTreeNode (object):
 			last_visted_node = current_node
 			level_change = 0
 
-			if skip_children:
-				(current_node, level_change, direction) = current_node.skipChildren()
-			else:
-				(current_node, level_change, direction) = current_node.getNextNode()
+			(current_node, level_change, direction) = current_node.getNextNode(skip_children, order)
 
 			levels += level_change
 
-			if current_node is not None and action_function is not None:
-				(current_node, value, skip_children) = action_function(last_visted_node, current_node, value, levels, direction)
+			if action_function is not None:
+				if current_node is not None:
+					(current_node, value, skip_children) = action_function(last_visted_node, current_node, value, levels, direction, parameter)
 
-		if value is None:
-			return []
-		else:
-			return value
+				elif order == NestedTreeNode.TREE_WALK_PARENTS_FIRST:
+					# return the head of the tree.
+					(_, value, skip_children) = action_function(last_visted_node, self, value, levels, direction, parameter)
+
+
+		return value
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

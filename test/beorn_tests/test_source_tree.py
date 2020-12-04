@@ -165,7 +165,7 @@ class TestSourceTree(unittest.TestCase):
 				item.addChildNode(new_item)
 				self.createDirectory(new_item, x)
 
-	def all_nodes_function(self, last_visited_node, node, value, levels, direction):
+	def all_nodes_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""

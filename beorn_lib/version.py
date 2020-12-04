@@ -23,10 +23,10 @@
 # Python Standard Header
 #---------------------------------------------------------------------------------
 __author__		= "Peter Antoine"
-__copyright__	= "Copyright 2014-2019, Peter Antoine"
+__copyright__	= "Copyright 2014-2020, Peter Antoine"
 __credits__		= ["Peter Antoine"]
 __license__		= "MIT"
-__version__		= "1.1.3"
+__version__		= "1.4.0"
 __maintainer__	= "Peter Antoine"
 __email__		= "github@peterantoine.me.uk"
 __url__			= "https://github.com/PAntoine/BeornLib"

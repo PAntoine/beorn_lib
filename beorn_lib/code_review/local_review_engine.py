@@ -120,7 +120,7 @@ class LocalReviewEngine(ReviewEngine):
 			return False
 		return True
 
-	def readerFunction(self, last_visited_node, node, value, level, direction):
+	def readerFunction(self, last_visited_node, node, value, level, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""

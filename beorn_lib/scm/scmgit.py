@@ -557,7 +557,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		return result
 
-	def getTreeChanges(self, from_version = None, to_version = None, path = None):
+	def getTreeChanges(self, from_version = None, to_version = None, path = None, check_server=False):
 		""" Get Tree Changes
 
 			This function will return the changes between two versions.
@@ -573,13 +573,15 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 			The function will return a list of the changes, as a tuple.
 
-				([A|D|M] , relative repository path)
+				([A|D|M|U] , relative repository path)
 
 				A = file/directory added
 				D = file/directory deleted
 				M = file/directory modified
+				U = file/directory has been changed on the server (out of date).
 
 		"""
+
 		new_files = []
 
 		if to_version is None and from_version is None:
@@ -626,12 +628,19 @@ class SCM_GIT(scmbase.SCM_BASE):
 		for file_name in new_files:
 			result.append(scm.SCMStatus('A', file_name))
 
+		if check_server is True:
+			# TODO: work out what I actually want to do here. Should it show all
+			#       differences against the upstream (including locally saved commits)
+			#       or only 3-party commits and there change - the divergences.
+			# result += self._checkServerForChanges(from_version, to_version)
+			pass
+
 		return result
 
 	def getDiffDetails(self, from_version = None, to_version = None, path = None):
 		""" Get Diff Details
 
-			TODO
+			TODO: need to fill in this documentation.
 
 		"""
 		git_command = ['diff', '--full-index', '-r', '--diff-filter=ADM', '--unified=0']

@@ -53,7 +53,7 @@ class TestTimeKeeper(unittest.TestCase):
 	def tearDown(self):
 		shutil.rmtree(self.timekeeper_dir)
 
-	def all_nodes_function(self, last_visited_node, node, value, levels, direction):
+	def all_nodes_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""
@@ -64,7 +64,7 @@ class TestTimeKeeper(unittest.TestCase):
 
 		return (node, value, False)
 
-	def readerFunction(self, last_visited_node, node, value, level, direction):
+	def readerFunction(self, last_visited_node, node, value, level, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""

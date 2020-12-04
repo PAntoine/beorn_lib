@@ -40,6 +40,40 @@ import scm_tests
 
 SUPPORTED_SCMS = ['Git', 'P4']
 
+
+def get_test_names(test_class, selected_group):
+	tests = []
+
+	if type(test_class) == type and (selected_group is None or test_class.__name__ == selected_group):
+		if issubclass(test_class, unittest.TestCase):
+			tests = unittest.defaultTestLoader.getTestCaseNames(test_class)
+
+	return tests
+
+def return_test_names(selected_group, tests_only, scm_only, scm_name):
+	tests = []
+	scm_results = []
+
+	if not scm_only:
+		for item_name in dir(beorn_tests):
+			test_class = getattr(beorn_tests, item_name)
+			values = get_test_names(test_class, selected_group)
+
+			if len(values) > 0:
+				tests.append((item_name, values))
+
+	if not tests_only:
+		for scm_type in SUPPORTED_SCMS:
+			if scm_name is None or scm_type == scm_name:
+				for item_name in dir(scm_tests):
+					test_class = getattr(scm_tests, item_name)
+					values = get_test_names(test_class, selected_group)
+
+					if len(values) > 0:
+						scm_results.append((item_name, values))
+
+	return (tests, scm_results)
+
 def load_tests(	selected_group = None,
 				test_case = None,
 				tests_only = None,
@@ -63,35 +97,32 @@ def load_tests(	selected_group = None,
 	if not scm_only:
 		for item_name in dir(beorn_tests):
 			test_class = getattr(beorn_tests, item_name)
-			if type(test_class) == type and (selected_group is None or item_name == selected_group):
-				if issubclass(test_class, unittest.TestCase):
-					tests = unittest.defaultTestLoader.getTestCaseNames(test_class)
+			tests = get_test_names(test_class, selected_group)
 
-					# now add the tests
-					for test in tests:
-						if test_case is None or test == test_case:
-							suite.addTest(test_class(test, test_data, temp_data))
-							found = True
+			# now add the tests
+			for test in tests:
+				if test_case is None or test == test_case:
+					suite.addTest(test_class(test, test_data, temp_data))
+					found = True
 
 	if not tests_only:
 		for scm_type in SUPPORTED_SCMS:
 			if scm_type == scm_name:
 				for item_name in dir(scm_tests):
 					test_class = getattr(scm_tests, item_name)
-					if type(test_class) == type and (selected_group is None or item_name == selected_group):
-						if issubclass(test_class, unittest.TestCase):
-							tests = unittest.defaultTestLoader.getTestCaseNames(test_class)
+					tests = get_test_names(test_class, selected_group)
 
-							# create the testing environmen
-							temp_data_root = os.path.join(os.path.abspath('.'), 'temp_data', 'test_scm')
+					if len(tests) > 0:
+						# create the testing environment
+						temp_data_root = os.path.join(os.path.abspath('.'), 'temp_data', 'test_scm')
 
-							test_class.setParameters(temp_data_root, test_data, scm_type)
+						test_class.setParameters(temp_data_root, test_data, scm_type)
 
-							# now add the tests
-							for test in tests:
-								if test_case is None or test == test_case:
-									suite.addTest(test_class(test, scm_type, temp_data_root, test_data))
-									found = True
+						# now add the tests
+						for test in tests:
+							if test_case is None or test == test_case:
+								suite.addTest(test_class(test, scm_type, temp_data_root, test_data))
+								found = True
 
 	if not found:
 		return None
@@ -106,6 +137,9 @@ if __name__ == '__main__':
 	tests_only = False
 	scm_type =  None
 
+	print_help = False
+	list_available_tests = False
+
 	if len(sys.argv) > 1:
 		for item in sys.argv[1:]:
 			if item.startswith('-s'):
@@ -117,6 +151,13 @@ if __name__ == '__main__':
 			elif item.startswith('-t'):
 				tests_only = True
 
+			elif item.startswith('-h'):
+				print_help = True
+
+			elif item.startswith('-l') or item.startswith('-?'):
+				print_help = True
+				list_available_tests = True
+
 			elif run_class is None:
 				run_class = item
 
@@ -125,15 +166,44 @@ if __name__ == '__main__':
 
 			else:
 				print "bad parameters."
-				failed = True
+				print_help = True
 
-	if not failed:
+	if print_help:
+		print "Usage: -s	- only run the SCM tests"
+		print "Usage: -t	- only run the non-SCM tests"
+		print "Usage: -h	- print the help."
+		print "Usage: -l	- print list of tests."
+
+		if list_available_tests:
+			test, scm_test = return_test_names(run_class, tests_only, scm_only, scm_type)
+
+			if len(test) > 0:
+				print
+				print "Tests:"
+				for item in test:
+					print "  Group: ", item[0]
+
+					for testcase in item[1]:
+						print "    TestCase: ", testcase
+
+			if len(scm_test) > 0:
+				print
+				print "SCM Tests:"
+				for item in scm_test:
+					print "  Group: ", item[0]
+
+					for testcase in item[1]:
+						print "    TestCase: ", testcase
+
+
+	else:
 		temp_data = os.path.join(os.path.abspath('.'), 'temp_data')
 
 		if os.path.exists(temp_data):
 			shutil.rmtree(temp_data, ignore_errors=True)
 
 		os.mkdir(temp_data)
+
 
 		test_suite = load_tests(run_class, test_case, tests_only, scm_only, scm_type)
 

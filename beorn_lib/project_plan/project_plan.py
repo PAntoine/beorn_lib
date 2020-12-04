@@ -1,12 +1,12 @@
 #!/bin/python
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #         file: project_plan
 #  description: This file holds the classes that make up the project plan.
 #
@@ -25,7 +25,7 @@ from project_task import ProjectTask as ProjectTask
 
 class ProjectPlan:
 
-	# file states 
+	# file states
 	OPEN_READING_STATE		= 1
 	LOAD_PROJECT_STATE		= 2
 	LOAD_TASK_STATE			= 3
@@ -37,7 +37,7 @@ class ProjectPlan:
 	def __init__(self):
 		self.name				= 'Project'
 		self.filename			= None
-		self.start_time			= int((time.mktime(time.gmtime()) / (60 * 60 * 24))) * (60 * 60 * 24)	# now 
+		self.start_time			= int((time.mktime(time.gmtime()) / (60 * 60 * 24))) * (60 * 60 * 24)	# now
 		self.days_per_week 		= 5									# 5 days
 		self.minutes_per_day	= 450								# 7.5 hours
 		self.first_day_of_week	= 0									# Monday
@@ -49,7 +49,7 @@ class ProjectPlan:
 		self.calcuateTheWeek()
 
 		self.initialised		= False								# project plan state
-	
+
 	def calcuateTheWeek(self):
 		""" Calculate the Week.
 
@@ -59,7 +59,7 @@ class ProjectPlan:
 		self.day_of_week		= [0,0,0,0,0,0,0]
 		self.days_to_week		= [0,0,0,0,0,0,0]
 		self.weekend			= [0,0,0,0,0,0,0]
-		
+
 		for index in range(7):
 			self.day_of_week[index] = ((index + 7) - self.first_day_of_week) % 7
 
@@ -68,9 +68,9 @@ class ProjectPlan:
 				self.days_to_week[index] = (7 - index + self.first_day_of_week) % 7
 				self.weekend[index] = 1
 
-	def calculate_dates_function(self,last_visted_node,node,value,levels,direction):
+	def calculate_dates_function(self,last_visted_node,node,value,levels,direction,parameter):
 		""" This is a function that is used to calculate the start and end times of the
-			items in the tree. 
+			items in the tree.
 		"""
 		if direction == NestedTree.DIRECTION_DOWN and not node.is_sub_node:
 			prev_payload = node.getPrevPayload()
@@ -121,9 +121,9 @@ class ProjectPlan:
 			self.filename = project_file
 
 			result = self.saveProject()
-			
+
 		self.initialised = result
-		
+
 		return result
 
 	def reDateTree(self):
@@ -133,7 +133,7 @@ class ProjectPlan:
 			This function should be called after any task (or group of tasks) have
 			the duration amended, or a task has been added or removed.
 		"""
-		# set the start and endtimes of the tasks				
+		# set the start and endtimes of the tasks
 		value = self.plan_tree.walkTree(self.calculate_dates_function)
 
 	def loadProject(self,project_name,project_file):
@@ -185,11 +185,11 @@ class ProjectPlan:
 						else:
 							self.error_string = "bad file format - unknown [%s] found in project file" % (line[1:-2])
 							result = False
-				
+
 					else:
 						if state == ProjectPlan.LOAD_PROJECT_STATE:
 							parts = line.partition(" = ")
-							
+
 							if parts[0] == 'name':
 								self.name = parts[2]
 
@@ -214,7 +214,7 @@ class ProjectPlan:
 							else:
 								result = False
 								break
-			
+
 				# now update the week values
 				self.calcuateTheWeek()
 
@@ -223,10 +223,10 @@ class ProjectPlan:
 
 			except IOError:
 				result = False
-				
+
 			self.initialised = result
 			return result
-	
+
 
 	def AddTask(self,task_id,task_type,duration,status,name,description,follows_task):
 		""" Add Task
@@ -243,7 +243,7 @@ class ProjectPlan:
 			task_id = self.last_task_id
 		else:
 			task_id = task_id
-			
+
 			if task_id > self.last_task_id:
 				self.last_task_id = task_id
 
@@ -251,7 +251,7 @@ class ProjectPlan:
 			self.tasks[task_id] = ProjectTask(task_id,task_type,duration,status,name,description,follows_task)
 
 			if follows_task == 0 or follows_task is None:
-				self.plan_tree.addChildNode(self.tasks[task_id].node)	
+				self.plan_tree.addChildNode(self.tasks[task_id].node)
 
 			elif task_type == 'task':
 				self.tasks[follows_task].node.addNodeAfter(self.tasks[task_id].node)
@@ -260,7 +260,7 @@ class ProjectPlan:
 				self.tasks[follows_task].node.addSubTreeNode(self.tasks[task_id].node)
 
 			result = True
-			
+
 		return result
 
 	def calculateEndTimes(self,start_time,duration):
@@ -277,7 +277,7 @@ class ProjectPlan:
 
 		# calculate end time
 		end_time  = start_time + (((((weeks * 7) + remain_days) * (60 * 24)) + remains) * 60)
-		
+
 		return end_time
 
 	def calculateStartTime(self,start_time):
@@ -289,9 +289,9 @@ class ProjectPlan:
 		"""
 		remains_of_the_day = start_time % (60 * 60 * 24)
 		days = remains_of_the_day / (self.minutes_per_day * 60)
-		
+
 		# did the day rollover?
-		start_time = start_time + (days * 60 * 60 * 24)  - (days * self.minutes_per_day * 60) 
+		start_time = start_time + (days * 60 * 60 * 24)  - (days * self.minutes_per_day * 60)
 
 		# in the weekend?
 		weekend_adjustment = self.days_to_week[time.gmtime(start_time).tm_wday] * (60 * 60 * 24)
@@ -302,7 +302,7 @@ class ProjectPlan:
 	def saveProject(self):
 		""" This function saves the current project.
 
-			This function saves the project header, then dumps all the tasks in the 
+			This function saves the project header, then dumps all the tasks in the
 			list and there connections.
 		"""
 		try:
@@ -335,13 +335,13 @@ class ProjectPlan:
 			result = False
 
 		return result
-		
+
 	def getProjectList(self,node):
 		""" This function will generate a list of the project tasks.
 
 			If the project tasks has sub-tasks then these will be listed as sub-lists.
 		"""
-		
+
 		listing = []
 
 		for item in node.getChildren():
@@ -358,12 +358,15 @@ class ProjectPlan:
 							sub_list.append((child,0,l_list))
 					else:
 						sub_list.append((c_list,0,c_list.getChildren()))
-				
+
 					item_list.append(sub_list)
-					
+
 				listing.append((item,0,item_list))
 
 			else:
 				listing.append((item,0,[]))
 
 		return listing
+
+# vim: ts=4 sw=4 noexpandtab nocin ai
+

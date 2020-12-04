@@ -57,6 +57,8 @@ class SourceTree(NestedTreeNode):
 		self.on_filesystem = False
 		self.flag = None
 		self.submodule = False
+		self.is_dir = False
+		self.is_link = False
 
 		# state of the item.
 		self.item_state = {}
@@ -494,6 +496,7 @@ class SourceTree(NestedTreeNode):
 			path = self.getPath()
 
 		if self.is_dir or self.root is not None:
+
 			# Ok, we are in a directory
 			dir_list = os.listdir(path)
 

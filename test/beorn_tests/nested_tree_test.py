@@ -52,7 +52,7 @@ class TestNestedTree(unittest.TestCase):
 		# initialise the test framework
 		super(TestNestedTree, self).__init__(testname)
 
-	def count_function(self, last_visited_node, node,  value,  direction,  levels):
+	def count_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This is a test function that is used to count the number
 			of nodes that are encountered.
 		"""
@@ -63,7 +63,31 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node, value, False)
 
-	def all_nodes_function(self, last_visited_node, node, value, levels, direction):
+	def all_nodes_level_function(self, last_visited_node, node, value, levels, direction, parameter):
+		""" This function will collect the values from all nodes that
+			it encounters in the order that they were walked.
+		"""
+
+		if value is None:
+			value = [(levels, node.payload, 1)]
+			node.colour = 1
+		else:
+			value.append((levels, node.payload, len(value) + 1))
+			node.colour = len(value)
+
+		return (node, value, False)
+
+	def find_colours_function(self, last_visited_node, node, value, levels, direction, parameter):
+		""" This function will collect the values from all nodes that
+			it encounters in the order that they were walked.
+		"""
+		if node.colour == parameter:
+			value = node
+			node = None
+
+		return (node, value, False)
+
+	def all_nodes_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""
@@ -74,7 +98,7 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node, value, False)
 
-	def collect_function(self, last_visited_node, node, value, levels, direction):
+	def collect_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This is a test function that is used to collect the data
 			from the nodes that it has visited. It will return the
 			list of nodes that it encounters.
@@ -87,7 +111,7 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node, value, False)
 
-	def levels_function(self, last_visited_node, node, value, level, direction):
+	def levels_function(self, last_visited_node, node, value, level, direction, parameter):
 		""" This is a test function that is used to render the levels information
 			it is used to test that the levels counting code works.
 		"""
@@ -103,7 +127,7 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node,value,False)
 
-	def plain_levels_function(self, last_visited_node,  node, value, level, direction):
+	def plain_levels_function(self, last_visited_node,  node, value, level, direction, parameter):
 		""" This is a test function that is used to render the levels information
 			it is used to test that the levels counting code works.
 		"""
@@ -123,7 +147,7 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node,value,False)
 
-	def short_walk_function(self,last_visited_node, node,value,levels,direction):
+	def short_walk_function(self,last_visited_node, node,value,levels,direction, parameter):
 		""" This is a test function that is used to collect the data
 			from the nodes that it has visited. It will collect all the
 			data for all the nodes, except those blocked by the short walk
@@ -145,7 +169,7 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node,value,skip_children)
 
-	def calculate_function(self,last_visted_node, node,value,levels,direction):
+	def calculate_function(self,last_visted_node, node,value,levels,direction, parameter):
 		""" This is a test function that is used to calculate a value
 			from the nodes that it has visited.
 		"""
@@ -179,7 +203,7 @@ class TestNestedTree(unittest.TestCase):
 
 		return (node,1,False)
 
-	def dump_endtime_function(self,last_visted_node, node,value,levels,direction):
+	def dump_endtime_function(self,last_visted_node, node,value,levels,direction, parameter):
 		""" This is a test function that is used to return the calculated values
 			from the nodes that it has visited.
 		"""
@@ -303,8 +327,8 @@ class TestNestedTree(unittest.TestCase):
 		count = graph.walkTree(self.count_function)
 		self.assertTrue(count == 1)
 
-	def test_TraceSimpleTree(self):
-		""" Trace A Simple Tree
+	def build_simple_tree(self, graph):
+		""" Builds a simple tree
 
 			This test will create the following tree:
 
@@ -322,16 +346,13 @@ class TestNestedTree(unittest.TestCase):
 								  v
                                  [6] -> [7] -> [8]
 
-			It should be a walk this tree and return the nodes in the correct order.
+			This function returns a node that can used to amend the tree.
 		"""
-		graph = NestedTree()
-
 		# create the nodes
 		nodes = []
 		for i in range(19):
 			nodes.append(NestedTreeNode(i))
 
-		# now build the tree
 		graph.addChildNode(nodes[1])
 		nodes[1].addNodeAfter(nodes[2])
 		nodes[2].addNodeAfter(nodes[11])
@@ -353,6 +374,19 @@ class TestNestedTree(unittest.TestCase):
 		nodes[13].addNodeAfter(nodes[14])
 		nodes[14].addNodeAfter(nodes[15])
 		nodes[15].addNodeAfter(nodes[16])
+
+		return (nodes[14], nodes[16])
+
+	def test_TraceSimpleTree(self):
+		""" Trace A Simple Tree
+
+			The simple tree is used for this test.
+			It should be a walk this tree and return the nodes in the correct order.
+		"""
+		graph = NestedTree()
+
+		# now build the tree
+		self.build_simple_tree(graph)
 
 		# we are only using the next function for this rest.
 		value = graph.walkTree(self.collect_function)
@@ -627,6 +661,177 @@ class TestNestedTree(unittest.TestCase):
 			if value[index].my_id != correct_results[index]:
 				self.assertTrue(value[index].my_id == correct_results[index])
 				break
+
+	def test_ParentsFirstTest(self):
+		"""
+			test that the tree works if the walk is done parents first.
+		"""
+		graph = NestedTree()
+		self.build_simple_tree(graph)
+
+		# we are only using the next function for this rest.
+		value = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_FIRST)
+
+		# Has the order been returned correctly.
+		self.assertEqual(value, [(1,2,1),(2,5,2),(3,6,3),(3,7,4),(3,8,5),(2,3,6),(2,4,7),(2,9,8),(2,10,9),(1,11,10),(2,12,11),(2,13,12),(2,14,13),(2,15,14),(2,16,15),(1,1,16),(1,17,17),(1,18,18),(0,None,19)])
+
+	def test_ParentsLasttTest(self):
+		"""
+			test that the tree works if the walk is done parents last.
+		"""
+		graph = NestedTree()
+		self.build_simple_tree(graph)
+
+		# we are only using the next function for this rest.
+		value = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_LAST)
+
+		self.assertEqual(value, [(1,1,1),(1,17,2),(1,18,3),(1,2,4),(2,3,5),(2,4,6),(2,9,7),(2,10,8),(2,5,9),(3,6,10),(3,7,11),(3,8,12),(1,11,13),(2,12,14),(2,13,15),(2,14,16),(2,15,17),(2,16,18)])
+
+	def test_OrderedSiblingsListNormal(self):
+		"""
+			test that the tree works if the walk is done parents last.
+		"""
+		graph = NestedTree()
+		(leaf_node, end_node) = self.build_simple_tree(graph)
+
+		# paint the tree.
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_NORMAL)
+
+		# we are only using the next function for this rest.
+		for item in painted_list:
+			found = graph.child_node.findItemWithColour(item[2], NestedTreeNode.TREE_WALK_NORMAL, True)
+			self.assertIsNotNone(found)
+			self.assertEqual(found.payload, item[1])
+			self.assertEqual(found.colour, item[2])
+
+		# paint the tree.
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_FIRST)
+
+		# we are only using the next function for this rest.
+		for item in painted_list:
+			found = graph.walkTree(self.find_colours_function, NestedTreeNode.TREE_WALK_PARENTS_FIRST, item[2])
+			self.assertIsNotNone(found)
+			self.assertEqual(found.payload, item[1])
+			self.assertEqual(found.colour, item[2])
+
+	def test_OrderedSiblingsListFirst(self):
+		graph = NestedTree()
+		(leaf_node, end_node) = self.build_simple_tree(graph)
+		leaf_node.addChildNode(NestedTreeNode(98))
+		leaf_node.addChildNode(NestedTreeNode(99))
+
+		leaf_node.setLeaf(True)
+
+		# paint the tree - now with it's new leafy-ness
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_FIRST)
+
+		# we are only using the next function for this rest.
+		for item in painted_list:
+			found = graph.findItemWithColour(item[2], NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+			self.assertIsNotNone(found)
+			self.assertEqual(found.payload, item[1])
+			self.assertEqual(found.colour, item[2])
+
+		next_node = leaf_node.next_node
+		next_node.addChildNode(NestedTreeNode(108))
+		next_node.addChildNode(NestedTreeNode(109))
+		next_node.setLeaf(True)
+
+		end_node.setLeaf(True)
+		end_node.addChildNode(NestedTreeNode(209))
+		end_node.addChildNode(NestedTreeNode(210))
+		end_node.addChildNode(NestedTreeNode(211))
+
+		# paint the tree - now with it's new leafy-ness
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_FIRST)
+
+		# we are only using the next function for this rest.
+		for item in painted_list:
+			found = graph.findItemWithColour(item[2], NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+			self.assertIsNotNone(found)
+			self.assertEqual(found.payload, item[1])
+			self.assertEqual(found.colour, item[2])
+
+	def test_OrderedSiblingsListLast(self):
+		graph = NestedTree()
+		(leaf_node, end_node) = self.build_simple_tree(graph)
+
+		leaf_node.addChildNode(NestedTreeNode(98))
+		leaf_node.addChildNode(NestedTreeNode(99))
+
+		# paint the tree.
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_LAST)
+		for item in painted_list:
+			found = graph.findItemWithColour(item[2], NestedTreeNode.TREE_WALK_PARENTS_LAST, True)
+			self.assertIsNotNone(found)
+			self.assertEqual(found.payload, item[1])
+			self.assertEqual(found.colour, item[2])
+
+		# corner case graphs
+		nodes = []
+
+		for count in range(1,6):
+			nodes.append(NestedTreeNode(count))
+
+		graph = NestedTree()
+
+		# the empty graph.
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_NORMAL, True)
+		self.assertIsNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+		self.assertIsNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_LAST, True)
+		self.assertIsNone(found)
+
+		# single node
+		graph.addNodeAfter(nodes[1])
+		# unpainted
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_NORMAL, True)
+		self.assertIsNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+		self.assertIsNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_LAST, True)
+		self.assertIsNone(found)
+
+		# painted
+		nodes[1].colour = 1
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_NORMAL, True)
+		self.assertIsNotNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+		self.assertIsNotNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_LAST, True)
+		self.assertIsNotNone(found)
+
+		# One child - only need to test painted.
+		graph = NestedTree()
+		graph.colour = 99	# colour the route or it won't search down.
+		graph.addChildNode(nodes[1])
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_NORMAL, True)
+		self.assertIsNotNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+		self.assertIsNotNone(found)
+		found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_LAST, True)
+		self.assertIsNotNone(found)
+
+		graph.addChildNode(nodes[2])
+		graph.addChildNode(nodes[3])
+
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_NORMAL)
+		for item in range(1, 4):
+			found = graph.findItemWithColour(item, NestedTreeNode.TREE_WALK_NORMAL, True)
+			self.assertIsNotNone(found)
+
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_FIRST)
+		for item in range(1, 4):
+			found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+			self.assertIsNotNone(found)
+
+		painted_list = graph.walkTree(self.all_nodes_level_function, NestedTreeNode.TREE_WALK_PARENTS_LAST)
+		for item in range(1, 4):
+			found = graph.findItemWithColour(1, NestedTreeNode.TREE_WALK_PARENTS_FIRST, True)
+			self.assertIsNotNone(found)
+
+
 
 	def test_LevelsTree(self):
 		""" test that the tree counts the levels during walks correctly.

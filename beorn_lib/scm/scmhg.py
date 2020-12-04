@@ -129,7 +129,7 @@ class SCM_HG(scmbase.SCM_BASE):
 	def getCommitList(self):
 		return []
 
-	def getTreeChanges(self, from_version = None, to_version = None, path = None):
+	def getTreeChanges(self, from_version = None, to_version = None, path = None, check_server=False):
 		return []
 
 	def getDiffDetails(self, from_version = None, to_version = None, path = None):

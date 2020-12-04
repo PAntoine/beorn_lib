@@ -179,7 +179,7 @@ class SCM_BASE(object):
 	def getCommitList(self):
 		return []
 
-	def getTreeChanges(self, from_version = None, to_version = None, path = None):
+	def getTreeChanges(self, from_version = None, to_version = None, path = None, check_server=False):
 		return []
 
 	def getTreeChangesGenerator(self):

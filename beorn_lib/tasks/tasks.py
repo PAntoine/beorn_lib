@@ -66,7 +66,7 @@ class Tasks(NestedTreeNode):
 		if root is None and filename is None:
 			self.root = os.path.realpath(".")
 
-	def saveWalkFunction(self, last_visited_node, node, value, level, direction):
+	def saveWalkFunction(self, last_visited_node, node, value, level, direction, parameter):
 		""" This function will collect the values from all nodes that
 			it encounters in the order that they were walked.
 		"""
