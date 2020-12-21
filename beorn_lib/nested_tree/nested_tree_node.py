@@ -635,21 +635,26 @@ class NestedTreeNode (object):
 
 		levels = 0
 
-		while current_node is not None:
-			last_visted_node = current_node
-			level_change = 0
+		if self.next_node is None and self.child_node is None:
+			# singleton node
+			(_, value, _) = action_function(None, self, value, levels, NestedTreeNode.DIRECTION_STOP, parameter)
 
-			(current_node, level_change, direction) = current_node.getNextNode(skip_children, order)
+		else:
+			while current_node is not None:
+				last_visted_node = current_node
+				level_change = 0
 
-			levels += level_change
+				(current_node, level_change, direction) = current_node.getNextNode(skip_children, order)
 
-			if action_function is not None:
-				if current_node is not None:
-					(current_node, value, skip_children) = action_function(last_visted_node, current_node, value, levels, direction, parameter)
+				levels += level_change
 
-				elif order == NestedTreeNode.TREE_WALK_PARENTS_FIRST:
-					# return the head of the tree.
-					(_, value, skip_children) = action_function(last_visted_node, self, value, levels, direction, parameter)
+				if action_function is not None:
+					if current_node is not None:
+						(current_node, value, skip_children) = action_function(last_visted_node, current_node, value, levels, direction, parameter)
+
+					elif order == NestedTreeNode.TREE_WALK_PARENTS_FIRST:
+						# return the head of the tree.
+						(_, value, skip_children) = action_function(last_visted_node, self, value, levels, direction, parameter)
 
 
 		return value

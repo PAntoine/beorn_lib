@@ -61,6 +61,8 @@ class TimeKeeper(NestedTreeNode):
 	def __init__(self, root=None, filename=None):
 		super(TimeKeeper, self).__init__()
 
+		self.name = " - no projects - "
+
 		self.current_user		= getpass.getuser()
 		self.current_machine	= platform.node()
 		self.current_id			= self.current_user + '@' + self.current_machine
@@ -69,7 +71,7 @@ class TimeKeeper(NestedTreeNode):
 		self.filename = filename
 
 		if root is None and filename is None:
-			self.root = os.path.realpath(".")
+			self.root = os.path.abspath(".")
 
 	def saveWalkFunction(self, last_visited_node, node, value, level, direction, parameter):
 		""" This function will collect the values from all nodes that

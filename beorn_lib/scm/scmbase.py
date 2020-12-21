@@ -19,19 +19,22 @@ from collections import OrderedDict
 # base class (and default) SCM class
 #---------------------------------------------------------------------------------
 class SCM_BASE(object):
-
-	def __init__(self, working_dir, repo_dir=None, server_url=None, user_name=None, password=None):
+	def __init__(self, repo_url, working_dir=None, user_name=None, password=None, server_url=None):
 		self.server_url = server_url
 
-		if working_dir is  not None:
-			self.working_dir = os.path.realpath(working_dir)
+		if working_dir is not None:
+			self.working_dir = os.path.abspath(working_dir)
 		else:
-			self.working_dir = os.path.realpath('.')
+			self.working_dir = os.path.abspath('.')
 
-		if repo_dir is None:
+		if repo_url is None:
 			self.repo_dir = self.working_dir
 		else:
-			self.repo_dir = os.path.realpath(repo_dir)
+			self.repo_dir = os.path.abspath(repo_dir)
+
+		self.password = password
+		self.user_name = user_name
+		self.server_url = server_url
 
 		self.version = ''
 
@@ -67,7 +70,7 @@ class SCM_BASE(object):
 
 	@classmethod
 	def startLocalServer(cls, local_source_path):
-		""" This function will start a local server for the SCMs that require srvers.
+		""" This function will start a local server for the SCMs that require servers.
 			It will crate the server in the directory provided.
 		"""
 		return None
@@ -88,6 +91,12 @@ class SCM_BASE(object):
 
 	def getUrl(self):
 		return self.server_url
+
+	def getUserName(self):
+		return self.user_name
+
+	def getPassword(self):
+		return self.password
 
 	def getRoot(self):
 		return self.working_dir

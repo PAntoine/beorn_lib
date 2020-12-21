@@ -64,7 +64,7 @@ class Tasks(NestedTreeNode):
 		self.filename = filename
 
 		if root is None and filename is None:
-			self.root = os.path.realpath(".")
+			self.root = os.path.abspath(".")
 
 	def saveWalkFunction(self, last_visited_node, node, value, level, direction, parameter):
 		""" This function will collect the values from all nodes that

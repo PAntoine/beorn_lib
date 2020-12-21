@@ -96,7 +96,7 @@ def create(repo_type, repository_url=None, working_dir=None, user_name=None, pas
 			result = scm.cls(repository_url, working_dir, user_name, password, server_url=server_url)
 			break
 	else:
-		result = scmbase.SCM_BASE(repository_url, working_dir)
+		result = scmbase.SCM_BASE(working_dir, repository_url)
 
 	return result
 
@@ -147,9 +147,9 @@ def findRepositoryRoot(repository = None):
 	"""
 	# use the current directory if none is given
 	if repository is None:
-		repository = os.path.realpath('.')
+		repository = os.path.abspath('.')
 	else:
-		repository = os.path.realpath(repository)
+		repository = os.path.abspath(repository)
 
 	old_path = ''
 	repo_type = None

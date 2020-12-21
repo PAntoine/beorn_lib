@@ -38,7 +38,7 @@ def checkForType(repository):
 	result = False
 
 	if os.path.isdir(repository):
-		real = os.path.realpath(repository)
+		real = os.path.abspath(repository)
 		if real[-4:] == '.git':
 			result = True
 		elif os.path.isdir(os.path.join(real, '.git')):
@@ -72,7 +72,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 	def __init__(self, repo_url, working_dir=None, user_name=None, password=None, server_url=None):
 		self.version = 'HEAD'
-		super(SCM_GIT, self).__init__(repo_dir=repo_url, working_dir=working_dir)
+		super(SCM_GIT, self).__init__(repo_url, working_dir, user_name, password, server_url)
 
 	def __callGit(self, command, git_dir = True):
 		""" [PRIVATE] calls the git function and returns a tuple as the result.
@@ -137,23 +137,24 @@ class SCM_GIT(scmbase.SCM_BASE):
 		git_repos = []
 
 		# search children for repos
-		for root, dirs, files in os.walk(path):
+		for root, dirs, files in os.walk(path, followlinks=True):
 			if '.git' in files:
-				sub_modules.append(os.path.realpath(root))
+				sub_modules.append(os.path.abspath(root))
 
 			if '.git' in dirs:
-				git_repos.append(os.path.realpath(root))
+				# want any links to be relative the main repo.
+				git_repos.append(os.path.abspath(root))
 
 		# Now need to search for parent trees.
-		(working_path, _) = os.path.split(os.path.realpath(path))
+		(working_path, _) = os.path.split(os.path.abspath(path))
 		while working_path != '':
 			if '.git' in os.listdir(working_path):
 				git_path = os.path.join(working_path, '.git')
 
 				if os.path.isdir(git_path):
-					git_repos.append(os.path.realpath(working_path))
+					git_repos.append(os.path.abspath(working_path))
 				else:
-					sub_modules.append(os.path.realpath(working_path))
+					sub_modules.append(os.path.abspath(working_path))
 
 			(temp, _) = os.path.split(working_path)
 
@@ -909,7 +910,6 @@ class SCM_GIT(scmbase.SCM_BASE):
 				(result, _) = self.__callGit(["clone", self.server_url, self.working_dir], False)
 
 			except IOError:
-				print "failed to clone the git repo"
 				result = False
 
 		else:

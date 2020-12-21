@@ -27,7 +27,7 @@ def checkForType(repository):
 	result = False
 
 	if (repository[0] == '/' or repository[0] == '\\' or repository[0] == '.' or repository[0] == '~'):
-		real = os.path.realpath(repository)
+		real = os.path.abspath(repository)
 
 	elif os.path.isdir(os.path.join(repository, '.hg')):
 			result = True

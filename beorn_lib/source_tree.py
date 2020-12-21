@@ -47,7 +47,7 @@ class SourceTree(NestedTreeNode):
 	def __init__(self, name, root=None):
 		self.name = name
 		if root is not None:
-			self.root = os.path.realpath(root)
+			self.root = os.path.abspath(root)
 			self.is_dir = True
 		else:
 			self.root = None
@@ -136,7 +136,7 @@ class SourceTree(NestedTreeNode):
 		if new_path != current_path and Utilities.isChildDirectory(current_path, new_path):
 
 			meh = os.path.relpath(current_path, new_path)
-			result = SourceTree(os.path.basename(new_path), os.path.realpath(new_path))
+			result = SourceTree(os.path.basename(new_path), os.path.abspath(new_path))
 
 			# add the route between the new root and the old.
 			add_stuff = result.addTreeNodeByPath(meh)
@@ -495,7 +495,7 @@ class SourceTree(NestedTreeNode):
 		if path == '':
 			path = self.getPath()
 
-		if self.is_dir or self.root is not None:
+		if (self.is_dir or self.root is not None) and os.path.isdir(path):
 
 			# Ok, we are in a directory
 			dir_list = os.listdir(path)

@@ -26,7 +26,7 @@ class Utilities(object):
 	def findFileInParentTree(path, name):
 		""" This will check that the file exists in the tree. """
 		result = None
-		working_path = os.path.realpath(path)
+		working_path = os.path.abspath(path)
 		while working_path != '':
 			if name in os.listdir(working_path):
 				# found it.
@@ -48,8 +48,8 @@ class Utilities(object):
 			the correct delimiter.
 		"""
 		result = False
-		real_parent = os.path.realpath(parent)
-		(working_path, _) = os.path.split(os.path.realpath(child))
+		real_parent = os.path.abspath(parent)
+		(working_path, _) = os.path.split(os.path.abspath(child))
 
 		if parent in child:
 			while working_path != '':

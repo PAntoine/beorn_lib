@@ -87,7 +87,7 @@ def checkForType(repository, password_function=None):
 	result = False
 	logged_on = False
 
-	path = os.path.realpath(repository)
+	path = os.path.abspath(repository)
 
 	if os.path.exists(path):
 		if SCM_P4.p4IsLoggedIn():
@@ -106,7 +106,7 @@ def checkForType(repository, password_function=None):
 			client_list = SCM_P4.p4GetClientList()
 
 			for client in client_list:
-				if os.path.realpath(client[1]) == path:
+				if os.path.abspath(client[1]) == path:
 					result = True
 					break
 
@@ -254,10 +254,13 @@ class SCM_P4(scmbase.SCM_BASE):
 		"""
 		result = []
 
-		clients = SCM_P4.p4Command(['clients'])
+		if 'P4USER' in os.environ:
+			clients = SCM_P4.p4Command(['clients', '-u', os.environ['P4USER']])
+		else:
+			clients = SCM_P4.p4Command(['clients', '-u', getpass.getuser()])
 
 		if clients is None:
-			clients = SCM_P4.p4Command(['clients', '-u', getpass.getuser()])
+			clients = SCM_P4.p4Command(['clients'])
 
 		if clients is not None:
 			for client in clients.split('\n'):
@@ -283,11 +286,11 @@ class SCM_P4(scmbase.SCM_BASE):
 		p4_repos = []
 
 		clients = SCM_P4.p4GetClientList()
-		real_path = os.path.realpath(path)
+		real_path = os.path.abspath(path)
 
 		for client in clients:
-			# Paths can be complicated - pwd() and realpath(pwd()) can return different strings.
-			client_path = os.path.realpath(client[1])
+			# Paths can be complicated - pwd() and abspath(pwd()) can return different strings.
+			client_path = os.path.abspath(client[1])
 			if real_path == client_path or Utilities.isChildDirectory(real_path, client_path):
 				p4_repos.append(client[1])
 
@@ -304,7 +307,7 @@ class SCM_P4(scmbase.SCM_BASE):
 						used. If this is None and the P4CLIENT is used then we
 						will set the working directory to the path of that.
 		"""
-		super(SCM_P4, self).__init__(repo_dir=repo_url, working_dir=working_dir, server_url=server_url)
+		super(SCM_P4, self).__init__(repo_url, working_dir, user_name, password, server_url)
 
 		self.version = ''
 		self.branch = 'HEAD'
@@ -317,25 +320,19 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		# Ok, lets see if the caller has set up the P4 environment variables so
 		# we will use those as the defaults.
-		if user_name is not None:
-			self.user = user_name
-		elif "P4USER" in os.environ:
-			self.user = os.environ["P4USER"]
-		else:
-			self.user = ''
+		if self.user_name is None or self.user_name == '':
+			if "P4USER" in os.environ:
+				self.user_name = os.environ["P4USER"]
+			else:
+				self.user_name = ''
 
-		if password is not None:
-			self.password = password
-		else:
+		if self.password is None:
 			self.password = ''
-
-		if server_url is not None:
-			self.server_url = server_url
 
 		if len(self.clients) == 0:
 			self.__getClientList()
 
-		if working_dir is None:
+		if self.working_dir is None:
 			if "P4CLIENT" in os.environ:
 
 				if os.environ["P4CLIENT"] in self.clients:
@@ -350,7 +347,7 @@ class SCM_P4(scmbase.SCM_BASE):
 
 				self.working_dir = self.getClientDirectory(self.current_client.name)
 			else:
-				self.working_dir = os.path.realpath(".")
+				self.working_dir = os.path.abspath(".")
 				self.current_client = self.getClientFromDirectory(self.working_dir)
 
 				if self.current_client is not None:
@@ -366,7 +363,7 @@ class SCM_P4(scmbase.SCM_BASE):
 	def getConfiguration(cls):
 		result = OrderedDict()
 		result['server'] = ''
-		result['user'] = ''
+		result['user_name'] = ''
 		result['password'] = ''
 		result['start_server'] = False
 		return result
@@ -376,7 +373,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		button_list = [	('start_server', 'Start a local server') ]
 
 		return [('TextField', 'text', 'server', "Server URL and Port ($P4PORT)"),
-				('TextField', 'text', 'user', "User Name"),
+				('TextField', 'text', 'user_name', "User Name"),
 				('TextField', 'secret', 'password', "The users password"),
 				('ButtonList', 'multiple', 'options', "Options", button_list)]
 
@@ -454,15 +451,15 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		if not result:
 			if self.password is None or self.password == '':
-				self.password = self.getPassword(self.user)
+				self.password = self.getPassword(self.user_name)
 
-		return result or SCM_P4.p4Login(self.user, self.password) is not None
+		return result or SCM_P4.p4Login(self.user_name, self.password) is not None
 
-	def getUserKey(self, user):
+	def getUserKey(self, user_name):
 		if self.password is None or self.password == '':
-			self.password = self.getPassword(user)
+			self.password = self.getPassword(user_name)
 
-		return SCM_P4.p4Login(user, self.password)
+		return SCM_P4.p4Login(user_name, self.password)
 
 	def buildCommand(self, use_client, marshalled=False):
 		if marshalled:
@@ -479,8 +476,8 @@ class SCM_P4(scmbase.SCM_BASE):
 		if self.server_url is not None and self.server_url != '':
 			result += ['-p', self.server_url]
 
-		if self.user is not None and self.user != '':
-			result += ['-u', self.user]
+		if self.user_name is not None and self.user_name != '':
+			result += ['-u', self.user_name]
 
 		if self.password is not None and self.password != '':
 			result += ['-P', self.password]
@@ -549,6 +546,9 @@ class SCM_P4(scmbase.SCM_BASE):
 					return result
 				else:
 					return False
+			except TypeError, e:
+				# P4 is not installed
+				return False
 			except OSError:
 				# P4 is not installed
 				return False
@@ -608,10 +608,10 @@ class SCM_P4(scmbase.SCM_BASE):
 		self.clients[obj['client']] = new_client
 
 	def __getClientList(self):
-		if self.user is None or self.user == '':
+		if self.user_name is None or self.user_name == '':
 			self.__p4ObjectCommand(['clients'], self.__addClient, use_client=True)
 		else:
-			self.__p4ObjectCommand(['clients', '-u', self.user], self.__addClient, use_client=True)
+			self.__p4ObjectCommand(['clients', '-u', self.user_name], self.__addClient, use_client=True)
 
 	def getClientViews(self, client):
 		result = []
@@ -723,8 +723,8 @@ class SCM_P4(scmbase.SCM_BASE):
 	def makeP4RelativeName(self, path):
 		if path.startswith(self.current_client.root):
 			use_path = path[len(self.current_client.root):].replace('\\', '/')
-		elif path.startswith(os.path.realpath(self.current_client.root)):
-			use_path = path[len(os.path.realpath(self.current_client.root)):].replace('\\', '/')
+		elif path.startswith(os.path.abspath(self.current_client.root)):
+			use_path = path[len(os.path.abspath(self.current_client.root)):].replace('\\', '/')
 		else:
 			use_path = path.replace('\\', '/')
 
@@ -787,7 +787,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			changes.append('@' + version)
 
 		if max_entries is not None:
-			changes += ['-m', max_entries]
+			changes += ['-m', str(max_entries)]
 
 		if self.__p4ObjectCommand(changes, call_back):
 			return result
@@ -972,9 +972,9 @@ class SCM_P4(scmbase.SCM_BASE):
 
 	def amendClient(self, directory, name, description, options, view_spec):
 		client_spec = [ 'Client: ' + name,
-						'Owner: ' + self.user,
+						'Owner: ' + self.user_name,
 						'Description: ' + description,
-						'Root: ' + os.path.realpath(directory),
+						'Root: ' + os.path.abspath(directory),
 						'Options: ' + options,
 						'View:' ]
 
@@ -995,9 +995,9 @@ class SCM_P4(scmbase.SCM_BASE):
 			client_desc = description
 
 		client_spec = [ 'Client: ' + name,
-						'Owner: ' + self.user,
+						'Owner: ' + self.user_name,
 						'Description: ' + client_desc,
-						'Root: ' + os.path.realpath(directory),
+						'Root: ' + os.path.abspath(directory),
 						'Options: allwrite',
 						'View:' ]
 
@@ -1017,7 +1017,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		result = None
 
 		branch_spec = [ 'Branch: ' + branch_name,
-						'Owner: ' + self.user,
+						'Owner: ' + self.user_name,
 						'Options: unlocked',
 						'Description: branch created by boern_lib',
 						'View:']
@@ -1052,7 +1052,7 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		change_spec = [ 'Change: new',
 						'Client: ' + self.current_client.name,
-						'User: ' + self.user,
+						'User: ' + self.user_name,
 						'Description: ' + desc ]
 
 		(status, value) = self.__p4CommandWithInput(['change'], change_spec)

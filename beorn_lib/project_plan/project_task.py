@@ -52,3 +52,4 @@ class ProjectTask:
 		"""
 		return self.node.getChildren()
 
+# vim: ts=4 sw=4 noexpandtab nocin ai

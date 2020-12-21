@@ -34,6 +34,7 @@ class Notes(NestedTreeNode):
 
 	def __init__(self, name, directory):
 		super(Notes, self).__init__(name, None)
+		self.name				= " - Empty No Notes - "
 		self.current_user		= getpass.getuser()
 		self.current_machine	= platform.node()
 		self.current_id			= self.current_user + '@' + self.current_machine
