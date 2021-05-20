@@ -170,9 +170,15 @@ class TestSourceTree(unittest.TestCase):
 			it encounters in the order that they were walked.
 		"""
 		if value is None:
-			value = [node.getPath()]
+			if parameter is not None:
+				value = [os.path.abspath(node.getPath())]
+			else:
+				value = [node.getPath()]
 		else:
-			value.append(node.getPath())
+			if parameter is not None:
+				value.append(os.path.abspath(node.getPath()))
+			else:
+				value.append(node.getPath())
 
 		return (node, value, False)
 
@@ -233,6 +239,31 @@ class TestSourceTree(unittest.TestCase):
 		self.assertIsNone(found)
 
 		self.assertNotEqual(walked_tree, TestSourceTree.tree_format, "tree walk does not match built tree")
+
+	def test_TestSubTreeAdd(self):
+		""" Test Basic Tree """
+		source_tree = SourceTree('test_source', root=self.test_root)
+
+		source_tree.addChildNode(SourceTree('.dmy'))
+		self.createDirectory(source_tree, TestSourceTree.test_tree)
+
+		# On, rebase the tree up two levels.
+		d = os.path.split(source_tree.getPath())
+		f = os.path.split(d[0])
+		difference = os.path.relpath(source_tree.getPath(), f[0])
+		source_tree.addTreeNodeByPath(f[0], rebase_tree=True)
+
+		fred = os.path.join(f[0], 'dir_item_5', 'dir_item_1')
+		found = source_tree.findItemNode(fred)
+		self.assertIsNone(found)
+
+		new_test_tree = []
+		for item in TestSourceTree.tree_format:
+			new_test_tree.append(item[0:12] + difference + item[11:])
+
+		# check if the array matches the new one - ignoring the two new nodes at the
+		# front to the two new level directories.
+		self.assertEqual(source_tree.walkTree(self.all_nodes_function)[2:], new_test_tree)
 
 	def test_TestSourceFilesChanges(self):
 		""" Test Changes to the Source Tree """

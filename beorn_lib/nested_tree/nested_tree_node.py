@@ -47,6 +47,7 @@ class NestedTreeNode (object):
 		self.open 			= False
 		self.is_sub_node	= is_sub_node
 		self.child_node		= None
+		self.last_child_node= None
 		self.payload		= payload
 		self.colour			= None
 		self.is_leaf		= False
@@ -60,6 +61,7 @@ class NestedTreeNode (object):
 		self.open = old_node.open
 		self.is_sub_node = old_node.is_sub_node
 		self.child_node = old_node.child_node
+		self.last_child_node = old_node.last_child_node
 		self.payload = old_node.payload
 		self.colour = old_node.colour
 		self.is_leaf = old_node.is_leaf
@@ -384,19 +386,19 @@ class NestedTreeNode (object):
 		"""
 		result = False
 
-		if new_node.next_node is None and new_node.prev_node is None:
-			new_node.next_node = self.next_node
-			new_node.prev_node = self
+#		if new_node.next_node is None and new_node.prev_node is None:
+		new_node.next_node = self.next_node
+		new_node.prev_node = self
 
-			if self.next_node is not None:
-				self.next_node.prev_node = new_node
+		if self.next_node is not None:
+			self.next_node.prev_node = new_node
 
-			self.next_node = new_node
-			new_node.parent_node = self.parent_node
-			result = True
+		self.next_node = new_node
+		new_node.parent_node = self.parent_node
+		result = True
 
-			if self.parent_node is not None and self.parent_node.last_child_node == self:
-				self.parent_node.last_child_node = new_node
+		if self.parent_node is not None and self.parent_node.last_child_node == self:
+			self.parent_node.last_child_node = new_node
 
 		return result
 

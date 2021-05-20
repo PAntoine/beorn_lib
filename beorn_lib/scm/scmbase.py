@@ -30,7 +30,7 @@ class SCM_BASE(object):
 		if repo_url is None:
 			self.repo_dir = self.working_dir
 		else:
-			self.repo_dir = os.path.abspath(repo_dir)
+			self.repo_dir = os.path.abspath(repo_url)
 
 		self.password = password
 		self.user_name = user_name

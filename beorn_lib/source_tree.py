@@ -123,27 +123,6 @@ class SourceTree(NestedTreeNode):
 	def isLink(self):
 		return self.is_link
 
-	def rebaseTree(self, new_path):
-		""" Rebase the Tree.
-
-			It will only rebase the tree towards the root (that is to make usage easier).
-			It will copy all the children of the tree to the new root. It will also create
-			all the nodes between the new root and the current.
-		"""
-		result = self
-		current_path = self.getPath()
-
-		if new_path != current_path and Utilities.isChildDirectory(current_path, new_path):
-
-			meh = os.path.relpath(current_path, new_path)
-			result = SourceTree(os.path.basename(new_path), os.path.abspath(new_path))
-
-			# add the route between the new root and the old.
-			add_stuff = result.addTreeNodeByPath(meh)
-			add_stuff.addChildNode(self)
-
-		return result
-
 	def isOnFilesystem(self):
 		return self.on_filesystem
 
@@ -379,56 +358,107 @@ class SourceTree(NestedTreeNode):
 
 		return result
 
-	def addTreeNodeByPath(self, path, existing_node=None):
+	def rebaseTree(self, path, existing_node):
+		""" Rebase the SourceTree node.
+
+			This will change the directory that the SourceTree object points
+			to and make the current root a child of it.
+		"""
+		# duplicate self.
+		old_path = os.path.abspath(self.getPath())
+		self.root = path
+
+		# get the old children.
+		old_children = []
+		for child in self.getChilden():
+			old_children.append(child)
+
+		self.child_node = None
+		self.last_child_node = None
+
+		parts = self.splitPath(os.path.relpath(old_path, path))
+
+		self.name = os.path.basename(path)
+		new_base = self.addPathBitToTree(parts, path, existing_node)
+
+		# append the hold children to the end.
+		for item in old_children:
+			item.parent_node = None
+			new_base.addChildNode(item, mode=NestedTreeNode.INSERT_ASCENDING)
+
+	def addPathBitToTree(self, path_bits, path_root, existing_node):
+		result = self
+		found = True
+
+		for part in path_bits:
+			path_root = os.path.join(path_root, part)
+			if found:
+				next_item = result.findChild(part)
+				if next_item is None:
+					found = False
+				else:
+					result = next_item
+
+			if not found:
+				if self.isDirectoryFiltered(part):
+					result = None
+					break
+				else:
+					if existing_node is None:
+						is_exist = os.path.exists(path_root)
+						is_link = False
+						is_dir  = False
+
+						if is_exist:
+							# TODO: Windows will require extra code to test for a link.
+							is_link = os.path.islink(path_root)
+							is_dir  = os.path.isdir(path_root)
+
+						new_node = SourceTree(part)
+						new_node.on_filesystem	= is_exist
+						new_node.is_link  		= is_link
+						new_node.is_dir			= is_dir
+					else:
+						new_node = existing_node
+
+					result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
+					result = new_node
+
+		return result
+
+	def addTreeNodeByPath(self, path, existing_node=None, rebase_tree=False):
 		""" Add an Item to the Tree by Path
 
 			It will find the place that the item belongs
 			and if the item does not exist, create add the new
 			item. If the item exists already, then return the
 			old one.
-		"""
-		path_bits = self.splitPath(path)
 
+			@param	path			The path of the object to add to the tree.
+			@param	existing_node	And existing node to tree.
+			@param	rebase_tree		If True, if the path is a parent of the current
+									tree root, then make the new node the new root
+									and then fill in the gap between the two. It
+									will not create any other branch nodes.
+		"""
 		result = None
-		found = True
-		new_path = self.getPath()
 
 		if not self.isSuffixFiltered(path):
-			result = self
-			for part in path_bits:
+			path_root = os.path.abspath(self.getPath())
+			path_bits = []
+			new_path = self.getPath()
 
-				new_path = os.path.join(new_path, part)
-				if found:
-					next_item = result.findChild(part)
-					if next_item is None:
-						found = False
-					else:
-						result = next_item
+			if path_root.startswith(path):
+				if rebase_tree:
+					self.rebaseTree(os.path.commonprefix([path_root, path]), existing_node)
+			elif not path.startswith(path_root):
+				# TODO: implement adjacent directories - not sure this is a good idea.# TODO: implement adjacent directories - not sure this
+				# is a good idea.
+				pass
+			else:
+				path_bits = self.splitPath(path)
 
-				if not found:
-					if self.isDirectoryFiltered(part):
-						result = None
-						break
-					else:
-						if existing_node is None:
-							is_exist = os.path.exists(new_path)
-							is_link = False
-							is_dir  = False
-
-							if is_exist:
-								# TODO: Windows will require extra code to test for a link.
-								is_link = os.path.islink(new_path)
-								is_dir  = os.path.isdir(new_path)
-
-							new_node = SourceTree(part)
-							new_node.on_filesystem	= is_exist
-							new_node.is_link  		= is_link
-							new_node.is_dir			= is_dir
-						else:
-							new_node = existing_node
-
-						result.addChildNode(new_node, mode=NestedTreeNode.INSERT_ASCENDING)
-						result = new_node
+			result = self.addPathBitToTree(path_bits, new_path, existing_node)
 
 		return result
 
@@ -492,6 +522,8 @@ class SourceTree(NestedTreeNode):
 			the filesystem. It will not actually remove any items from
 			the tree, that should be done by calling prune().
 		"""
+		result = False
+
 		if path == '':
 			path = self.getPath()
 
@@ -514,6 +546,7 @@ class SourceTree(NestedTreeNode):
 						new_item.is_link = is_link
 						new_item.on_filesystem = True
 						self.addChildNode(new_item, mode=NestedTreeNode.INSERT_ASCENDING)
+						result = True
 
 		# We need to walk down all the children
 		for child in self.getChilden():
@@ -521,7 +554,9 @@ class SourceTree(NestedTreeNode):
 
 			child.on_filesystem = os.path.exists(child_path)
 
-			if recursive:
-				child.update(child_path)
+			if recursive and child.on_filesystem:
+				result = child.update(child_path) or result
+
+		return result
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

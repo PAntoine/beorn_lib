@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 1.4.1 ##
+## version 1.5.0 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -31,25 +31,21 @@ This takes the following parameters:
 
 ## Changes ##
 
-- SCM normalisation
+- Added return result to update
 
-  The different SCMs were not correct. The parameters should have been
-  the same. This change was to make sure that settings parameters function
-  was correctly passed and the parameters could be recovered from the
-  SCM instance.
+- Fixed broken scm test
 
-- Fix for symlinks in scm
+- Add rebase tree functionality
+    This might need more work, not sure if more the items from the
+    old root need copying to the new root. But I think all that
+    needs copying are the children and that is it.
 
-  Switched all the things to abspath. As realpath decoded symlinks
-  where causing problems with the SCM in symlinks and the path decoding.
-  Normalising was hard.
+- fixed missing default items from nested tree.
 
-- Tree walk fix - one item in the tree fix
-
-- P4 fixes and a bug in source_tree
-
-  P4 will be P4. The other is the tree issue was assuming that if it had
-  children it was a directory. Now checking to see if it was actually a directory.
+- removed state checks
+    Not sure why these were there, maybe a little too defensive
+    coding. But these were getting in the way of the rebase of the
+    tree.
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2020 Peter Antoine
