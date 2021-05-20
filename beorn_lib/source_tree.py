@@ -59,6 +59,7 @@ class SourceTree(NestedTreeNode):
 		self.submodule = False
 		self.is_dir = False
 		self.is_link = False
+		self.is_virtual = False
 
 		# state of the item.
 		self.item_state = {}
@@ -76,6 +77,7 @@ class SourceTree(NestedTreeNode):
 		self.flag = new_node.flag
 		self.submodule = new_node.submodule
 		self.item_state = new_node.item_state
+		self.is_virtual = new_node.is_virtual
 
 	def __lt__(self, other):
 		if type(other) is SourceTree:
@@ -336,7 +338,7 @@ class SourceTree(NestedTreeNode):
 		# that need to be removed as we can't delete them without breaking the
 		# linked list walk.
 		for item in self.getChilden():
-			if not item.on_filesystem and not item.hasState():
+			if not item.is_virtual and not item.on_filesystem and not item.hasState():
 				remove_list.append(item)
 
 			if recursive:
