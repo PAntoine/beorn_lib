@@ -20,12 +20,12 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from base_dialog import BaseDialog
-from box_element import BoxElement
-from field_element import FieldElement
-from button_element import ButtonElement
-from drop_down_element import DropDownElement
-from button_list_element import ButtonListElement
-from element import ElementItem
+from .base_dialog import BaseDialog
+from .box_element import BoxElement
+from .field_element import FieldElement
+from .button_element import ButtonElement
+from .drop_down_element import DropDownElement
+from .button_list_element import ButtonListElement
+from .element import ElementItem
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

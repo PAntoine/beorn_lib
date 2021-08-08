@@ -89,7 +89,7 @@ class SourceTree(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			find_name = other
 		elif isinstance(other, SourceTree):
 			find_name = other.name
@@ -106,7 +106,7 @@ class SourceTree(NestedTreeNode):
 		return self.name
 
 	def findChild(self, other):
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			find_name = other
 		elif isinstance(other, SourceTree):
 			find_name = other.name

@@ -33,7 +33,7 @@ class Task(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
@@ -41,7 +41,7 @@ class Task(NestedTreeNode):
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item
@@ -62,7 +62,7 @@ class Task(NestedTreeNode):
 		self.column = column
 		self.is_auto = is_auto
 
-		if type(notes) == unicode or type(notes) == str:
+		if type(notes) == str or type(notes) == str:
 			self.notes = notes.split('\x03')
 		else:
 			self.notes = notes
@@ -124,13 +124,13 @@ class Task(NestedTreeNode):
 		return ','.join(['J', self.name, self.filename, str(self.status), str(self.line_no), str(self.column), str(self.is_auto),'\x03'.join(self.notes)])
 
 	def updateNote(self, note):
-		if type(note) == unicode or type(note) == str:
+		if type(note) == str or type(note) == str:
 			self.notes = [note]
 		else:
 			self.notes = note
 
 	def addNote(self, note):
-		if type(note) == unicode or type(note) == str:
+		if type(note) == str or type(note) == str:
 			self.notes.append(note)
 		else:
 			self.notes += note

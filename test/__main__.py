@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------------------
 #
@@ -165,35 +165,35 @@ if __name__ == '__main__':
 				test_case = item
 
 			else:
-				print "bad parameters."
+				print("bad parameters.")
 				print_help = True
 
 	if print_help:
-		print "Usage: -s	- only run the SCM tests"
-		print "Usage: -t	- only run the non-SCM tests"
-		print "Usage: -h	- print the help."
-		print "Usage: -l	- print list of tests."
+		print("Usage: -s	- only run the SCM tests")
+		print("Usage: -t	- only run the non-SCM tests")
+		print("Usage: -h	- print the help.")
+		print("Usage: -l	- print list of tests.")
 
 		if list_available_tests:
 			test, scm_test = return_test_names(run_class, tests_only, scm_only, scm_type)
 
 			if len(test) > 0:
-				print
-				print "Tests:"
+				print()
+				print("Tests:")
 				for item in test:
-					print "  Group: ", item[0]
+					print("  Group: ", item[0])
 
 					for testcase in item[1]:
-						print "    TestCase: ", testcase
+						print("    TestCase: ", testcase)
 
 			if len(scm_test) > 0:
-				print
-				print "SCM Tests:"
+				print()
+				print("SCM Tests:")
 				for item in scm_test:
-					print "  Group: ", item[0]
+					print("  Group: ", item[0])
 
 					for testcase in item[1]:
-						print "    TestCase: ", testcase
+						print("    TestCase: ", testcase)
 
 
 	else:
@@ -210,12 +210,12 @@ if __name__ == '__main__':
 		shutil.rmtree(temp_data)
 
 		if test_suite is None:
-			print "Error: No tests have been found."
+			print("Error: No tests have been found.")
 		else:
 			test_result = unittest.TextTestRunner().run(test_suite)
-			print test_result.errors
+			print(test_result.errors)
 
-			print "tests ran:", test_result.testsRun
-			print "tests failed:", test_result.failures
+			print("tests ran:", test_result.testsRun)
+			print("tests failed:", test_result.failures)
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

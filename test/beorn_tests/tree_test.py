@@ -106,7 +106,7 @@ class TestTree(unittest.TestCase):
 	def test_TestUpdateTree(self):
 		""" Test Update Tree """
 
-		base = self.buildTree(range(1, 7))
+		base = self.buildTree(list(range(1, 7)))
 		object_list = [TestTree.test_item[1], TestTree.test_item[2], TestTree.test_item[3], TestTree.test_item[4], TestTree.test_item[5], TestTree.test_item[6]]
 		base.updateTree(object_list)
 		self.assertTrue(self.compareLists(base, object_list))

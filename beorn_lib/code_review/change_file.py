@@ -19,8 +19,8 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from hunk import Hunk
-from comment import Comment
+from .hunk import Hunk
+from .comment import Comment
 from beorn_lib.nested_tree import NestedTreeNode
 from collections import namedtuple as namedtuple
 

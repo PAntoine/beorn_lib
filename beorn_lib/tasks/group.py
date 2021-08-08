@@ -24,7 +24,7 @@ import time
 import getpass
 import platform
 import threading
-from task import Task
+from .task import Task
 from beorn_lib.nested_tree import NestedTreeNode
 
 class Group(NestedTreeNode):
@@ -33,7 +33,7 @@ class Group(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
@@ -41,7 +41,7 @@ class Group(NestedTreeNode):
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item

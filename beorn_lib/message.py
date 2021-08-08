@@ -44,7 +44,7 @@ class Message(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			find_name = other
 		elif isinstance(other, Message):
 			find_name = other.name

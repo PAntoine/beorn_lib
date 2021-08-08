@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------------
 
 #from test_amend import TestAmend
-from test_query import TestQuery
-from test_search import TestSearch
+from .test_query import TestQuery
+from .test_search import TestSearch
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

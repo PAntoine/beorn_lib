@@ -26,7 +26,7 @@
 
 import os
 import beorn_lib.errors
-from user import User as User 
+from .user import User as User 
 
 class Users:
 	""" User Control class """

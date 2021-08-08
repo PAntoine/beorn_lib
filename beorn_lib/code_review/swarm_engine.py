@@ -22,15 +22,15 @@
 import os
 import json
 import base64
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 from beorn_lib.scm import SCM_P4
-from change import Change
-from comment import Comment
-from hunk import Hunk
-from change_file import ChangeFile
-from code_review import CodeReview
-from review_engine import ReviewEngine, registerEngine
+from .change import Change
+from .comment import Comment
+from .hunk import Hunk
+from .change_file import ChangeFile
+from .code_review import CodeReview
+from .review_engine import ReviewEngine, registerEngine
 
 class SwarmReviewEngine(ReviewEngine):
 	def __init__(self, configuration, password_function=None):
@@ -99,29 +99,29 @@ class SwarmReviewEngine(ReviewEngine):
 		url = self.server_url + '/api/v9/' + '/'.join(command)
 
 		if parameters is None:
-			request = urllib2.Request(url)
+			request = urllib.request.Request(url)
 		else:
-			request = urllib2.Request(url + '?' + urllib.urlencode(parameters, True))
+			request = urllib.request.Request(url + '?' + urllib.parse.urlencode(parameters, True))
 
 		if self.key is not None and len(self.key) == 32:
 			password = base64.encodestring('%s:%s' % (self.user, self.key))[:-1]
 			request.add_header("Authorization", "Basic " + password)
 		elif self.key == "'login' not necessary, no password set for this user.":
 			# TODO: need to add logging.
-			print "ahhh --- magic user I can't handled these."
+			print("ahhh --- magic user I can't handled these.")
 			return None
 		else:
 			return None
 
 		try:
-			handle = urllib2.urlopen(request, timeout=10)
+			handle = urllib.request.urlopen(request, timeout=10)
 			return json.loads(handle.read())
 
-		except urllib2.URLError:
+		except urllib.error.URLError:
 			# TODO: need to add logging.
 			return None
 
-		except urllib2.HTTPError:
+		except urllib.error.HTTPError:
 			# TODO: need to add logging.
 			# TODO: Also this is the error if it fails to logon.
 			return None

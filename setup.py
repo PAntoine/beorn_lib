@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/python3
 #---------------------------------------------------------------------------------
 #
 #                    ,--.
@@ -24,7 +24,7 @@ from setuptools import setup, find_packages
 
 # make this nasty hack a bit tidier and make it work properly
 # from anywhere in the file system.
-execfile("beorn_lib/version.py")
+exec(compile(open("beorn_lib/version.py").read(), "beorn_lib/version.py", 'exec'))
 
 setup(name='BeornLib',
       version=__version__,

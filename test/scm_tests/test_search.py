@@ -19,7 +19,7 @@
 import unittest
 import beorn_lib.scm as scm
 from beorn_lib.scm.bigraph import BIGRAPH as BIGRAPH
-from scm_test import SCMTest
+from .scm_test import SCMTest
 
 #---------------------------------------------------------------------------------
 # Test Sequences.

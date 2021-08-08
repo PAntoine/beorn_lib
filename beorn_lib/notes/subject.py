@@ -21,7 +21,7 @@
 #---------------------------------------------------------------------------------
 
 import os
-from note import Note
+from .note import Note
 from beorn_lib.nested_tree import NestedTreeNode
 
 #---------------------------------------------------------------------------------

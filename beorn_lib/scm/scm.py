@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------
 
 import os
-import scmbase
+from . import scmbase
 from collections import namedtuple as namedtuple
 
 #---------------------------------------------------------------------------------

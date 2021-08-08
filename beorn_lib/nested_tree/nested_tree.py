@@ -11,7 +11,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from nested_tree_node import NestedTreeNode
+from .nested_tree_node import NestedTreeNode
 
 class NestedTree (NestedTreeNode):
 	""" The nested tree class

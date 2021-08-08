@@ -20,17 +20,17 @@
 #---------------------------------------------------------------------------------
 
 #from user_test import TestUser
-from notes_test import TestNotes
-from project_test import TestProject
-from test_source_tree import TestSourceTree
-from project_plan_test import TestProjectPlan
-from text_dialog_test import TestTextDialog
-from html_dialog_test import TestHTMLDialog
-from tree_test import TestTree
+from .notes_test import TestNotes
+from .project_test import TestProject
+from .test_source_tree import TestSourceTree
+from .project_plan_test import TestProjectPlan
+from .text_dialog_test import TestTextDialog
+from .html_dialog_test import TestHTMLDialog
+from .tree_test import TestTree
 #from test_code_review import TestCodeReview
-from nested_tree_test import TestNestedTree
-from config_test import TestConfig
-from test_timekeeper import TestTimeKeeper
-from test_swarm_reviews import TestSwarmCodeReview
+from .nested_tree_test import TestNestedTree
+from .config_test import TestConfig
+from .test_timekeeper import TestTimeKeeper
+from .test_swarm_reviews import TestSwarmCodeReview
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

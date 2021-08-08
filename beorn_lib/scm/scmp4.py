@@ -27,12 +27,12 @@
 #---------------------------------------------------------------------------------
 
 import os
-import scm
+from . import scm
 import sys
 import time
 import datetime
 import getpass
-import scmbase
+from . import scmbase
 import marshal
 import subprocess
 import multiprocessing
@@ -150,7 +150,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		# wait for upto 30 seconds for the server to start
 		counter = 0
 		while counter < 30 and 0 != subprocess.call(['p4','info']):
-			print "waiting for server to start..."
+			print("waiting for server to start...")
 			counter += 1
 			time.sleep(1)
 
@@ -164,7 +164,7 @@ class SCM_P4(scmbase.SCM_BASE):
 
 		counter = 0
 		while counter < 30 and 0 == subprocess.call(['p4','info']):
-			print "waiting for server to start..."
+			print("waiting for server to start...")
 			counter += 1
 			time.sleep(1)
 
@@ -184,7 +184,7 @@ class SCM_P4(scmbase.SCM_BASE):
 				else:
 					return subprocess.check_output(['p4'] + command_list, stderr=subprocess.STDOUT)
 
-			except subprocess.CalledProcessError, e:
+			except subprocess.CalledProcessError as e:
 				return None
 		else:
 			# TODO: log this "not logged in"
@@ -200,7 +200,7 @@ class SCM_P4(scmbase.SCM_BASE):
 				subprocess.check_output(['p4', 'login', '-s'], stderr=subprocess.STDOUT)
 
 			return True
-		except subprocess.CalledProcessError, e:
+		except subprocess.CalledProcessError as e:
 			return False
 		except OSError:
 			# P4 is not installed
@@ -236,7 +236,7 @@ class SCM_P4(scmbase.SCM_BASE):
 						else:
 							result = ''
 
-			except subprocess.CalledProcessError, e:
+			except subprocess.CalledProcessError as e:
 				return None
 			except OSError:
 				# P4 is not installed
@@ -409,7 +409,7 @@ class SCM_P4(scmbase.SCM_BASE):
 			else:
 				return subprocess.check_output(['p4', '-d', self.working_dir, '-G'] + command_list, env=self.environ)
 
-		except subprocess.CalledProcessError, e:
+		except subprocess.CalledProcessError as e:
 			result = []
 
 			if e.output[0] == '{':
@@ -495,7 +495,7 @@ class SCM_P4(scmbase.SCM_BASE):
 				else:
 					return subprocess.check_output(self.buildCommand(use_client) + command_list, stderr=subprocess.STDOUT)
 
-			except subprocess.CalledProcessError, e:
+			except subprocess.CalledProcessError as e:
 				return None
 		else:
 			# TODO: Add logging - print "not logged in"
@@ -546,7 +546,7 @@ class SCM_P4(scmbase.SCM_BASE):
 					return result
 				else:
 					return False
-			except TypeError, e:
+			except TypeError as e:
 				# P4 is not installed
 				return False
 			except OSError:
@@ -1045,7 +1045,7 @@ class SCM_P4(scmbase.SCM_BASE):
 		result = None
 		if message is None:
 			desc = "branch created by boern_lib"
-		elif type(message) == str or type(message) == unicode:
+		elif type(message) == str or type(message) == str:
 			desc = message
 		else:
 			desc = '\n'.join(message)

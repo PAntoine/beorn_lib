@@ -61,7 +61,7 @@ def writefile(filename, contents):
 		outfile.flush()
 		outfile.close()
 
-	except IOError, e:
+	except IOError as e:
 		result = False
 
 	return result

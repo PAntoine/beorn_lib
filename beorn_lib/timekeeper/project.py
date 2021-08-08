@@ -21,7 +21,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from job import Job
+from .job import Job
 from beorn_lib.nested_tree import NestedTreeNode
 
 class Project(NestedTreeNode):
@@ -30,7 +30,7 @@ class Project(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
@@ -43,7 +43,7 @@ class Project(NestedTreeNode):
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item
@@ -53,6 +53,13 @@ class Project(NestedTreeNode):
 					return item
 
 		raise KeyError("Does not exist")
+
+	def __lt__(self, rhs):
+		""" Less Than
+
+			Use the name as the definition of less than.
+		"""
+		return self.name < rhs.name
 
 	def __init__(self, name):
 		super(Project, self).__init__()

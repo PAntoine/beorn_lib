@@ -21,7 +21,7 @@ import os
 import time
 import string
 from beorn_lib.nested_tree import NestedTree
-from project_task import ProjectTask as ProjectTask
+from .project_task import ProjectTask as ProjectTask
 
 class ProjectPlan:
 
@@ -247,7 +247,7 @@ class ProjectPlan:
 			if task_id > self.last_task_id:
 				self.last_task_id = task_id
 
-		if not self.tasks.has_key(task_id):
+		if task_id not in self.tasks:
 			self.tasks[task_id] = ProjectTask(task_id,task_type,duration,status,name,description,follows_task)
 
 			if follows_task == 0 or follows_task is None:

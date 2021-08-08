@@ -20,7 +20,7 @@ from beorn_lib.scm.scmgit import SCM_GIT
 from beorn_lib.scm.scmbase import SCM_BASE
 from test.utils.repo_builder import amendDiffArray, diff_set, writefile
 from beorn_lib.scm import scm, SCMStatus
-from scm_test import SCMTest
+from .scm_test import SCMTest
 
 #---------------------------------------------------------------------------------
 # Test Data

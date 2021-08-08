@@ -111,10 +111,10 @@ class TextDropDownElement(DropDownElement):
 			This function will render the drop down list.
 		"""
 		self.is_dirty = False
+		start_item = 0
 
 		if len(self.contents) < self.height:
 			# we dont need to scroll
-			start_item = 0
 			selected_line = self.current_line
 
 		elif self.current_line > (len(self.contents) - self.height + 1):
@@ -123,11 +123,10 @@ class TextDropDownElement(DropDownElement):
 			selected_line = self.current_line - start_item
 
 		elif self.current_line > (self.height / 2):
-			start_item    = self.current_line - (self.height / 2)
+			start_item    = self.current_line - int (self.height / 2)
 			selected_line = self.current_line - start_item
 
 		else:
-			start_item = 0
 			selected_line = self.current_line
 
 		# write title

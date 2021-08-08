@@ -39,14 +39,14 @@ class Job(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item
@@ -56,6 +56,13 @@ class Job(NestedTreeNode):
 					return item
 
 		raise KeyError("Does not exist")
+
+	def __lt__(self, rhs):
+		""" Less Than
+
+			Use the name as the definition of less than.
+		"""
+		return self.name < rhs.name
 
 	def getName(self):
 		return self.name
@@ -75,7 +82,7 @@ class Job(NestedTreeNode):
 
 		self.status = status
 
-		if type(note) == str or type(note) == unicode:
+		if type(note) == str or type(note) == str:
 			self.note = note.split('\x03')
 		else:
 			self.note = note
@@ -99,7 +106,7 @@ class Job(NestedTreeNode):
 		return self.note
 
 	def addNote(self, note):
-		if type(note) == unicode or type(note) == str:
+		if type(note) == str or type(note) == str:
 			self.note = [ note ]
 		else:
 			self.note = note

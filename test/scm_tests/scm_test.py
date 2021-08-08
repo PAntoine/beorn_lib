@@ -78,7 +78,7 @@ class SCMTest(unittest.TestCase):
 		new_scm = scm.create(cls.scm_type, cls.url, cls.directory)
 
 		if new_scm is None:
-			print "Error: failed to create repo"
+			print("Error: failed to create repo")
 		else:
 			if new_scm.initialise():
 				result = True
@@ -86,8 +86,8 @@ class SCMTest(unittest.TestCase):
 				# add initial commit 0
 				branch_0 = new_scm.addBranch("branch_0")
 				result &= writefile(os.path.join(cls.directory, 'test_1'), text_data_1)
-				print result, os.path.join(cls.directory, 'test_1')
-				print os.path.exists(os.path.join(cls.directory, 'test_1'))
+				print(result, os.path.join(cls.directory, 'test_1'))
+				print(os.path.exists(os.path.join(cls.directory, 'test_1')))
 				commit_1 = new_scm.addCommit(files = [os.path.join(os.path.join(cls.directory, 'test_1'))], empty = True, message = 'commit_1')
 				# branch the repo @ 1
 				branch_1 = new_scm.addBranch("branch_1", commit_1)
@@ -199,7 +199,7 @@ class SCMTest(unittest.TestCase):
 
 	def setUp(self):
 		self.repo = scm.new(self.directory, self.url)
-		print self.directory, self.repo
+		print(self.directory, self.repo)
 		self.repo.switchBranch(name='branch_0')
 		self.repo.cleanRepository(deep_clean = True)
 

@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------------
 
 import time
-import errors
+from . import errors
 
 class Logging(object):
 	""" Beorn Logging Class
@@ -76,7 +76,7 @@ class Logging(object):
 		try:
 			self.log_file = open(file_name, 'w')
 		except IOError:
-			print "Failed to open logfile - logging won't be enabled."
+			print("Failed to open logfile - logging won't be enabled.")
 
 	def __del__(self):
 		""" __del__

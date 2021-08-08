@@ -21,8 +21,8 @@
 #---------------------------------------------------------------------------------
 
 import beorn_lib.dialog
-from html_dialog import HTMLDialog
-from text_dialog import TextDialog
+from .html_dialog import HTMLDialog
+from .text_dialog import TextDialog
 
 #---------------------------------------------------------------------------------
 # Dialog Factory.

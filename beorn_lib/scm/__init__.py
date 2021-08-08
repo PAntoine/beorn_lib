@@ -15,15 +15,15 @@
 #---------------------------------------------------------------------------------
 # Expose the classes.
 #---------------------------------------------------------------------------------
-import scm
-import bigraph_entry
-from scm import new
-from scm import create
-from scm import getSupportedSCMs
-from scm import findRepositories
-from scmp4 import SCM_P4
-from scmgit import SCM_GIT
-from scmbase import SCM_BASE
-from bigraph import BIGRAPH
+from . import scm
+from . import bigraph_entry
+from .scm import new
+from .scm import create
+from .scm import getSupportedSCMs
+from .scm import findRepositories
+from .scmp4 import SCM_P4
+from .scmgit import SCM_GIT
+from .scmbase import SCM_BASE
+from .bigraph import BIGRAPH
 
-from scm import ChangeList, Commit, Branch, Tag, Change, HistoryItem, ChangeItem, SCMItem, SCMStatus, SupportedSCM, startLocalServer, stopLocalServer
+from .scm import ChangeList, Commit, Branch, Tag, Change, HistoryItem, ChangeItem, SCMItem, SCMStatus, SupportedSCM, startLocalServer, stopLocalServer

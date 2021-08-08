@@ -22,8 +22,8 @@
 import os
 import getpass
 import platform
-from note import Note
-from subject import Subject
+from .note import Note
+from .subject import Subject
 from beorn_lib.nested_tree import NestedTreeNode
 
 #---------------------------------------------------------------------------------
@@ -109,10 +109,11 @@ class Notes(NestedTreeNode):
 			out_file = open(file_name,'wb')
 
 			for subject in self.getChildren():
-				out_file.write("[%s]\n" % subject.name)
+				data = "[%s]\n" % subject.name
+				out_file.write(data.encode("utf-8"))
 
 				for note in subject.getChildren():
-					out_file.write(note.export())
+					out_file.write(note.export().encode("utf-8"))
 
 			out_file.close()
 			result = True
@@ -138,7 +139,7 @@ class Notes(NestedTreeNode):
 			in_file = open(note_file,'rb')
 
 			for line_a in in_file:
-				line = line_a.strip()
+				line = line_a.decode("utf-8").strip()
 
 				if line[0:1] == '[' and line[-1] == ']':
 					self.addSubject(line[1:-1])

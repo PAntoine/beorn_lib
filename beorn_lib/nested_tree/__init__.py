@@ -19,7 +19,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from nested_tree import NestedTree
-from nested_tree_node import NestedTreeNode
+from .nested_tree import NestedTree
+from .nested_tree_node import NestedTreeNode
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

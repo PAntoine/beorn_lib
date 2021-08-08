@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------------
 
 import os
-from review_engine import ReviewEngine, registerEngine
+from .review_engine import ReviewEngine, registerEngine
 from beorn_lib.nested_tree import NestedTreeNode
 from beorn_lib.code_review import CodeReview, Change, Comment, ChangeFile, Hunk
 

@@ -21,7 +21,7 @@
 
 import getpass
 import platform
-from code_review import CodeReview
+from .code_review import CodeReview
 from beorn_lib.nested_tree import NestedTree
 
 registered_engines = {}
@@ -33,7 +33,7 @@ def registerEngine(engine_class):
 
 
 def getSupportedNames():
-	return registered_engines.keys()
+	return list(registered_engines.keys())
 
 
 def getSupportedEngines():
@@ -88,8 +88,8 @@ class ReviewEngine(NestedTree):
 			result2.append(item.getID())
 
 		if set(result2) != set(result):
-			print "Failed does not match"
-			print result2
+			print("Failed does not match")
+			print(result2)
 
 
 		return result

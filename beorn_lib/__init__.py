@@ -24,7 +24,7 @@ import beorn_lib.version
 #---------------------------------------------------------------------------------
 # Expose the classes.
 #---------------------------------------------------------------------------------
-import scm as scm
+from . import scm as scm
 #from beorn_lib.pack import Pack
 from beorn_lib.notes import Notes
 #from beorn_lib.users import Users

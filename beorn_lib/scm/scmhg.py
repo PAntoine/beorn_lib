@@ -12,9 +12,9 @@
 #---------------------------------------------------------------------------------
 
 import os
-import scm
+from . import scm
 import string
-import scmbase
+from . import scmbase
 import subprocess
 
 def checkForType(repository):
@@ -70,7 +70,7 @@ class SCM_HG(scmbase.SCM_BASE):
 					output = subprocess.check_output(SCM_GIT.__git_root_command + ["--repository=" + self.working_dir] + command, stderr=SCM_GIT.__nul_f)
 				result = True
 
-		except subprocess.CalledProcessError,e:
+		except subprocess.CalledProcessError as e:
 			output = ''
 			result = False
 

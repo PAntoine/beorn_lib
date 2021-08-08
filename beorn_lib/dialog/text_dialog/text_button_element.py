@@ -27,7 +27,7 @@
 #---------------------------------------------------------------------------------
 
 from beorn_lib.dialog.base import ButtonElement
-from text_dialog import TextDialog
+from .text_dialog import TextDialog
 
 class TextButtonElement(ButtonElement):
 	""" Text Button Element

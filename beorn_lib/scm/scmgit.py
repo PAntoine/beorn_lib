@@ -15,10 +15,10 @@
 
 import os
 import sys
-import scm
+from . import scm
 import time
 import string
-import scmbase
+from . import scmbase
 import getpass
 import subprocess
 from collections import OrderedDict

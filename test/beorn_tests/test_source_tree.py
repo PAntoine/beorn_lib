@@ -261,6 +261,12 @@ class TestSourceTree(unittest.TestCase):
 		for item in TestSourceTree.tree_format:
 			new_test_tree.append(item[0:12] + difference + item[11:])
 
+		b = source_tree.walkTree(self.all_nodes_function)
+
+		for index, item in enumerate(new_test_tree):
+			if b[index+2] != new_test_tree[index]:
+				print(index, b[index+2], new_test_tree[index])
+
 		# check if the array matches the new one - ignoring the two new nodes at the
 		# front to the two new level directories.
 		self.assertEqual(source_tree.walkTree(self.all_nodes_function)[2:], new_test_tree)

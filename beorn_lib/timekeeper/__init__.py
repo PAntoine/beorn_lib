@@ -19,8 +19,8 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from timekeeper import TimeKeeper
-from job import Job
-from project import Project
+from .timekeeper import TimeKeeper
+from .job import Job
+from .project import Project
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

@@ -20,8 +20,8 @@
 #---------------------------------------------------------------------------------
 
 from base64 import b64encode, b64decode
-from comment import Comment
-from change_file import ChangeFile
+from .comment import Comment
+from .change_file import ChangeFile
 from beorn_lib.nested_tree import NestedTreeNode
 from collections import namedtuple as namedtuple
 

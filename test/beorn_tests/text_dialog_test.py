@@ -36,12 +36,12 @@ class TestTextDialog(unittest.TestCase):
 		super(TestTextDialog, self).__init__(testname)
 
 	def helper_displayScreen(self, screen, cursor):
-		print cursor
+		print(cursor)
 
 		screen[cursor[1]] = screen[cursor[1]][0:cursor[0]-1] + '@' + screen[cursor[1]][cursor[0]:]
 
 		for line in screen:
-			print line
+			print(line)
 
 	def setUp(self):
 		""" This function creates the dialog """

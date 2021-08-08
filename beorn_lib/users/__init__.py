@@ -19,7 +19,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from user import User
-from users import Users
+from .user import User
+from .users import Users
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

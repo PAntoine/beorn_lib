@@ -24,9 +24,9 @@ import time
 import getpass
 import platform
 import threading
-from task import Task
-from timer_task import TimerTask
-from group import Group
+from .task import Task
+from .timer_task import TimerTask
+from .group import Group
 from beorn_lib.nested_tree import NestedTreeNode
 
 class Tasks(NestedTreeNode):
@@ -35,7 +35,7 @@ class Tasks(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
@@ -43,7 +43,7 @@ class Tasks(NestedTreeNode):
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item
@@ -114,7 +114,7 @@ class Tasks(NestedTreeNode):
 
 				result = True
 
-			except IOError, e:
+			except IOError as e:
 				pass
 
 		return result

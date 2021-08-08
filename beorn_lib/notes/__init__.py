@@ -19,8 +19,8 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from notes import Notes
-from note import Note
-from subject import Subject
+from .notes import Notes
+from .note import Note
+from .subject import Subject
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

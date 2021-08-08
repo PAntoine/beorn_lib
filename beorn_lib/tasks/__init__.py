@@ -22,10 +22,10 @@
 #---------------------------------------------------------------------------------
 # Expose the classes.
 #---------------------------------------------------------------------------------
-from tasks import Tasks
-from task import Task
-from group import Group
-from timer_task import TimerTask, TASK_TIMER_ONESHOT, TASK_TIMER_REPEAT, TASK_TIMER_UNTIL, TASK_TIMER_EXPIRED, TASK_TIMER_NON
+from .tasks import Tasks
+from .task import Task
+from .group import Group
+from .timer_task import TimerTask, TASK_TIMER_ONESHOT, TASK_TIMER_REPEAT, TASK_TIMER_UNTIL, TASK_TIMER_EXPIRED, TASK_TIMER_NON
 
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

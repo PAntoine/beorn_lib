@@ -22,7 +22,7 @@
 #---------------------------------------------------------------------------------
 
 from beorn_lib.dialog.base import ButtonListElement
-from text_dialog import TextDialog
+from .text_dialog import TextDialog
 
 class TextButtonListElement(ButtonListElement):
 	""" Button List Element

@@ -390,7 +390,7 @@ class TestNestedTree(unittest.TestCase):
 
 		# we are only using the next function for this rest.
 		value = graph.walkTree(self.collect_function)
-		self.assertTrue(value == range(1, 19))
+		self.assertTrue(value == list(range(1, 19)))
 
 	def test_ChildNodeInsertion(self):
 		"""
@@ -619,7 +619,7 @@ class TestNestedTree(unittest.TestCase):
 		# we are only using the next function for this rest.
 		value = graph.walkTree(self.collect_function)
 
-		self.assertTrue(value == range(1, 49))
+		self.assertTrue(value == list(range(1, 49)))
 
 	def test_CountComplexTree(self):
 		""" count a complex tree
@@ -655,7 +655,7 @@ class TestNestedTree(unittest.TestCase):
 		# we are only using the next function for this rest.
 		value = graph.walkTree(self.short_walk_function)
 
-		correct_results = range(1,16) + range(22,46)
+		correct_results = list(range(1,16)) + list(range(22,46))
 
 		for index in range(len(correct_results)):
 			if value[index].my_id != correct_results[index]:
@@ -942,7 +942,7 @@ class TestNestedTree(unittest.TestCase):
 		nodes[3].addChildNode(nodes[4])
 		nodes[4].addNodeAfter(nodes[5])
 		nodes[5].addNodeAfter(nodes[6])
-		self.assertEqual(graph.walkTree(self.collect_function), range(1, 13))
+		self.assertEqual(graph.walkTree(self.collect_function), list(range(1, 13)))
 		self.assertEqual(graph.walkTree(self.plain_levels_function), (2, [(1, 1), (1, 2), (1, 3), (2, 4), (2, 5), (2, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12)]))
 
 		# Subtrees don't make sense unless the whole tree are subtrees.
@@ -962,7 +962,7 @@ class TestNestedTree(unittest.TestCase):
 		value = graph.walkTree(self.collect_function)
 
 		# now check the ordering is correct
-		self.assertEqual(value, range(1, 16))
+		self.assertEqual(value, list(range(1, 16)))
 
 		# check the shape of the tree
 		#self.assertFalse(nodes[3].hasSibling())

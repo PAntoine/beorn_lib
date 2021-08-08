@@ -138,7 +138,7 @@ class Config(object):
 				proj_file = open(self.filename, 'wb')
 
 				for line in self.export():
-					proj_file.write("%s\n" % line)
+					proj_file.write(bytes("%s\n" % line, "utf-8"))
 
 				proj_file.close()
 
@@ -406,7 +406,7 @@ class Config(object):
 				looking_for_list = -1
 				parts = []
 
-				for index in xrange(len(item)-1, -1, -1):
+				for index in range(len(item)-1, -1, -1):
 					if item[index] == '#':
 						if looking_for_dict != -1:
 							parts.insert(0,(item[index+1:looking_for_dict],0))

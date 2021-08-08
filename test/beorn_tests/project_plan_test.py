@@ -37,7 +37,7 @@ class TestProjectPlan(unittest.TestCase):
 	#--------------------------------------------------------------------------------
 	# Helper Functions.
 	#--------------------------------------------------------------------------------
-	def collect_function(self,last_visited_node,node,value,levels,direction,parameter):
+	def collect_function(self, last_visited_node, node, value, levels, direction, parameter):
 		""" This is a test function that is used to collect the data
 			from the nodes that it has visited. It will return the
 			list of nodes that it encounters.
@@ -57,9 +57,9 @@ class TestProjectPlan(unittest.TestCase):
 
 		if not node.is_sub_node:
 			if value is None:
-				value = [(node.payload.task_id,node.payload.start,node.payload.end)]
+				value = [(node.payload.task_id, int(node.payload.start), int(node.payload.end))]
 			else:
-				value.append((node.payload.task_id,node.payload.start,node.payload.end))
+				value.append((node.payload.task_id, int(node.payload.start), int(node.payload.end)))
 
 		return (node,value,False)
 
@@ -212,10 +212,18 @@ class TestProjectPlan(unittest.TestCase):
 		self.assertTrue(self.project_plan.loadProject('test create project', os.path.join(self.test_data, 'tests_walk.bpf')))
 
 		value = self.project_plan.plan_tree.walkTree(self.collect_function)
+		
+		print("----")
+
+		value = self.project_plan.plan_tree.walkTree(self.dump_endtime_function)
+		print(value[0] )
+		
 
 		# calculate the times for the items and check that they are valid
 		self.project_plan.reDateTree()
 		value = self.project_plan.plan_tree.walkTree(self.dump_endtime_function)
+
+		print(value[0] )
 
 		# for the task added above, this is the correct layout of times.
 		task_order_times = [(1, 1376006400, 1376092800), (2, 1376265600, 1376352000), (3, 1376352000, 1376611200),
@@ -226,7 +234,7 @@ class TestProjectPlan(unittest.TestCase):
 							(16, 1377216000, 1377302400), (17, 1377043200, 1377129600), (18, 1377129600, 1377216000),
 							(19, 1377216000, 1377302400), (20, 1377475200, 1377561600), (21, 1377561600, 1377648000)]
 
-		self.assertTrue(value == task_order_times)
+		self.assertEqual(value, task_order_times)
 
 
 	def test_ListTree(self):

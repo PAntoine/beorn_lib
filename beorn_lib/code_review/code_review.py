@@ -21,8 +21,8 @@
 
 from beorn_lib.scm import ChangeList
 from beorn_lib.nested_tree import NestedTreeNode
-from change import Change
-from comment import Comment
+from .change import Change
+from .comment import Comment
 
 class CodeReview(NestedTreeNode):
 	CODE_REVIEW_STATUS_UNKNOWN		= 0

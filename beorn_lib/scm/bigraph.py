@@ -22,10 +22,10 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-import scm
+from . import scm
 import collections
-from bigraph_entry import BiGraphEntry as BiGraphEntry
-from bigraph_search_element import BiGraphSearchElement as BiGraphSearchElement
+from .bigraph_entry import BiGraphEntry as BiGraphEntry
+from .bigraph_search_element import BiGraphSearchElement as BiGraphSearchElement
 
 #---------------------------------------------------------------------------------
 # Module functions.
@@ -109,7 +109,7 @@ class BIGRAPH(object):
 
 		# build the graph
 		for commit in commit_list:
-			if commit.commit_id in result.nodes.keys():
+			if commit.commit_id in list(result.nodes.keys()):
 				entry = result.nodes[commit.commit_id]
 			else:
 				entry = result.addEntry(commit.commit_id)
@@ -161,7 +161,7 @@ class BIGRAPH(object):
 		commit_list = []
 
 		for branch in branch_list:
-			for item in self.branches.keys():
+			for item in list(self.branches.keys()):
 				if branch == item:
 					commit_list.append(self.branches[item])
 					break

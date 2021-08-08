@@ -19,7 +19,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-import repo_builder
-import build_dialog
+from . import repo_builder
+from . import build_dialog
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

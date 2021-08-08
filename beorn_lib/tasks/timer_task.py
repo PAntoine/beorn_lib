@@ -41,7 +41,7 @@ class TimerTask(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
@@ -49,7 +49,7 @@ class TimerTask(NestedTreeNode):
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item
@@ -73,7 +73,7 @@ class TimerTask(NestedTreeNode):
 		self.start_time = int(time.time())
 		self.time_out = 0
 
-		if type(notes) == unicode or type(notes) == str:
+		if type(notes) == str or type(notes) == str:
 			self.notes = notes.split('\x03')
 		else:
 			self.notes = notes
@@ -194,13 +194,13 @@ class TimerTask(NestedTreeNode):
 		return self.due_date
 
 	def updateNote(self, note):
-		if type(note) == unicode or type(note) == str:
+		if type(note) == str or type(note) == str:
 			self.notes = [note]
 		else:
 			self.notes = note
 
 	def addNote(self, note):
-		if type(note) == unicode or type(note) == str:
+		if type(note) == str or type(note) == str:
 			self.notes.append(note)
 		else:
 			self.notes += note

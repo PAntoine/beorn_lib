@@ -88,9 +88,9 @@ class TestCodeReview(unittest.TestCase):
 		# add some comments to a change
 		comment = Comment('user1', 00000000, ["This is a comment on this line of stuff", "two lines of comment"], 0)
 		review.getCurrentChange().getChildren()[0].getChildren()[1].addChildNode(comment)
-		comment = Comment('user1', 00000001, ["This user really does not like you code"], 0)
+		comment = Comment('user1', 0o0000001, ["This user really does not like you code"], 0)
 		review.getCurrentChange().getChildren()[0].getChildren()[2].addChildNode(comment)
-		comment = Comment('user2', 00000002, ["This user also does not like you code"], 0)
+		comment = Comment('user2', 0o0000002, ["This user also does not like you code"], 0)
 		review.getCurrentChange().getChildren()[0].getChildren()[2].addChildNode(comment)
 
 		# add a new change

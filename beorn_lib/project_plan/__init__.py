@@ -19,7 +19,7 @@
 #                      Released Under the MIT Licence
 #---------------------------------------------------------------------------------
 
-from project_plan import ProjectPlan
-from project_task import ProjectTask
+from .project_plan import ProjectPlan
+from .project_task import ProjectTask
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

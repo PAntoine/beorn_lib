@@ -24,8 +24,8 @@ import time
 import getpass
 import platform
 import threading
-from job import Job
-from project import Project
+from .job import Job
+from .project import Project
 from beorn_lib.nested_tree import NestedTreeNode
 
 class TimeKeeper(NestedTreeNode):
@@ -34,7 +34,7 @@ class TimeKeeper(NestedTreeNode):
 
 			Will return True if 'other' is the name of one of the children.
 		"""
-		if type(other) == str or type(other) == unicode:
+		if type(other) == str or type(other) == str:
 			for child in self.getChildren():
 				if other == child.name:
 					return True
@@ -47,7 +47,7 @@ class TimeKeeper(NestedTreeNode):
 		return False
 
 	def __getitem__(self, key):
-		if type(key) == unicode or type(key) == str:
+		if type(key) == str or type(key) == str:
 			for item in self.getChildren():
 				if item.name == key:
 					return item
@@ -100,7 +100,7 @@ class TimeKeeper(NestedTreeNode):
 				in_file = open(filename, 'rb')
 
 				for line in in_file:
-					parts = line.strip().split(',')
+					parts = line.strip().decode("utf-8").split(',')
 
 					project_name = parts[0]
 
@@ -130,7 +130,7 @@ class TimeKeeper(NestedTreeNode):
 				result = True
 				in_file.close()
 
-			except IOError, e:
+			except IOError as e:
 				result = False
 
 		return result
