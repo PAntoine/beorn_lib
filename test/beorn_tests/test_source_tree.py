@@ -251,6 +251,7 @@ class TestSourceTree(unittest.TestCase):
 		d = os.path.split(source_tree.getPath())
 		f = os.path.split(d[0])
 		difference = os.path.relpath(source_tree.getPath(), f[0])
+
 		source_tree.addTreeNodeByPath(f[0], rebase_tree=True)
 
 		fred = os.path.join(f[0], 'dir_item_5', 'dir_item_1')
@@ -259,13 +260,10 @@ class TestSourceTree(unittest.TestCase):
 
 		new_test_tree = []
 		for item in TestSourceTree.tree_format:
-			new_test_tree.append(item[0:12] + difference + item[11:])
+			# rebasing the tree - should move it to the true directory name
+			new_test_tree.append(os.path.join('beorn_lib', difference) + item[11:])
 
 		b = source_tree.walkTree(self.all_nodes_function)
-
-		for index, item in enumerate(new_test_tree):
-			if b[index+2] != new_test_tree[index]:
-				print(index, b[index+2], new_test_tree[index])
 
 		# check if the array matches the new one - ignoring the two new nodes at the
 		# front to the two new level directories.

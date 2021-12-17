@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 1.5.1 ##
+## version 2.0.0 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -31,7 +31,7 @@ This takes the following parameters:
 
 ## Changes ##
 
-- Prune must not prune some nodes. So added virtual nodes. 
+- Converted to Python 3.
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2021 Peter Antoine

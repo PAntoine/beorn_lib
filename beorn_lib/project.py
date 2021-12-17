@@ -174,7 +174,7 @@ class Project(object):
 					proj_file = open(self.filename,'wb')
 
 					# write the header
-					lines = [x.encode('utf8') for x in self.export()]
+					lines = [x for x in self.export()]
 					proj_file.writelines(lines)
 
 					# write the footer and close the file
@@ -247,16 +247,16 @@ class Project(object):
 		result = []
 
 		if self.isValid() == OK:
-			result.append("name = %s\n" % b64encode(self.name.encode("utf-8")).decode("utf-8"))
-			result.append("description = %s\n" % b64encode(self.description.encode("utf-8")).decode("utf-8"))
-			result.append("start_date = %s\n" % b64encode(str(self.start_date).encode("utf-8")).decode("utf-8"))
-			result.append("release = %s\n" % b64encode(self.release.encode("utf-8")).decode("utf-8"))
-			result.append("owner = %s\n" % b64encode(self.owner.encode("utf-8")).decode("utf-8"))
+			result.append("name = %s\n" % b64encode(self.name.decode("utf-8")))
+			result.append("description = %s\n" % b64encode(self.description.decode("utf-8")))
+			result.append("start_date = %s\n" % b64encode(str(self.start_date)).decode("utf-8"))
+			result.append("release = %s\n" % b64encode(self.release).decode("utf-8"))
+			result.append("owner = %s\n" % b64encode(self.owner).decode("utf-8"))
 
 			if self.users is None:
 				result.append("users = ''\n")
 			else:
-				result.append("users = %s\n" % b64encode(self.users.encode("utf-8")).decode("utf-8"))
+				result.append("users = %s\n" % b64encode(self.users).decode("utf-8"))
 
 		return result
 

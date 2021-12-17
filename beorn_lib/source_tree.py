@@ -454,8 +454,7 @@ class SourceTree(NestedTreeNode):
 				if rebase_tree:
 					self.rebaseTree(os.path.commonprefix([path_root, path]), existing_node)
 			elif not path.startswith(path_root):
-				# TODO: implement adjacent directories - not sure this is a good idea.# TODO: implement adjacent directories - not sure this
-				# is a good idea.
+				# TODO: implement adjacent directories - not sure this is a good idea.
 				pass
 			else:
 				path_bits = self.splitPath(path)
@@ -473,11 +472,13 @@ class SourceTree(NestedTreeNode):
 		if self.root == path:
 			result = self
 		else:
+			if type(path) == bytes:
+				path = path.decode("utf-8")
+
 			if self.root and path.startswith(self.root):
 				path = os.path.relpath(path, self.root)
 
 			path_bits = self.splitPath(path)
-
 			result = self
 
 			for part in path_bits:

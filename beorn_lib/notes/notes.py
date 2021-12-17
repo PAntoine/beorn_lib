@@ -110,10 +110,10 @@ class Notes(NestedTreeNode):
 
 			for subject in self.getChildren():
 				data = "[%s]\n" % subject.name
-				out_file.write(data.encode("utf-8"))
+				out_file.write(data)
 
 				for note in subject.getChildren():
-					out_file.write(note.export().encode("utf-8"))
+					out_file.write(note.export())
 
 			out_file.close()
 			result = True

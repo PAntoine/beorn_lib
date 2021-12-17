@@ -87,9 +87,9 @@ class SCM_GIT(scmbase.SCM_BASE):
 			if (not git_dir) or (self.working_dir is None):
 				if sys.platform == 'win32':
 					CREATE_NO_WINDOW = 0x08000000
-					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW)
+					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW).decode()
 				else:
-					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f)
+					output = subprocess.check_output(SCM_GIT.__git_root_command + command, stderr=SCM_GIT.__nul_f).decode()
 
 				result = True
 			else:
@@ -105,9 +105,9 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 				if sys.platform == 'win32':
 					CREATE_NO_WINDOW = 0x08000000
-					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW)
+					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f, creationflags=CREATE_NO_WINDOW).decode()
 				else:
-					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f)
+					output = subprocess.check_output(command_list, stderr=SCM_GIT.__nul_f).decode()
 				result = True
 
 		except subprocess.CalledProcessError:
@@ -466,7 +466,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 	def getBranch(self):
 		""" This function will return the current branch """
 		(_, output) = self.__callGit(["rev-parse", "--abbrev-ref", "HEAD"])
-		return string.strip(output,'\n')
+		return output.strip('\n')
 
 	def getCurrentVersion(self):
 		""" Get the current symbolic reference for the branch.
@@ -487,7 +487,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 			(status, output) = self.__callGit(["rev-parse", "--abbrev-ref", "HEAD"])
 
 			if status and output != "HEAD":
-				result = string.strip(output,'\n')
+				result = output.strip('\n')
 
 			else:
 				(status, output) = self.__callGit(["rev-parse", "--short", "HEAD"])
@@ -497,7 +497,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 				else:
 					result = ''
 
-		return string.strip(result)
+		return result.strip()
 
 	def getHistory(self, filename=None, version=None, max_entries=None):
 		""" Get the history of the commit or the filename.

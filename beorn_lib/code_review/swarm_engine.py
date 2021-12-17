@@ -292,7 +292,7 @@ class SwarmReviewEngine(ReviewEngine):
 		new_review.setState(self.calcReviewState(code_review))
 
 		desc = code_review['description'].splitlines()
-		new_review.setTitle(desc[0][:80].encode("utf8"))
+		new_review.setTitle(desc[0][:80])
 
 		for commit in code_review['changes'][1:]:
 			change_list = self.scm.getChangeList(str(commit))

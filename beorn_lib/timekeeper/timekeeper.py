@@ -156,7 +156,7 @@ class TimeKeeper(NestedTreeNode):
 		try:
 			out_file = open(filename,'wb')
 			for line in self.walkTree(self.saveWalkFunction):
-				out_file.write(line + '\n')
+				out_file.write(bytes(line + '\n', "utf-8"))
 
 			out_file.close()
 			result = True
