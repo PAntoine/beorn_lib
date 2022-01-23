@@ -91,7 +91,7 @@ class Tasks(NestedTreeNode):
 			result = True
 		else:
 			try:
-				in_file = open(filename, 'rb')
+				in_file = open(filename, 'r')
 
 				for line in in_file:
 					if line[0] == '[':
@@ -217,7 +217,7 @@ class Tasks(NestedTreeNode):
 			filename = self.filename
 
 		try:
-			out_file = open(filename,'wb')
+			out_file = open(filename,'w')
 			for line in self.walkTree(self.saveWalkFunction):
 				out_file.write(line + '\n')
 

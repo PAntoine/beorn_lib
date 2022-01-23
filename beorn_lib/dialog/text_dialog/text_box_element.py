@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------------------
-#                                                   
-#                    ,--.                                 
-#                    |  |-.  ,---.  ,---. ,--.--.,--,--,  
-#                    | .-. '| .-. :| .-. ||  .--'|      \ 
-#                    | `-' |\   --.' '-' '|  |   |  ||  | 
-#                     `---'  `----' `---' `--'   `--''--' 
-#                                                    
+#
+#                    ,--.
+#                    |  |-.  ,---.  ,---. ,--.--.,--,--,
+#                    | .-. '| .-. :| .-. ||  .--'|      \
+#                    | `-' |\   --.' '-' '|  |   |  ||  |
+#                     `---'  `----' `---' `--'   `--''--'
+#
 #    file: text_box
 #    desc: Text Box Element
 #
@@ -92,7 +92,7 @@ class TextBoxElement(BoxElement):
 			This function returns the cursor position relative to the start of
 			the screen.
 		"""
-		y_pos = self.y + ( self.text_pos / self.width)
+		y_pos = self.y + int( self.text_pos / self.width)
 		x_pos = self.x + len(self.title) + (self.text_pos % self.width) + 3
 		return (x_pos, y_pos)
 

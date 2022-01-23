@@ -126,7 +126,7 @@ class TestProject(unittest.TestCase):
 		self.assertEqual(OK,project.initialise(test_data))
 
 		# now save the project
-		test_filename = os.path.join(self.test_data,'save_project.pf')
+		test_filename = os.path.join(self.temp_data,'save_project.pf')
 		self.assertEqual(OK,project.save(test_filename))
 
 		# load the same project back in

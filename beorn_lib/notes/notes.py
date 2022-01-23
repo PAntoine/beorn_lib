@@ -106,7 +106,7 @@ class Notes(NestedTreeNode):
 		file_name = os.path.join(self.directory , self.current_user + '@' + self.current_machine)
 
 		try:
-			out_file = open(file_name,'wb')
+			out_file = open(file_name,'w')
 
 			for subject in self.getChildren():
 				data = "[%s]\n" % subject.name
@@ -136,10 +136,10 @@ class Notes(NestedTreeNode):
 		machine = note_file.split('@', 1)[1]
 
 		try:
-			in_file = open(note_file,'rb')
+			in_file = open(note_file,'r')
 
 			for line_a in in_file:
-				line = line_a.decode("utf-8").strip()
+				line = line_a.strip()
 
 				if line[0:1] == '[' and line[-1] == ']':
 					self.addSubject(line[1:-1])

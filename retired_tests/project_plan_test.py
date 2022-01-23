@@ -25,6 +25,10 @@ import unittest
 import beorn_lib.errors
 from beorn_lib.project_plan import ProjectPlan
 
+# for debugging - remove before commit
+from datetime import datetime
+
+
 class TestProjectPlan(unittest.TestCase):
 	""" User Tests """
 	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
@@ -131,7 +135,7 @@ class TestProjectPlan(unittest.TestCase):
 		self.assertFalse(self.project_plan.createProject('test create project','xxxxx/tests_create.bpf'))
 
 		# positive test
-		self.assertTrue(self.project_plan.createProject('test create project', os.path.join(self.test_data, 'tests_create.bpf')))
+		self.assertTrue(self.project_plan.createProject('test create project', os.path.join(self.temp_data, 'tests_create.bpf')))
 
 	def test_LoadProjectPlan(self):
 		""" Load Project Plan
@@ -159,7 +163,7 @@ class TestProjectPlan(unittest.TestCase):
 		"""
 		self.project_plan = ProjectPlan()
 
-		self.assertTrue(self.project_plan.createProject('test create project',os.path.join(self.test_data, 'tests_populate.bpf')))
+		self.assertTrue(self.project_plan.createProject('test create project',os.path.join(self.temp_data, 'tests_populate.bpf')))
 
 		# now add the nodes
 		# Task(task_id,task_type,duration,status,name,description):
@@ -193,6 +197,12 @@ class TestProjectPlan(unittest.TestCase):
 		self.project_plan.AddTask(18,'task',self.project_plan.minutes_per_day,'created','task 18',"a simple task",17)
 		self.project_plan.AddTask(19,'task',self.project_plan.minutes_per_day,'created','task 19',"a simple task",18)
 
+		print(" ")
+		value = self.project_plan.plan_tree.walkTree(self.dump_endtime_function)
+
+		print("loaded: start:   " + datetime.utcfromtimestamp(value[0][1]).strftime('%Y-%m-%d %H:%M:%S') + " end: " + datetime.utcfromtimestamp(value[0][2]).strftime('%Y-%m-%d %H:%M:%S'))
+
+
 		self.project_plan.saveProject()
 
 	def test_LoadAndReDateTree(self):
@@ -212,18 +222,13 @@ class TestProjectPlan(unittest.TestCase):
 		self.assertTrue(self.project_plan.loadProject('test create project', os.path.join(self.test_data, 'tests_walk.bpf')))
 
 		value = self.project_plan.plan_tree.walkTree(self.collect_function)
-		
-		print("----")
-
 		value = self.project_plan.plan_tree.walkTree(self.dump_endtime_function)
-		print(value[0] )
-		
+
+		print("loaded: start:   " + datetime.utcfromtimestamp(value[0][1]).strftime('%Y-%m-%d %H:%M:%S') + " end: " + datetime.utcfromtimestamp(value[0][2]).strftime('%Y-%m-%d %H:%M:%S'))
 
 		# calculate the times for the items and check that they are valid
 		self.project_plan.reDateTree()
 		value = self.project_plan.plan_tree.walkTree(self.dump_endtime_function)
-
-		print(value[0] )
 
 		# for the task added above, this is the correct layout of times.
 		task_order_times = [(1, 1376006400, 1376092800), (2, 1376265600, 1376352000), (3, 1376352000, 1376611200),
@@ -233,6 +238,12 @@ class TestProjectPlan(unittest.TestCase):
 							(13, 1377043200, 1377475200), (14, 1377043200, 1377129600), (15, 1377129600, 1377216000),
 							(16, 1377216000, 1377302400), (17, 1377043200, 1377129600), (18, 1377129600, 1377216000),
 							(19, 1377216000, 1377302400), (20, 1377475200, 1377561600), (21, 1377561600, 1377648000)]
+
+
+		print("")
+		print("original: start: " + datetime.utcfromtimestamp(task_order_times[0][1]).strftime('%Y-%m-%d %H:%M:%S') + " end: " + datetime.utcfromtimestamp(task_order_times[0][2]).strftime('%Y-%m-%d %H:%M:%S'))
+		print("result: start:   " + datetime.utcfromtimestamp(value[0][1]).strftime('%Y-%m-%d %H:%M:%S') + " end: " + datetime.utcfromtimestamp(value[0][2]).strftime('%Y-%m-%d %H:%M:%S'))
+
 
 		self.assertEqual(value, task_order_times)
 

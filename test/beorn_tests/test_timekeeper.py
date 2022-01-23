@@ -35,6 +35,7 @@ class TestTimeKeeper(unittest.TestCase):
 	""" User Tests """
 	def __init__(self, testname = 'runTest', test_data = None, temp_data = None):
 		self.test_data = test_data
+		self.temp_data = temp_data
 		self.timekeeper_dir = os.path.join(temp_data, 'timekeeper')
 
 		# initialise the test framework
@@ -72,7 +73,7 @@ class TestTimeKeeper(unittest.TestCase):
 			value = []
 
 		if node.__class__.__name__ == "Job":
-			value.append('  ' + node.toString())
+			value.append('  ' + node.toString() + ' ' + node.getTotalString())
 
 		return (node, value, False)
 
@@ -109,6 +110,10 @@ class TestTimeKeeper(unittest.TestCase):
 
 			content = test_timekeeper.walkTree(self.readerFunction)
 			self.assertNotEqual(0, len(content))
+
+			# hack the file name - not a good test - but is good enough
+			test_timekeeper.filename = os.path.join(self.temp_data, name)
+			self.assertTrue(test_timekeeper.save(), "Save file failed: " + filename)
 
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

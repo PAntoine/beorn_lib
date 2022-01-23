@@ -72,7 +72,8 @@ class TextButtonElement(ButtonElement):
 			This function returns the cursor position relative to the start of
 			the screen.
 		"""
-		return (self.x + ((len(self.title) + 6) / 2), self.y)
+		print("button")
+		return (int(self.x + (len(self.title) + 6) / 2), int(self.y))
 
 	def setFocus(self, focus):
 		""" Set Focus

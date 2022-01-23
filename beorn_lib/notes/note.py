@@ -78,8 +78,8 @@ class Note(NestedTreeNode):
 			self.message = '\x03'.join(message)
 
 		# set the checksum
-		self.checksum = binascii.crc32(name) & 0xffffffff
-		self.checksum = binascii.crc32(self.message, self.checksum) & 0xffffffff
+		self.checksum = binascii.crc32(bytes(name, "utf-8")) & 0xffffffff
+		self.checksum = binascii.crc32(bytes(self.message, "utf-8"), self.checksum) & 0xffffffff
 
 	def amendMessage(self, message):
 		if type(message) == list:

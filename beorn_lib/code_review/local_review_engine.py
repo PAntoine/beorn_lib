@@ -102,7 +102,7 @@ class LocalReviewEngine(ReviewEngine):
 
 	def loadFile(self, file_name, local):
 		try:
-			with open(file_name, "rb") as f:
+			with open(file_name, "r") as f:
 				data = f.readlines()
 				current_item = None
 
@@ -144,7 +144,7 @@ class LocalReviewEngine(ReviewEngine):
 		file_name = os.path.join(self.directory , self.current_user + '@' + self.current_machine)
 
 		try:
-			out_file = open(file_name,'wb')
+			out_file = open(file_name,'w')
 			for line in self.walkTree(self.readerFunction):
 				out_file.write(line + '\n')
 

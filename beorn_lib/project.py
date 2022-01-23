@@ -171,7 +171,7 @@ class Project(object):
 
 			else:
 				try:
-					proj_file = open(self.filename,'wb')
+					proj_file = open(self.filename,'w')
 
 					# write the header
 					lines = [x for x in self.export()]
@@ -207,25 +207,25 @@ class Project(object):
 
 			else:
 				if parts[0] == 'name':
-					self.name = str(b64decode(parts[2]), "utf-8")
+					self.name = b64decode(parts[2]).decode()
 
 				elif parts[0] == 'description':
-					self.description = str(b64decode(parts[2]), "utf-8")
+					self.description = b64decode(parts[2]).decode()
 
 				elif parts[0] == 'start_date':
 					self.start_date = int(b64decode(parts[2]))
 
 				elif parts[0] == 'source':
-					self.source = str(b64decode(parts[2]), "utf-8")
+					self.source = b64decode(parts[2]).decode()
 
 				elif parts[0] == 'release':
-					self.release = str(b64decode(parts[2]), "utf-8")
+					self.release = b64decode(parts[2]).decode()
 
 				elif parts[0] == 'owner':
-					self.owner = str(b64decode(parts[2]), "utf-8")
+					self.owner = b64decode(parts[2]).decode()
 
 				elif parts[0] == 'users':
-					self.users = str(b64decode(parts[2]), "utf-8")
+					self.users = b64decode(parts[2]).decode()
 
 				else:
 					result = ERROR_UNKNOWN_FIELD
@@ -247,16 +247,16 @@ class Project(object):
 		result = []
 
 		if self.isValid() == OK:
-			result.append("name = %s\n" % b64encode(self.name.decode("utf-8")))
-			result.append("description = %s\n" % b64encode(self.description.decode("utf-8")))
-			result.append("start_date = %s\n" % b64encode(str(self.start_date)).decode("utf-8"))
-			result.append("release = %s\n" % b64encode(self.release).decode("utf-8"))
-			result.append("owner = %s\n" % b64encode(self.owner).decode("utf-8"))
+			result.append("name = %s\n" % b64encode(self.name.encode()).decode())
+			result.append("description = %s\n" % b64encode(self.description.encode()).decode())
+			result.append("start_date = %s\n" % b64encode(str(self.start_date).encode()).decode())
+			result.append("release = %s\n" % b64encode(self.release.encode()).decode())
+			result.append("owner = %s\n" % b64encode(self.owner.encode()).decode())
 
 			if self.users is None:
 				result.append("users = ''\n")
 			else:
-				result.append("users = %s\n" % b64encode(self.users).decode("utf-8"))
+				result.append("users = %s\n" % b64encode(self.users.encode()).decode())
 
 		return result
 

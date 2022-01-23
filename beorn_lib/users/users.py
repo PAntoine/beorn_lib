@@ -95,7 +95,7 @@ class Users:
 			result = OK
 
 			try:
-				user_file = open(self.filename,'wb')
+				user_file = open(self.filename,'w')
 
 				for user in self.users:
 					user_file.write(self.users[user].toString())

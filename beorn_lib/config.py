@@ -135,10 +135,10 @@ class Config(object):
 
 		else:
 			try:
-				proj_file = open(self.filename, 'wb')
+				proj_file = open(self.filename, 'w')
 
 				for line in self.export():
-					proj_file.write(bytes("%s\n" % line, "utf-8"))
+					proj_file.write("%s\n" % line)
 
 				proj_file.close()
 

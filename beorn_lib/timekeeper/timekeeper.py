@@ -97,10 +97,10 @@ class TimeKeeper(NestedTreeNode):
 			result = True
 		else:
 			try:
-				in_file = open(filename, 'rb')
+				in_file = open(filename, 'r')
 
 				for line in in_file:
-					parts = line.strip().decode("utf-8").split(',')
+					parts = line.strip().split(',')
 
 					project_name = parts[0]
 
@@ -154,9 +154,9 @@ class TimeKeeper(NestedTreeNode):
 			filename = self.filename
 
 		try:
-			out_file = open(filename,'wb')
+			out_file = open(filename,'w')
 			for line in self.walkTree(self.saveWalkFunction):
-				out_file.write(bytes(line + '\n', "utf-8"))
+				out_file.write(line + '\n')
 
 			out_file.close()
 			result = True
