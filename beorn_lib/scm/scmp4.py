@@ -223,7 +223,7 @@ class SCM_P4(scmbase.SCM_BASE):
 				else:
 					proc = subprocess.Popen(['p4', 'login', '-pa'], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
-				value = proc.communicate(input=password)
+				value = proc.communicate(input=password.encode())
 
 				if proc.returncode == 0:
 					if value[0] == "'login' not necessary, no password set for this user.":

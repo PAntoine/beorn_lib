@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 2.0.1 ##
+## version 2.0.2 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -31,9 +31,7 @@ This takes the following parameters:
 
 ## Changes ##
 
-    - Fix: fixed indigobuggie issues and updated the tests
-    - Fix: removed `project_plan` test it is not required
-    - Fix: Python3 defaults to bytes[] when the file is opened "wb" so changed to "w".
+	-Fix: Stop P4 Support from crashing (not sure how much is works now :) )
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2022 Peter Antoine
