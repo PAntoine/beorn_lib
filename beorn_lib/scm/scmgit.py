@@ -454,23 +454,33 @@ class SCM_GIT(scmbase.SCM_BASE):
 				# add the new element to the result
 				result.addTreeNodeByPath(parts[3])
 
-			# update the changed files from the version to now.
-			(status, output) = self.__callGit(['diff', '--name-status', '-r', commit])
+			# add the untracked files a well.
+			(status, output) = self.__callGit(["ls-files", "--others", "--exclude-standard"])
 
 			if status:
 				lines = output.splitlines()
 
 				for line in lines:
-					bits = line.lstrip().split()
-					if len(bits) >= 2:
-						entry = result.findItemNode(bits[1])
+					entry = result.addTreeNodeByPath(line)
+					entry.setFlag('A')
 
-						if entry is None:
-							# add new status (inc. new item if it did not exist before)
-							entry = result.addTreeNodeByPath(bits[1])
+				# update the changed files from the version to now.
+				(status, output) = self.__callGit(['diff', '--name-status', '-r', commit])
 
-						if entry is not None:
-							entry.setFlag(bits[0])
+				if status:
+					lines = output.splitlines()
+
+					for line in lines:
+						bits = line.lstrip().split()
+						if len(bits) >= 2:
+							entry = result.findItemNode(bits[1])
+
+							if entry is None:
+								# add new status (inc. new item if it did not exist before)
+								entry = result.addTreeNodeByPath(bits[1])
+
+							if entry is not None:
+								entry.setFlag(bits[0])
 		return result
 
 	def getBranch(self):

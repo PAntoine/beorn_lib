@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 2.1.0 ##
+## version 2.1.1 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -36,13 +36,7 @@ This takes the following parameters:
 ## Changes ##
 
 Enhancements:
-    - added getSourceTree to SCM
-    - added new test for getSourceTree
-
-Fixes:
-    - made SCM tests work - looks like they weren't working.
-    - disabled P4 tests - can't be bothered to set P4 up.
-    - rejigged the SCM tests so the repo state is accessible in the tests.
+    - Don't forget the untracked files for Git for SourceTree
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2022 Peter Antoine
