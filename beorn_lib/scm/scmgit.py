@@ -22,6 +22,8 @@ from . import scmbase
 import getpass
 import subprocess
 from collections import OrderedDict
+from beorn_lib.source_tree import SourceTree
+from typing import Union
 
 
 def checkForType(repository):
@@ -430,15 +432,16 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		return result
 
-	def getTreeListing(self):
-		""" This function will return the directory listing for the given commit.
-		"""
-		if self.version != '':
-			commit = self.version
-		else:
-			commit = 'HEAD'
+	def getSourceTree(self, version: str = None) -> SourceTree:
+		""" This function will return the SCM contents as a SourceTree.  """
 
-		result = []
+		commit = 'HEAD'
+		if version is not None:
+			commit = version
+		elif self.version != '':
+			commit = self.version
+
+		result = SourceTree(self.getName() + ":" + commit, self.working_dir)
 
 		(status, output) = self.__callGit(["ls-tree", commit, self.working_dir + os.sep, "-r", "--abbrev", "--full-tree"])
 
@@ -448,19 +451,26 @@ class SCM_GIT(scmbase.SCM_BASE):
 			for line in lines:
 				parts = line.split()
 
-				# decode the file type
-				if parts[1] == 'blob':
-					item_type = 'file'
-				elif parts[1] == 'tree':
-					item_type = 'dir'
-				elif parts[1] == 'commit':
-					item_type = 'module'
-				else:
-					item_type = 'unknown'
-
 				# add the new element to the result
-				result.append(scm.DirectoryItem(item_type, os.path.basename(parts[3])))
+				result.addTreeNodeByPath(parts[3])
 
+			# update the changed files from the version to now.
+			(status, output) = self.__callGit(['diff', '--name-status', '-r', commit])
+
+			if status:
+				lines = output.splitlines()
+
+				for line in lines:
+					bits = line.lstrip().split()
+					if len(bits) >= 2:
+						entry = result.findItemNode(bits[1])
+
+						if entry is None:
+							# add new status (inc. new item if it did not exist before)
+							entry = result.addTreeNodeByPath(bits[1])
+
+						if entry is not None:
+							entry.setFlag(bits[0])
 		return result
 
 	def getBranch(self):
@@ -533,6 +543,28 @@ class SCM_GIT(scmbase.SCM_BASE):
 			for line in lines:
 				parts = line.split(' ',2)
 				result.append(scm.HistoryItem(parts[1], parts[2], parts[0], None, None))
+
+		return result
+
+	def getCommitDetails(self, commit_id) -> Union[None, scm.Details]:
+		""" Get the commit details of the specific commit. """
+		result = None
+
+		(status, output) = self.__callGit(["log", "--oneline", "--pretty=\"%at %h ''%cn'' %s\"", "-1", commit_id])
+
+		if status:
+			hash_off = output.find(' ')
+			name_off = output[hash_off:].find("''")
+			name_off = hash_off + output[hash_off:].find("''") + 2
+			subj_off = name_off + output[name_off+2:].find("''") + 2
+
+			timestamp = output[1:hash_off]
+			hash_id = output[hash_off+1:hash_off + name_off - 1]
+
+			name = output[name_off:subj_off]
+			subject = output[subj_off+3:]
+
+			result = scm.Details(version=hash_id, summary=subject, timestamp=timestamp, author=name)
 
 		return result
 
@@ -797,12 +829,15 @@ class SCM_GIT(scmbase.SCM_BASE):
 
 		return (current, result)
 
-	def getBranches(self):
+	def getBranches(self, remotes=True):
 		""" The function will return the branches of the current repository.
 
 			This function returns a simple tuple of the branch details.
 		"""
-		(status, output) = self.__callGit(["branch", "-av"])
+		if remotes:
+			(status, output) = self.__callGit(["branch", "-v"])
+		else:
+			(status, output) = self.__callGit(["branch", "-av"])
 
 		current = -1
 		result = []
@@ -819,11 +854,11 @@ class SCM_GIT(scmbase.SCM_BASE):
 					current = len(result)
 					branch_name = parts[1]
 					commit		= parts[2]
-					comment		= string.join(parts[3:])
+					comment		= ' '.join(parts[3:])
 				else:
 					branch_name = parts[0]
 					commit		= parts[1]
-					comment		= string.join(parts[2:])
+					comment		= ' '.join(parts[2:])
 
 				if branch_name[0:7] == 'remotes':
 					# we have a remote, decode the name
@@ -852,7 +887,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 		else:
 			commits = ['HEAD']
 
-		(status, output) = self.__callGit(["grep", "-n", "-F", search_string, string.join(commits)])
+		(status, output) = self.__callGit(["grep", "-n", "-F", search_string, ''.join(commits)])
 
 		result = []
 
@@ -863,7 +898,7 @@ class SCM_GIT(scmbase.SCM_BASE):
 				parts = line.split(':')
 
 				# add the branch_name, commit, branch_description to the tuple.
-				result.append((parts[0], parts[1], parts[2], string.join(parts[3:], ':')))
+				result.append((parts[0], parts[1], parts[2], ':'.join(parts[3:])))
 
 		return result
 

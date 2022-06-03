@@ -21,6 +21,7 @@ from collections import namedtuple as namedtuple
 Commit		= namedtuple('Commit', ['commit_id', 'parents', 'description'])
 Branch		= namedtuple('Branch', ['commit_id', 'name', 'parents', 'remote'])
 Tag			= namedtuple('Tag', ['commit_id', 'name'])
+Details		= namedtuple('Details', ['version', 'summary', 'timestamp', 'author'])
 Change		= namedtuple('Change', ['original_line', 'original_length', 'new_line', 'new_length', 'lines'])
 HistoryItem	= namedtuple('HistoryItem', ['version', 'summary', 'timestamp', 'parents', 'children'])
 ChangeList	= namedtuple('ChangeList', ['commit_id', 'timestamp', 'author', 'description', 'changes'])

@@ -29,6 +29,7 @@
 from beorn_lib.dialog.base import ButtonElement
 from .text_dialog import TextDialog
 
+
 class TextButtonElement(ButtonElement):
 	""" Text Button Element
 
@@ -72,7 +73,6 @@ class TextButtonElement(ButtonElement):
 			This function returns the cursor position relative to the start of
 			the screen.
 		"""
-		print("button")
 		return (int(self.x + (len(self.title) + 6) / 2), int(self.y))
 
 	def setFocus(self, focus):

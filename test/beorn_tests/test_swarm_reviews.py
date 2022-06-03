@@ -57,7 +57,7 @@ class TestSwarmCodeReview(unittest.TestCase):
 		return (node, value, False)
 
 	def password_function(self, user):
-		return getpass.getpass()
+		return "fixedpassword"
 
 	def test_codeReview(self):
 		""" Code Review Test

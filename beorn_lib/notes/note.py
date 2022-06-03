@@ -51,7 +51,7 @@ class Note(NestedTreeNode):
 				title = parts[0]
 				date  = int(bits[0])
 				checksum = int(bits[1])
-				message = ''.join(bits[2:])
+				message = ':'.join(bits[2:])
 
 				result = cls(title, message, date, checksum)
 

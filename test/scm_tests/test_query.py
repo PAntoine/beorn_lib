@@ -15,10 +15,8 @@
 # Import the external modules.
 #---------------------------------------------------------------------------------
 import os
-import unittest
-from beorn_lib.scm.scmgit import SCM_GIT
 from beorn_lib.scm.scmbase import SCM_BASE
-from test.utils.repo_builder import amendDiffArray, diff_set, writefile
+from test.utils.repo_builder import writefile
 from beorn_lib.scm import scm, SCMStatus
 from .scm_test import SCMTest
 
@@ -27,10 +25,34 @@ from .scm_test import SCMTest
 #---------------------------------------------------------------------------------
 text_data_1 = [ "This test case will change a file in the repo.\n" ]
 
+
 #---------------------------------------------------------------------------------
 # Test Sequences.
 #---------------------------------------------------------------------------------
 class TestQuery(SCMTest):
+
+	def all_nodes_function(self, last_visited_node, node, value, levels, direction, parameter):
+		""" This function will collect the values from all nodes that
+			it encounters in the order that they were walked.
+		"""
+		if value is None:
+			if node.getFlag() is not None:
+				flag = node.getFlag()
+			else:
+				flag = ' '
+
+			if parameter is not None:
+				value = [os.path.abspath(node.getPath()) + flag]
+			else:
+				value = [node.getPath() + flag]
+		else:
+			if parameter is not None:
+				value.append(os.path.abspath(node.getPath()))
+			else:
+				value.append(node.getPath())
+
+		return (node, value, False)
+
 	def __init__(self, testname = 'runTest',  scm_type = None, scm_dir = None, test_data = None):
 		super(TestQuery, self).__init__(testname)
 
@@ -45,12 +67,12 @@ class TestQuery(SCMTest):
 			self.assertEqual('Git', scm.new("ssh://user@server/project.git").getType())
 			self.assertEqual('Git', scm.new("git://user@server/project.git").getType())
 			self.assertEqual('Git', scm.new("file:/local/project.git").getType())
-		if self.scm_type == 'P4':
+		elif self.scm_type == 'P4':
 			pass
 		else:
-			self.assertTrue(False,"Unknown SCM:" + self.scm_type.upper())
+			self.assertTrue(False,"Unknown SCM: '" + self.scm_type + "'" + " type: " + str(type(self.scm_type)))
 
-		# know nonsense directory should failed
+		# know nonsense directory should not be found
 		(status, _) = scm.findRepositoryRoot('/fdfdfd/fdfdd/fdfdf/fdfdf/fdfdfd/dfdfd')
 		self.assertFalse(status)
 
@@ -203,7 +225,7 @@ class TestQuery(SCMTest):
 
 		if self.scm_type != 'P4':
 			# P4 returns full history if the version did not exist.
-			self.assertTrue(self.repo.getHistory('test_1','5555555555') == [])
+			self.assertTrue(self.repo.getHistory('test_1', '5555555555') == [])
 
 	def test_searchCommits(self):
 		""" Search Commits.
@@ -213,6 +235,80 @@ class TestQuery(SCMTest):
 		"""
 		if self.scm_type != 'P4':
 			self.assertTrue(self.repo.searchCommits('This test') != [])
+
+	def treeMatch(self, tree_1, tree_2) -> bool:
+		result = False
+
+		if len(tree_1) == len(tree_2):
+			result = True
+
+			for index in range(0, len(tree_1)):
+				if tree_1[index][tree_1[index].find(os.path.sep)+1:] != tree_2[index][tree_2[index].find(os.path.sep)+1:]:
+					result = False
+
+		return result
+
+	def test_getSourceTree(self):
+		""" Search Commits.
+
+			This function will test the fact that the function will return
+			search strings for a string that is known to be in the repo.
+		"""
+		# basic test that it works
+		source_tree = self.repo.getSourceTree()
+		self.assertIsNotNone(source_tree)
+
+		# basic test the HEAD and the last commit produce the same tree.
+		source_tree = self.repo.getSourceTree('HEAD')
+		self.assertIsNotNone(source_tree)
+		head_tree = source_tree.walkTree(self.all_nodes_function)
+
+		source_tree = self.repo.getSourceTree(TestQuery.commit[50].commit_id)
+		self.assertIsNotNone(source_tree)
+		commit_50 = source_tree.walkTree(self.all_nodes_function)
+		self.assertTrue(self.treeMatch(head_tree, commit_50))
+
+		# Test the commit 5 (before the creation of branch 3) and commit 8 - match
+		source_tree = self.repo.getSourceTree(TestQuery.commit[5].commit_id)
+		self.assertIsNotNone(source_tree)
+		commit_5 = source_tree.walkTree(self.all_nodes_function)
+
+		source_tree = self.repo.getSourceTree(TestQuery.commit[8].commit_id)
+		self.assertIsNotNone(source_tree)
+		commit_8 = source_tree.walkTree(self.all_nodes_function)
+		self.assertTrue(self.treeMatch(commit_8, commit_5))
+
+		# This that branch 9
+		source_tree = self.repo.getSourceTree(TestQuery.branch[9].name)
+		self.assertIsNotNone(source_tree)
+		branch_9 = source_tree.walkTree(self.all_nodes_function)
+		self.assertFalse(self.treeMatch(commit_8, branch_9))
+
+		# commit 40 (and 41) are at the end of the commit chain for branch 9.
+		# 40 adds a new file, 41 just amends.
+		source_tree = self.repo.getSourceTree(TestQuery.commit[40].commit_id)
+		self.assertIsNotNone(source_tree)
+		commit_40 = source_tree.walkTree(self.all_nodes_function, True)
+		self.assertFalse(self.treeMatch(commit_40, branch_9))
+
+		source_tree = self.repo.getSourceTree(TestQuery.commit[40].commit_id)
+		self.assertIsNotNone(source_tree)
+		commit_41 = source_tree.walkTree(self.all_nodes_function, True)
+		self.assertFalse(self.treeMatch(commit_41, branch_9))
+
+		# Test that the current state does not match the commit, for deleted
+		# and modified files. Should test add, but meh, if the others work
+		# this will probably work too.
+		source_tree = self.repo.getSourceTree(TestQuery.commit[41].commit_id)
+		self.assertIsNotNone(source_tree)
+		with_deleted_file = source_tree.walkTree(self.all_nodes_function)
+
+		self.assertTrue(with_deleted_file[0][-1] == 'D' and len(with_deleted_file) == 3)
+
+		source_tree = self.repo.getSourceTree(TestQuery.branch[10].name)
+		self.assertIsNotNone(source_tree)
+		modified = source_tree.walkTree(self.all_nodes_function)
+		self.assertTrue(modified[0][-1] == 'M' and len(modified) == 2)
 
 	def test_checkObjectExists(self):
 		""" Test Object Existence.

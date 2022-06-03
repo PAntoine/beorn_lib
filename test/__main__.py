@@ -38,7 +38,8 @@ sys.path.insert(1, os.path.join(SUB_ROOT_PATH, 'beorn_lib'))
 import beorn_tests
 import scm_tests
 
-SUPPORTED_SCMS = ['Git', 'P4']
+#SUPPORTED_SCMS = ['Git', 'P4']
+SUPPORTED_SCMS = ['Git']
 
 
 def get_test_names(test_class, selected_group):
@@ -104,10 +105,12 @@ def load_tests(	selected_group = None,
 				if test_case is None or test == test_case:
 					suite.addTest(test_class(test, test_data, temp_data))
 					found = True
+	else:
+		print("SCM only, skipping other tests")
 
 	if not tests_only:
 		for scm_type in SUPPORTED_SCMS:
-			if scm_type == scm_name:
+			if scm_name is None or scm_type == scm_name:
 				for item_name in dir(scm_tests):
 					test_class = getattr(scm_tests, item_name)
 					tests = get_test_names(test_class, selected_group)
@@ -123,6 +126,8 @@ def load_tests(	selected_group = None,
 							if test_case is None or test == test_case:
 								suite.addTest(test_class(test, scm_type, temp_data_root, test_data))
 								found = True
+	else:
+		print("Tests only, skipping SCM tests")
 
 	if not found:
 		return None
@@ -173,6 +178,7 @@ if __name__ == '__main__':
 		print("Usage: -t	- only run the non-SCM tests")
 		print("Usage: -h	- print the help.")
 		print("Usage: -l	- print list of tests.")
+		print("\n i.e. python test [options] [TestGroup] [TestCase]\n")
 
 		if list_available_tests:
 			test, scm_test = return_test_names(run_class, tests_only, scm_only, scm_type)
@@ -195,7 +201,6 @@ if __name__ == '__main__':
 					for testcase in item[1]:
 						print("    TestCase: ", testcase)
 
-
 	else:
 		temp_data = os.path.join(os.path.abspath('.'), 'temp_data')
 
@@ -203,7 +208,6 @@ if __name__ == '__main__':
 			shutil.rmtree(temp_data, ignore_errors=True)
 
 		os.mkdir(temp_data)
-
 
 		test_suite = load_tests(run_class, test_case, tests_only, scm_only, scm_type)
 

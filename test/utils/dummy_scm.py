@@ -24,6 +24,7 @@
 import os
 from beorn_lib.scm import scm, SCM_BASE
 from beorn_lib import SCMTree
+from beorn_lib.source_tree import SourceTree
 
 def checkForType(repository):
 	""" Check For Type
@@ -73,7 +74,7 @@ class SCM_DUMMY(SCM_BASE):
 
 	def getTreeChanges(self, from_version = None, to_version = None, path = None):
 		return self.change_list
-	
+
 	def getTreeChangesGenerator(self):
 		for item in self.change_list:
 			yield item
@@ -91,9 +92,11 @@ class SCM_DUMMY(SCM_BASE):
 		self.scm_tree = SCMTree('[base]', self)
 		self.__addNodes(self.scm_tree, structure)
 
-	def getTreeListing(self):
-		""" This function will return the directory listing for the given commit.  """
-		return self.scm_tree.walkTree(self.all_nodes_function)
+	def getSourceTree(self, version: str = None) -> SourceTree:
+		""" This function will return the SCM contents as a SourceTree.  """
+		# TODO: This needs to build the tree.
+		#return self.scm_tree.walkTree(self.all_nodes_function)
+		return SourceTree(self.getName())
 
 	def aWalk(self, node):
 		if node.hasChild():

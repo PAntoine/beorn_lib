@@ -26,4 +26,4 @@ from .scmgit import SCM_GIT
 from .scmbase import SCM_BASE
 from .bigraph import BIGRAPH
 
-from .scm import ChangeList, Commit, Branch, Tag, Change, HistoryItem, ChangeItem, SCMItem, SCMStatus, SupportedSCM, startLocalServer, stopLocalServer
+from .scm import ChangeList, Commit, Branch, Tag, Change, HistoryItem, ChangeItem, SCMItem, SCMStatus, SupportedSCM, startLocalServer, stopLocalServer, Details

@@ -13,6 +13,8 @@
 
 import os
 from collections import OrderedDict
+from . import scm
+from beorn_lib.source_tree import SourceTree
 
 
 #---------------------------------------------------------------------------------
@@ -137,8 +139,8 @@ class SCM_BASE(object):
 		"""
 		return None
 
-		def pathInSCM(self, path):
-			return path.startswith(self.working_dir)
+	def pathInSCM(self, path):
+		return path.startswith(self.working_dir)
 
 	def hasVersion(self,version):
 		return False
@@ -165,9 +167,9 @@ class SCM_BASE(object):
 	def getDirectoryListing(self,directory_name):
 		return []
 
-	def getTreeListing(self):
-		""" This function will return the directory listing for the given commit.  """
-		return []
+	def getSourceTree(self, version: str = None) -> SourceTree:
+		""" This function will return the SCM contents as a SourceTree.  """
+		return SourceTree(self.getName())
 
 	def getTreeListingGenerator(self):
 		""" This function will return the directory listing for the given commit.  """
@@ -184,6 +186,9 @@ class SCM_BASE(object):
 
 	def getHistory(self, filename=None, version=None, max_entries=None):
 		return []
+
+	def getCommitDetails(self, commit_id):
+		return None
 
 	def getCommitList(self):
 		return []

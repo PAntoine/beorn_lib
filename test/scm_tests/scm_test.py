@@ -71,6 +71,9 @@ class SCMTest(unittest.TestCase):
 
 		cls.url = scm.startLocalServer(cls.scm_type, cls.server_directory)
 
+		cls.commit = [None] * 51
+		cls.branch = [None] * 13
+
 		# remove the old one
 		if os.path.isdir(cls.directory):
 			shutil.rmtree(cls.directory, ignore_errors=True)
@@ -84,122 +87,120 @@ class SCMTest(unittest.TestCase):
 				result = True
 
 				# add initial commit 0
-				branch_0 = new_scm.addBranch("branch_0")
+				cls.branch[0] = new_scm.addBranch("branch_0")
 				result &= writefile(os.path.join(cls.directory, 'test_1'), text_data_1)
-				print(result, os.path.join(cls.directory, 'test_1'))
-				print(os.path.exists(os.path.join(cls.directory, 'test_1')))
-				commit_1 = new_scm.addCommit(files = [os.path.join(os.path.join(cls.directory, 'test_1'))], empty = True, message = 'commit_1')
+				cls.commit[1] = new_scm.addCommit(files = [os.path.join(os.path.join(cls.directory, 'test_1'))], empty = True, message = 'commit_1')
 				# branch the repo @ 1
-				branch_1 = new_scm.addBranch("branch_1", commit_1)
-				new_scm.switchBranch(branch_1)
+				cls.branch[1] = new_scm.addBranch("branch_1", cls.commit[1])
+				new_scm.switchBranch(cls.branch[1])
 				result += writefile(os.path.join(cls.directory, 'test_1'), text_data_2)
-				commit_2 = new_scm.addCommit(files = [os.path.join(cls.directory, 'test_1')], empty = True, message = 'commit_2')
+				cls.commit[2] = new_scm.addCommit(files = [os.path.join(cls.directory, 'test_1')], empty = True, message = 'commit_2')
 				result += writefile(os.path.join(cls.directory, 'test_2'), text_data_2)
-				commit_3 = new_scm.addCommit(files = [os.path.join(cls.directory, 'test_1'),os.path.join(cls.directory, 'test_2')], empty = True, message = 'commit_3')
+				cls.commit[3] = new_scm.addCommit(files = [os.path.join(cls.directory, 'test_1'),os.path.join(cls.directory, 'test_2')], empty = True, message = 'commit_3')
 				# second branch @ 1
-				branch_2 = new_scm.addBranch("branch_2", commit_1)
-				new_scm.switchBranch(branch_2)
-				commit_4 = new_scm.addCommit(empty = True, message = 'commit_4')
-				commit_5 = new_scm.addCommit(empty = True, message = 'commit_5')
-				commit_6 = new_scm.addCommit(empty = True, message = 'commit_6')
+				cls.branch[2] = new_scm.addBranch("branch_2", cls.commit[1])
+				new_scm.switchBranch(cls.branch[2])
+				cls.commit[4] = new_scm.addCommit(empty = True, message = 'commit_4')
+				cls.commit[5] = new_scm.addCommit(empty = True, message = 'commit_5')
+				cls.commit[6] = new_scm.addCommit(empty = True, message = 'commit_6')
 				# branch @ 5
-				branch_3 = new_scm.addBranch("branch_3", commit_5)
-				new_scm.switchBranch(branch_3)
-				commit_7 = new_scm.addCommit(empty = True, message = 'commit_7')
-				commit_8 = new_scm.addCommit(empty = True, message = 'commit_8')
+				cls.branch[3] = new_scm.addBranch("branch_3", cls.commit[5])
+				new_scm.switchBranch(cls.branch[3])
+				cls.commit[7] = new_scm.addCommit(empty = True, message = 'commit_7')
+				cls.commit[8] = new_scm.addCommit(empty = True, message = 'commit_8')
 				# back to branch 2 - add to the end of commit 6
-				commit_9 = new_scm.addCommit(empty = True, message = 'commit_9')
+				cls.commit[9] = new_scm.addCommit(empty = True, message = 'commit_9')
 				# merge the two branches
-				commit_10 = new_scm.merge(branch_3, branch_2)
-				commit_11 = new_scm.addCommit(empty = True, message = 'commit_11')
+				cls.commit[10] = new_scm.merge(cls.branch[3], cls.branch[2])
+				cls.commit[11] = new_scm.addCommit(empty = True, message = 'commit_11')
 				# go back to the main branch and add some commits.
-				commit_12 = new_scm.addCommit(empty = True, message = 'commit_12')
-				commit_13 = new_scm.addCommit(empty = True, message = 'commit_13')
-				commit_14 = new_scm.addCommit(empty = True, message = 'commit_14')
-				commit_15 = new_scm.merge(branch_2, branch_0)
-				commit_16 = new_scm.addCommit(empty = True, message = 'commit_16')
+				cls.commit[12] = new_scm.addCommit(empty = True, message = 'commit_12')
+				cls.commit[13] = new_scm.addCommit(empty = True, message = 'commit_13')
+				cls.commit[14] = new_scm.addCommit(empty = True, message = 'commit_14')
+				cls.commit[15] = new_scm.merge(cls.branch[2], cls.branch[0])
+				cls.commit[16] = new_scm.addCommit(empty = True, message = 'commit_16')
 				# Ok, let's branch off commit 2
-				branch_4 = new_scm.addBranch("branch_4", commit_2)
-				new_scm.switchBranch(branch_4)
-				commit_17 = new_scm.addCommit(empty = True, message = 'commit_17')
-				commit_18 = new_scm.addCommit(empty = True, message = 'commit_18')
-				commit_19 = new_scm.addCommit(empty = True, message = 'commit_19')
-				commit_20 = new_scm.addCommit(empty = True, message = 'commit_20')
-				commit_21 = new_scm.addCommit(empty = True, message = 'commit_21')
+				cls.branch[4] = new_scm.addBranch("branch_4", cls.commit[2])
+				new_scm.switchBranch(cls.branch[4])
+				cls.commit[17] = new_scm.addCommit(empty = True, message = 'commit_17')
+				cls.commit[18] = new_scm.addCommit(empty = True, message = 'commit_18')
+				cls.commit[19] = new_scm.addCommit(empty = True, message = 'commit_19')
+				cls.commit[20] = new_scm.addCommit(empty = True, message = 'commit_20')
+				cls.commit[21] = new_scm.addCommit(empty = True, message = 'commit_21')
 				# Ok. switch back to branch 1
-				commit_22 = new_scm.addCommit(empty = True, message = 'commit_22')
+				cls.commit[22] = new_scm.addCommit(empty = True, message = 'commit_22')
 				# Ok, another branch
-				branch_5 = new_scm.addBranch("branch_5", commit_3)
-				new_scm.switchBranch(branch_5)
-				commit_23 = new_scm.addCommit(empty = True, message = 'commit_23')
-				commit_24 = new_scm.addCommit(empty = True, message = 'commit_24')
-				commit_25 = new_scm.addCommit(empty = True, message = 'commit_25')
+				cls.branch[5] = new_scm.addBranch("branch_5", cls.commit[3])
+				new_scm.switchBranch(cls.branch[5])
+				cls.commit[23] = new_scm.addCommit(empty = True, message = 'commit_23')
+				cls.commit[24] = new_scm.addCommit(empty = True, message = 'commit_24')
+				cls.commit[25] = new_scm.addCommit(empty = True, message = 'commit_25')
 				# merge
-				commit_26 = new_scm.merge(branch_5,branch_1)
+				cls.commit[26] = new_scm.merge(cls.branch[5],cls.branch[1])
 				# new branch
-				branch_6 = new_scm.addBranch("branch_6", commit_24)
-				new_scm.switchBranch(branch_6)
-				commit_27 = new_scm.addCommit(empty = True, message = 'commit_27')
-				commit_28 = new_scm.addCommit(empty = True, message = 'commit_28')
+				cls.branch[6] = new_scm.addBranch("branch_6", cls.commit[24])
+				new_scm.switchBranch(cls.branch[6])
+				cls.commit[27] = new_scm.addCommit(empty = True, message = 'commit_27')
+				cls.commit[28] = new_scm.addCommit(empty = True, message = 'commit_28')
 				# add a new commit to the merge of b5 and b1
-				commit_29 = new_scm.addCommit(empty = True, message = 'commit_29')
+				cls.commit[29] = new_scm.addCommit(empty = True, message = 'commit_29')
 				# add new branch
-				branch_7 = new_scm.addBranch("branch_7", commit_29)
-				new_scm.switchBranch(branch_7)
-				commit_30 = new_scm.addCommit(empty = True, message = 'commit_30')
+				cls.branch[7] = new_scm.addBranch("branch_7", cls.commit[29])
+				new_scm.switchBranch(cls.branch[7])
+				cls.commit[30] = new_scm.addCommit(empty = True, message = 'commit_30')
 				# merge
-				commit_31 = new_scm.merge(branch_6,branch_1)
+				cls.commit[31] = new_scm.merge(cls.branch[6],cls.branch[1])
 				# one more new branch - use switch_to_branch
-				branch_8 = new_scm.addBranch("branch_8", commit_23, True)
-				commit_32 = new_scm.addCommit(empty = True, message = 'commit_31')
-				commit_33 = new_scm.addCommit(empty = True, message = 'commit_32')
+				cls.branch[8] = new_scm.addBranch("branch_8", cls.commit[23], True)
+				cls.commit[32] = new_scm.addCommit(empty = True, message = 'commit_31')
+				cls.commit[33] = new_scm.addCommit(empty = True, message = 'commit_32')
 				# now do a tripe merge
-				new_scm.merge(branch_7,branch_1)
-				commit_34 = new_scm.merge(branch_8,branch_1)
+				new_scm.merge(cls.branch[7],cls.branch[1])
+				cls.commit[34] = new_scm.merge(cls.branch[8],cls.branch[1])
 				# now merge that
-				commit_35 = new_scm.merge(branch_4,branch_1)
+				cls.commit[35] = new_scm.merge(cls.branch[4],cls.branch[1])
 				# one more merge
-				commit_36 = new_scm.merge(branch_1,branch_0)
-				commit_37 = new_scm.addCommit(empty = True, message = 'commit_37')
-				commit_38 = new_scm.addCommit(empty = True, message = 'commit_38')
+				cls.commit[36] = new_scm.merge(cls.branch[1],cls.branch[0])
+				cls.commit[37] = new_scm.addCommit(empty = True, message = 'commit_37')
+				cls.commit[38] = new_scm.addCommit(empty = True, message = 'commit_38')
 
 				# now add some hanging branches
 				# this will also be the branch where the diff tests are done.
-				branch_9 = new_scm.addBranch("branch_9", commit_8)
-				new_scm.switchBranch(branch_9)
+				cls.branch[9] = new_scm.addBranch("branch_9", cls.commit[8])
+				new_scm.switchBranch(cls.branch[9])
 				contents = []
 				result += writefile(os.path.join(cls.directory, 'diff_file'), amendDiffArray(contents, diff_set[0][0], diff_set[0][1]))
-				commit_39 = new_scm.addCommit(files = [os.path.join(cls.directory, 'diff_file')], empty = False, message = 'commit_39')
+				cls.commit[39] = new_scm.addCommit(files = [os.path.join(cls.directory, 'diff_file')], empty = False, message = 'commit_39')
 				result += writefile(os.path.join(cls.directory, 'diff_file'), amendDiffArray(contents, diff_set[1][0], diff_set[1][1]))
 				result += writefile(os.path.join(cls.directory, 'test_5'), text_data_2)
-				commit_40 = new_scm.addCommit(files = [os.path.join(cls.directory, 'diff_file'), os.path.join(cls.directory, 'test_5')], empty = False, message = ['commit_40', '', 'this is a multi-line commit message','this will test stuff'])
+				cls.commit[40] = new_scm.addCommit(files = [os.path.join(cls.directory, 'diff_file'), os.path.join(cls.directory, 'test_5')], empty = False, message = ['commit_40', '', 'this is a multi-line commit message','this will test stuff'])
 				result += writefile(os.path.join(cls.directory, 'diff_file'), amendDiffArray(contents, diff_set[2][0], diff_set[2][1]))
-				commit_41 = new_scm.addCommit(files = [os.path.join(cls.directory, 'diff_file')], empty = False, message = 'commit_41')
+				cls.commit[41] = new_scm.addCommit(files = [os.path.join(cls.directory, 'diff_file')], empty = False, message = 'commit_41')
 
 				# and another
-				branch_10 = new_scm.addBranch("branch_10", commit_15)
-				new_scm.switchBranch(branch_10)
+				cls.branch[10] = new_scm.addBranch("branch_10", cls.commit[15])
+				new_scm.switchBranch(cls.branch[10])
 				# add a new file
 				result += writefile(new_scm.generateFileName('test_3'), text_data_2)
-				commit_42 = new_scm.addCommit(files = [os.path.join(cls.directory, 'test_3')], empty = True, message = 'commit_42')
-				commit_43 = new_scm.addCommit(empty = True, message = 'commit_43')
-				commit_44 = new_scm.addCommit(empty = True, message = 'commit_44')
+				cls.commit[42] = new_scm.addCommit(files = [os.path.join(cls.directory, 'test_3')], empty = True, message = 'commit_42')
+				cls.commit[43] = new_scm.addCommit(empty = True, message = 'commit_43')
+				cls.commit[44] = new_scm.addCommit(empty = True, message = 'commit_44')
 				# and one more
-				branch_11 = new_scm.addBranch("branch_11", commit_20)
-				new_scm.switchBranch(branch_11)
-				commit_45 = new_scm.addCommit(empty = True, message = 'commit_45')
-				commit_46 = new_scm.addCommit(empty = True, message = 'commit_46')
-				commit_47 = new_scm.addCommit(empty = True, message = 'commit_47')
+				cls.branch[11] = new_scm.addBranch("branch_11", cls.commit[20])
+				new_scm.switchBranch(cls.branch[11])
+				cls.commit[45] = new_scm.addCommit(empty = True, message = 'commit_45')
+				cls.commit[46] = new_scm.addCommit(empty = True, message = 'commit_46')
+				cls.commit[47] = new_scm.addCommit(empty = True, message = 'commit_47')
 				# and finally
-				branch_12 = new_scm.addBranch("branch_12", commit_26)
-				new_scm.switchBranch(branch_12)
-				commit_48 = new_scm.addCommit(empty = True, message = 'commit_48')
-				commit_49 = new_scm.addCommit(empty = True, message = 'commit_49')
-				commit_50 = new_scm.addCommit(empty = True, message = 'commit_50')
+				cls.branch[12] = new_scm.addBranch("branch_12", cls.commit[26])
+				new_scm.switchBranch(cls.branch[12])
+				cls.commit[48] = new_scm.addCommit(empty = True, message = 'commit_48')
+				cls.commit[49] = new_scm.addCommit(empty = True, message = 'commit_49')
+				cls.commit[50] = new_scm.addCommit(empty = True, message = 'commit_50')
+
 
 	def setUp(self):
 		self.repo = scm.new(self.directory, self.url)
-		print(self.directory, self.repo)
 		self.repo.switchBranch(name='branch_0')
 		self.repo.cleanRepository(deep_clean = True)
 
@@ -220,6 +221,5 @@ class SCMTest(unittest.TestCase):
 					os.chmod(os.path.join(root, name), stat.S_IRWXU)
 
 			shutil.rmtree(cls.directory, ignore_errors=True)
-
 
 # vim: ts=4 sw=4 noexpandtab nocin ai

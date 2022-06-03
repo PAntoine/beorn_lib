@@ -412,9 +412,10 @@ class SourceTree(NestedTreeNode):
 						is_dir  = False
 
 						if is_exist:
-							# TODO: Windows will require extra code to test for a link.
 							is_link = os.path.islink(path_root)
-							is_dir  = os.path.isdir(path_root)
+
+						if part != path_bits[-1]:
+							is_dir = True
 
 						new_node = SourceTree(part)
 						new_node.on_filesystem	= is_exist
@@ -453,9 +454,6 @@ class SourceTree(NestedTreeNode):
 			if path_root.startswith(path):
 				if rebase_tree:
 					self.rebaseTree(os.path.commonprefix([path_root, path]), existing_node)
-			elif not path.startswith(path_root):
-				# TODO: implement adjacent directories - not sure this is a good idea.
-				pass
 			else:
 				path_bits = self.splitPath(path)
 
