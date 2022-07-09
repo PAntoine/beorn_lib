@@ -6,7 +6,7 @@
                      `---'  `----' `---' `--'   `--''--'
 
 # Beorn Lib #
-## version 2.1.1 ##
+## version 2.1.2 ##
 
 This is a platform independent library that has the goal of supplying components for supporting
 text editor plugins. It is designed to allow for coder oriented text plugins to be build and
@@ -35,8 +35,11 @@ This takes the following parameters:
 
 ## Changes ##
 
+Fixes:
+	- On a source tree rebase remember the root is a directory.
+
 Enhancements:
-    - Don't forget the untracked files for Git for SourceTree
+    -
 
 ## Licence and Copyright ##
                    Copyright (c) 2014-2022 Peter Antoine

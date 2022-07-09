@@ -383,6 +383,14 @@ class SourceTree(NestedTreeNode):
 		self.name = os.path.basename(path)
 		new_base = self.addPathBitToTree(parts, path, existing_node)
 
+		if len(old_children) > 0:
+			new_base.is_dir = True
+			path = new_base.getPath()
+			new_base.is_exist = os.path.exists(path)
+
+			if new_base.is_exist:
+				new_base.is_link = os.path.islink(path)
+
 		# append the hold children to the end.
 		for item in old_children:
 			item.parent_node = None
